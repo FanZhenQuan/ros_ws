@@ -1,0 +1,20 @@
+<launch>
+    <group ns="ns1">
+        <arg name="name" value="turtle1" />
+        <node name="$(arg name)" pkg="turtlesim" type="turtlesim_node" />
+    </group>
+    <group ns="ns2">
+        <arg name="name" value="turtle2" />
+        <node name="$(arg name)" pkg="turtlesim" type="turtlesim_node" />
+    </group>
+    <group ns="ns3">
+        <arg name="name" value="turtle3" />
+        <node name="$(arg name)" pkg="turtlesim" type="turtlesim_node" />
+    </group>
+
+    <node pkg="turtlesim" name="teleop" type="turtle_teleop_key" output="screen">
+        <remap from="/turtle1/cmd_vel" to="/ns1/turtle1/cmd_vel"/>
+    </node>
+
+    <node pkg="learning_multirobot" type="echoer.py" name="echoer" />
+</launch>
