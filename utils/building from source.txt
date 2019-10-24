@@ -1,0 +1,6 @@
+cd catkin_ws/src
+git clone repo
+cd catkin_ws
+rosdep update
+rosdep install --from-paths src/ --ignore-src --rosdistro melodic
+catkin_make

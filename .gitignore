@@ -1,0 +1,16 @@
+devel/
+logs/
+build/
+bin/
+lib/
+msg_gen/
+srv_gen/
+.idea
+**/*.cmake
+**/*.make
+**/*.bash
+**/*.sh
+*.cfgc
+/cfg/cpp/
+/cfg/*.py
+CATKIN_IGNORE

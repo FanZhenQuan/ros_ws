@@ -1,0 +1,5 @@
+- guardare ed eventualmente sistemare codice patrolling_sim
+- seguire corso su planning multirobot @ http://u.cs.biu.ac.il/~yehoshr1/
+- sistemare parametri costmap (info sulle sottopagine
+	@ http://wiki.ros.org/costmap_2d#costmap_2d.2BAC8-layered.Layer_Specifications)
+- 
