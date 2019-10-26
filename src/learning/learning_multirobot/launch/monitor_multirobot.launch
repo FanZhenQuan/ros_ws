@@ -1,0 +1,6 @@
+<launch>
+    <node pkg="learning_multirobot" type="team_member.py" name="team_member1" args="1" output="screen"/>
+    <node pkg="learning_multirobot" type="team_member.py" name="team_member2" args="2" output="screen"/>
+    <node pkg="learning_multirobot" type="team_member.py" name="team_member3" args="3" output="screen"/>
+    <node pkg="learning_multirobot" type="team_member.py" name="team_member4" args="4" output="screen"/>
+</launch>

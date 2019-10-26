@@ -5,7 +5,7 @@ import os
 
 
 if __name__ == '__main__':
-    path_to_file = '/home/davide/ros-ws/src/learning/learning_navigation/maps/mymap.yaml'
+    path_to_file = '/home/davide/ros_ws/src/learning/learning_navigation/maps/mymap.yaml'
 
     try:
         open(path_to_file, 'r')

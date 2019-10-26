@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+"""
+QUESTO NODO SERVE A FARE ECHO DEI COMANDI DI TIPO cmd_vel
+RICEVUTI DALLA TURTLE_1 VERSO LE ALTRE DUE TURTLE
+"""
+
 import rospy
 from geometry_msgs.msg import Twist
 
