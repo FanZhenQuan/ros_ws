@@ -120,6 +120,9 @@ fi
 alias ross="source /home/davide/ros_ws/devel/setup.bash"
 ross
 
+# pycharm working
+alias pycharm="ross && cd /snap/pycharm-community/current/bin/ && source pycharm.sh"
+
 # making patrolling_sim work
 export ROS_WORKSPACE="/home/davide/ros_ws"
 
