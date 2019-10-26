@@ -5,7 +5,6 @@ bin/
 lib/
 msg_gen/
 srv_gen/
-.idea
 **/*.cmake
 **/*.make
 **/*.bash

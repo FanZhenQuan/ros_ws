@@ -3,23 +3,31 @@
 import rospy
 import sys
 from learning_multirobot.msg import RobotStatus
-from std_msgs.msg import String
+from std_msgs.msg import Header
 
 
-def main():
-    try:
-        robotname = sys.argv[1]
-        rospy.init_node('robot' + robotname)
-    except:
-        rospy.logerr('Errore: id del robot mancante')
+class Robot(object):
+    id = None
 
-    rate = rospy.Rate(1)
+    def __init__(self):
+        self.id = sys.argv[1]
+        rospy.init_node('robot' + self.id)
 
-    while not rospy.is_shutdown():
-        rospy.Publisher('bo', String, queue_size=5).publish('Args [1]: '+ sys.argv[1] )
+    def publish_ready_state(self, topic):
+        header = Header()
+        header.stamp = rospy.Time.now()
 
-        rate.sleep()
+        msg = RobotStatus()
+        msg.is_ready = True
+        msg.robot_id = self.id
+        msg.header = header
+
+        pub = rospy.Publisher(topic, RobotStatus, queue_size=10)
+        pub.publish(msg)
 
 
 if __name__ == '__main__':
-    main()
+    robot = Robot()
+    robot.publish_ready_state(topic='team_status')
+
+    rospy.spin()
