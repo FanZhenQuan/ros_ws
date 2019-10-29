@@ -5,4 +5,9 @@
     <node pkg="learning_multirobot" type="team_member.py" name="team_member2" output="screen" args="2"/>
     <node pkg="learning_multirobot" type="team_member.py" name="team_member3" output="screen" args="3"/>
     <node pkg="learning_multirobot" type="team_member.py" name="team_member4" output="screen" args="4"/>
+
+    <node pkg="turtlesim" type="turtlesim_node" name="turtle1" ns="turtle1"/>
+    <node pkg="turtlesim" type="turtlesim_node" name="turtle2" ns="turtle2"/>
+    <node pkg="turtlesim" type="turtlesim_node" name="turtle3" ns="turtle3"/>
+    <node pkg="turtlesim" type="turtlesim_node" name="turtle4" ns="turtle4"/>
 </launch>

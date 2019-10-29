@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import subprocess
-import os
+import sys
 
 
 if __name__ == '__main__':
@@ -11,8 +11,8 @@ if __name__ == '__main__':
         open(path_to_file, 'r')
 
         subprocess.call(['roslaunch', 'turtlebot3_gazebo', 'amcl_with_map.launch'])
-        os._exit(1)
+        sys.exit(1)
     except IOError:
         subprocess.call(['roslaunch', 'turtlebot3_gazebo', 'gmapping.launch'])
     except KeyboardInterrupt:
-        os._exit(1)
+        sys.exit(1)

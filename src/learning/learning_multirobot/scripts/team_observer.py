@@ -1,16 +1,21 @@
 #!/usr/bin/env python
 
 import rospy
-from learning_multirobot.msg import RobotStatus
+import random
+from learning_multirobot.msg import RobotStatus, Mission
 from std_msgs.msg import String
 
 
 class Observer(object):
     members_ready = team_size = 0
+    assignement_rate = None
 
-    def __init__(self, team_size):
-        self.team_size = team_size
+    def __init__(self, team_size, assignment_rate):
         rospy.init_node('observer')
+        rospy.on_shutdown(self.abort_mission)
+
+        self.team_size = team_size
+        self.assignment_rate = rospy.Rate(assignment_rate)
 
     def wait_for_members(self, listen_topic):
         rospy.Subscriber(listen_topic, RobotStatus, self.update_team_status)
@@ -32,9 +37,67 @@ class Observer(object):
 
         pub.publish('Ready')
 
+    def assign_missions(self, missions_topic):
+        dispatcher = rospy.Publisher(missions_topic, Mission, queue_size=self.team_size * 2)
+
+        current_assignment = 1
+        mission_id = 0
+
+        while dispatcher.get_num_connections() < self.team_size:
+            rospy.sleep(0.5)
+
+        rospy.loginfo('-----------------------------')
+        rospy.loginfo('Observer: assigning missions')
+
+        while not rospy.is_shutdown():
+            mission = Mission()
+            task = Task()
+
+            mission.robot_id = current_assignment
+            mission.mission_id = mission_id
+            mission.name = task.name
+            mission.action = task.action
+
+            dispatcher.publish(mission)
+
+            # aumenta di 1 il contatore del robot, cosi' da dare
+            # un incarico al robot successivo
+            if current_assignment == self.team_size:
+                current_assignment = 1
+            else:
+                current_assignment += 1
+
+            mission_id += 1
+            self.assignment_rate.sleep()
+
+    def abort_mission(self):
+        rospy.loginfo('-----------------------------')
+        rospy.loginfo('Observer: aborting mission...')
+
+
+class Task(object):
+    __names = ['walk', 'rotate', 'report']
+    __directions = [1, -1]  # avanti | indietro
+    __steer_angle = range(-180, 181)
+
+    def __init__(self):
+        self.name = random.choice(self.__names)
+
+        if self.name == 'walk':
+            self.action = random.choice(self.__directions)
+        elif self.name == 'rotate':
+            self.action = random.choice(self.__steer_angle)
+        elif self.name == 'report':
+            self.action = float('-inf')
+
 
 if __name__ == '__main__':
-    observer = Observer(team_size=4)
-    observer.wait_for_members(listen_topic='team_status')
+    try:
+        observer = Observer(team_size=4, assignment_rate=4)
+        observer.wait_for_members(listen_topic='team_status')
 
-    rospy.spin()
+        observer.assign_missions(missions_topic='missions')
+
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass
