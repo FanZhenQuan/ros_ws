@@ -92,10 +92,13 @@ class Robot(object):
 
 
 if __name__ == '__main__':
-    robot = Robot()
-    robot.publish_ready_state(topic='team_status')
-    robot.wait_for_start(topic='start_mission')
+    try:
+        robot = Robot()
+        robot.publish_ready_state(topic='team_status')
+        robot.wait_for_start(topic='start_mission')
 
-    robot.handle_mission(mission_topic='missions')
+        robot.handle_mission(mission_topic='missions')
 
-    rospy.spin()
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass

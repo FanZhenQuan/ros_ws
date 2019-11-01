@@ -13,4 +13,3 @@ srv_gen/
 *.cfgc
 /cfg/cpp/
 /cfg/*.py
-CATKIN_IGNORE

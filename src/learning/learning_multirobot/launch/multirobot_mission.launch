@@ -1,6 +1,6 @@
 <launch>
-	<node name="stage" pkg="stage_ros" type="stageros" args="$(find stage_multi)/world/willow-multi-erratic.world"/>
-	
+	<!-- <node name="stage" pkg="stage_ros" type="stageros" args="$(find learning_navigation)/worlds/turtlebot3_house.world" /> -->
+    
     <node pkg="learning_multirobot" type="team_observer.py" name="observer" output="screen" />
 
     <node pkg="learning_multirobot" type="team_member.py" name="team_member1" output="screen" args="1"/>
