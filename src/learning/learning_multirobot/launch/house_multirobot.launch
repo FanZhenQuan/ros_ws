@@ -2,10 +2,10 @@
 	<arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
 	<arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
 	<arg name="teleop_new_window" default="" doc="change with 'gnome-terminal --command'" />
-
 	<arg name="robot_1" value="robot_1" />
 	<arg name="robot_2" value="robot_2" />
 
+	<!-- GAZEBO -->
 	<include file="$(find learning_multirobot)/launch/includes/main_gazebo.launch">
 		<arg name="world_name" value="$(find learning_multirobot)/worlds/turtlebot3_house.world"/>
 		<arg name="paused" value="false"/>
@@ -14,6 +14,9 @@
 		<arg name="headless" value="false"/>
 		<arg name="debug" value="false"/>
 	</include>
+
+	<!-- map server -->
+	<node pkg="map_server" type="map_server" name="map_loader" args="$(find learning_navigation)/maps/mymap.yaml" />
 
 	<group ns="$(arg robot_1)">
 		<arg name="x_pos" default="-3.0"/>
@@ -87,9 +90,6 @@
 			<rosparam file="$(find learning_multirobot)/param/move_base_params.yaml" command="load" />
 		</node> -->
 	</group>
-
-	<!-- map server -->
-	<node pkg="map_server" type="map_server" name="map_loader" args="$(find learning_navigation)/maps/mymap.yaml" />
 
 	<!-- RVIZ -->
 	<include file="$(find learning_multirobot)/rviz/turtlebot3_remote.launch">
