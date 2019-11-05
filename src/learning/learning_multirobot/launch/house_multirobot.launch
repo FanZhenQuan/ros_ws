@@ -2,6 +2,7 @@
 	<arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
 	<arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
 	<arg name="teleop_new_window" default="" doc="change with 'gnome-terminal --command'" />
+
 	<arg name="robot_1" value="robot_1" />
 	<arg name="robot_2" value="robot_2" />
 
@@ -19,30 +20,28 @@
 	<node pkg="map_server" type="map_server" name="map_loader" args="$(find learning_navigation)/maps/mymap.yaml" />
 
 	<group ns="$(arg robot_1)">
+		<param name="tf_prefix" value="$(arg robot_1)" />
 		<arg name="x_pos" default="-3.0"/>
 		<arg name="y_pos" default="1.0"/>
 		<arg name="z_pos" default="0.0"/>
-		<param name="robot_description" command="$(find xacro)/xacro $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+		<param name="robot_description" command="$(find xacro)/xacro $(find learning_multirobot)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
 		<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg robot_1) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
 
-		<!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
-			<param name="publish_frequency" type="double" value="50.0" />
-			<param name="tf_prefix" value="$(arg robot_1)" />
-		</node> -->
+		<!--<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >-->
+		<!--	<param name="publish_frequency" type="double" value="50.0" />-->
+		<!--	<param name="tf_prefix" value="$(arg robot_1)" />-->
+		<!--</node>-->
 
-		<!-- teleop -->
-		<!-- <node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen" launch-prefix="$(arg teleop_new_window)" /> -->
-
-		<!-- AMCL -->
+		<!--AMCL -->
 		<node pkg="amcl" type="amcl" name="amcl" args="scan:=scan">
 			<param name="initial_pose_x" value="$(arg x_pos)" />
 			<param name="initial_pose_y" value="$(arg y_pos)" />
-<!--			<param name="use_map_topic" value="true" />-->
-			<param name="global_frame_id" value="/map" />
-			<param name="odom_frame_id" value="/odom" />
-			<param name="base_frame_id" value="/$(arg robot_1)/base_frame" />
+			<param name="use_map_topic" value="true" />
 			<param name="first_map_only" value="true" />
+			<param name="global_frame_id" value="/map" />
+			<param name="odom_frame_id" value="/$(arg robot_1)/odom" />
+			<param name="base_frame_id" value="/$(arg robot_1)/base_frame" />
 		</node>
 
 		<!-- move_base node -->
@@ -60,24 +59,25 @@
 		<arg name="x_pos" default="0.0"/>
 		<arg name="y_pos" default="0.0"/>
 		<arg name="z_pos" default="0.0"/>
-		<param name="robot_description" command="$(find xacro)/xacro $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+		<param name="tf_prefix" value="$(arg robot_2)" />
+		<param name="robot_description" command="$(find xacro)/xacro $(find learning_multirobot)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
 		<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg robot_2) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
 
-		<!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+		<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
 			<param name="publish_frequency" type="double" value="50.0" />
 			<param name="tf_prefix" value="$(arg robot_2)" />
-		</node> -->
+		</node>
 
-		<!-- teleop -->
-		<!-- <node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen" launch-prefix="$(arg teleop_new_window)" /> -->
-
-		<!-- AMCL -->
+		<!--AMCL -->
 		<node pkg="amcl" type="amcl" name="amcl" args="scan:=scan">
 			<param name="initial_pose_x" value="$(arg x_pos)" />
 			<param name="initial_pose_y" value="$(arg y_pos)" />
-<!--			<param name="use_map_topic" value="true" />-->
+			<param name="use_map_topic" value="true" />
 			<param name="first_map_only" value="true" />
+			<param name="global_frame_id" value="/map" />
+			<param name="odom_frame_id" value="/$(arg robot_2)/odom" />
+			<param name="base_frame_id" value="/$(arg robot_2)/base_frame" />
 		</node>
 
 		<!-- move_base node -->
@@ -96,9 +96,6 @@
 		<arg name="model" value="$(arg model)"/>
 	</include>
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/complete_config.rviz"/>
-
-	<!-- check if map is stored -->
-	<!-- <node pkg="learning_navigation" type="load_map_or_gmapp.py" name="load_map_or_gmapp" /> -->
 
 	<!-- rqt_configure -->
 	<!-- <node pkg="rqt_configure" type="rqt_configure" name="rqt_configure" /> -->
