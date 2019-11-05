@@ -6,10 +6,13 @@ bin/
 lib/
 msg_gen/
 srv_gen/
+
 **/*.cmake
 **/*.make
 **/*.bash
 **/*.sh
+**/*.rviz
 *.cfgc
+
 /cfg/cpp/
 /cfg/*.py
