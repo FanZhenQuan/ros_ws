@@ -17,12 +17,11 @@
 
     <!--AMCL -->
     <node pkg="amcl" type="amcl" name="amcl" args="scan:=scan">
+        <remap from="static_map" to="/static_map"/>
         <param name="initial_pose_x" value="$(arg x_pos)" />
         <param name="initial_pose_y" value="$(arg y_pos)" />
-        <param name="use_map_topic" value="true" />
-        <param name="first_map_only" value="true" />
-        <!--<param name="global_frame_id" value="/map" />-->
-        <!--<param name="odom_frame_id" value="/$(arg robot_1)/odom" />-->
-        <!--<param name="base_frame_id" value="/$(arg robot_1)/base_frame" />-->
+        <param name="global_frame_id" value="map" />
+        <param name="odom_frame_id" value="$(arg robot_name)/odom" />
+        <param name="base_frame_id" value="$(arg robot_name)/base_link" />
     </node>
 </launch>

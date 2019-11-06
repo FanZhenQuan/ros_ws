@@ -14,6 +14,9 @@
 		<arg name="debug" value="false"/>
 	</include>
 
+    <!-- map server -->
+	<node pkg="map_server" type="map_server" name="map_loader" args="$(find learning_navigation)/maps/mymap.yaml" />
+    
     <!--robot 1-->
     <group ns="$(arg robot_1)">
         <include file="$(find learning_multirobot)/launch/one_robot.launch">
@@ -33,9 +36,6 @@
             <arg name="z_pos" value="0" />
         </include>
     </group>
-
-    <!-- map server -->
-	<node pkg="map_server" type="map_server" name="map_loader" args="$(find learning_navigation)/maps/mymap.yaml" />
 
     <!-- RVIZ -->
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/complete_config.rviz"/>
