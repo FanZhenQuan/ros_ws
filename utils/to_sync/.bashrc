@@ -143,3 +143,6 @@ alias cm="catkin_make"
 
 # alias for killing all gazebo
 alias kill_gz='killall gzclient && killall gzserver'
+
+# alias view tf frames
+alias view_frames='rosrun tf view_frames && evince frames.pdf'
