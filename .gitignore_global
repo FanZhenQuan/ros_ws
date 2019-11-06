@@ -1,6 +1,0 @@
-**/*.cmake
-**/*.make
-**/*.bash
-**/*.sh
-**/*.rviz
-*.cfgc

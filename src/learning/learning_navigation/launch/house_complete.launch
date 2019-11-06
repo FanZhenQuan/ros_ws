@@ -1,12 +1,13 @@
 <launch>
-	<arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
 	<arg name="x_pos" default="-3.0"/>
 	<arg name="y_pos" default="1.0"/>
 	<arg name="z_pos" default="0.0"/>
+	<arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
 	<arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
 	<arg name="teleop_new_window" default="" doc="change with 'gnome-terminal --command'" />
 	<arg name="map_dir" value="$(find learning_navigation)/maps/mymap.yaml" />
 
+	<!--gazebo-->
 	<include file="$(find learning_navigation)/launch/main_gazebo.launch">
 		<arg name="world_name" value="$(find learning_navigation)/worlds/turtlebot3_house.world"/>
 		<arg name="paused" value="false"/>
@@ -16,30 +17,32 @@
 		<arg name="debug" value="false"/>
 	</include>
 
-	<param name="robot_description" command="$(find xacro)/xacro $(find learning_navigation)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+	<!--tbot bringup-->
+	<include file="$(find learning_navigation)/launch/includes/turtlebot3_remote.launch">
+		<arg name="model" value="$(arg model)"/>
+	</include>
+
+	<!--spawner-->
 	<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
 
 	<!-- teleop -->
 	<node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen" launch-prefix="$(arg teleop_new_window)" />
 
 	<!-- RVIZ -->
-	<include file="$(find learning_navigation)/rviz/turtlebot3_remote.launch">
-		<arg name="model" value="$(arg model)"/>
-	</include>
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_navigation)/rviz/complete_config.rviz"/>
 
 	<!-- AMCL -->
 	<include file="$(find learning_navigation)/launch/amcl_with_map.launch" if="$(eval open(map_dir) != False)" />
 
-	<!-- move_base node -->
-<!--	<node pkg="move_base" type="move_base" name="move_base" >-->
-<!--		&lt;!&ndash; <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" /> &ndash;&gt;-->
-<!--		<rosparam file="$(find learning_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap" />-->
-<!--		<rosparam file="$(find learning_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" ns="local_costmap" />-->
-<!--		&lt;!&ndash; <rosparam file="$(find learning_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" /> &ndash;&gt;-->
-<!--		<rosparam file="$(find learning_navigation)/param/local_costmap_params.yaml" command="load" />-->
-<!--		<rosparam file="$(find learning_navigation)/param/global_costmap_params.yaml" command="load" />-->
-<!--		<rosparam file="$(find learning_navigation)/param/dwa_local_planner_params_$(arg model).yaml" command="load" />-->
-<!--		<rosparam file="$(find learning_navigation)/param/move_base_params.yaml" command="load" />-->
-<!--	</node>-->
+	 <!--move_base node -->
+	<node pkg="move_base" type="move_base" name="move_base" >
+		<!-- <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" /> -->
+		<rosparam file="$(find learning_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find learning_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" ns="local_costmap" />
+		<!-- <rosparam file="$(find learning_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" /> -->
+		<rosparam file="$(find learning_navigation)/param/local_costmap_params.yaml" command="load" />
+		<rosparam file="$(find learning_navigation)/param/global_costmap_params.yaml" command="load" />
+		<rosparam file="$(find learning_navigation)/param/dwa_local_planner_params_$(arg model).yaml" command="load" />
+		<rosparam file="$(find learning_navigation)/param/move_base_params.yaml" command="load" />
+	</node>
 </launch>

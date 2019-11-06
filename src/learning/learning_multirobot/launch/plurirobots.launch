@@ -1,0 +1,42 @@
+<launch>
+    <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+    <arg name="robot_1" value="robot_1" />
+    <arg name="robot_2" value="robot_2" />
+    <arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
+
+    <!-- GAZEBO -->
+	<include file="$(find learning_multirobot)/launch/includes/main_gazebo.launch">
+		<arg name="world_name" value="$(find learning_multirobot)/worlds/turtlebot3_house.world"/>
+		<arg name="paused" value="false"/>
+		<arg name="use_sim_time" value="true"/>
+		<arg name="gui" value="$(arg gazebo_gui)"/>
+		<arg name="headless" value="false"/>
+		<arg name="debug" value="false"/>
+	</include>
+
+    <!--robot 1-->
+    <group ns="$(arg robot_1)">
+        <include file="$(find learning_multirobot)/launch/one_robot.launch">
+            <arg name="robot_name" value="$(arg robot_1)" />
+            <arg name="x_pos" value="0" />
+            <arg name="y_pos" value="0" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
+
+    <!--robot 2-->
+    <group ns="$(arg robot_2)">
+        <include file="$(find learning_multirobot)/launch/one_robot.launch">
+            <arg name="robot_name" value="$(arg robot_2)" />
+            <arg name="x_pos" value="-3" />
+            <arg name="y_pos" value="1" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
+
+    <!-- map server -->
+	<node pkg="map_server" type="map_server" name="map_loader" args="$(find learning_navigation)/maps/mymap.yaml" />
+
+    <!-- RVIZ -->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/complete_config.rviz"/>
+</launch>
