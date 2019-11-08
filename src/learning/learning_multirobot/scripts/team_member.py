@@ -61,7 +61,7 @@ class Robot(object):
 
         debug_msg = 'Robot %s: spostamento di valore %s' % (self.id, direction*2)
         print debug_msg  # rospy.loginfo(debug_msg)
-
+        obj
         tw = Twist(linear, angular)
 
         self.publish_mission(tw)

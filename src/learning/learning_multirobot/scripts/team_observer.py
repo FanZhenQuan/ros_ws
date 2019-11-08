@@ -10,12 +10,15 @@ class Observer(object):
     members_ready = team_size = 0
     assignement_rate = None
 
-    def __init__(self, team_size, assignment_rate):
-        rospy.init_node('observer')
-        rospy.on_shutdown(self.abort_mission)
-
-        self.team_size = team_size
-        self.assignment_rate = rospy.Rate(assignment_rate)
+    def __init__(self, team_size=None, assignment_rate=None):
+        if team_size is None or assignment_rate is None:
+            raise TypeError('Observer takes two arguments: team_size and assignement_rate')
+        else:
+            rospy.init_node('observer')
+            rospy.on_shutdown(self.abort_mission)
+    
+            self.team_size = team_size
+            self.assignment_rate = rospy.Rate(assignment_rate)
 
     def wait_for_members(self, listen_topic):
         rospy.Subscriber(listen_topic, RobotStatus, self.update_team_status)
@@ -40,8 +43,8 @@ class Observer(object):
     def assign_missions(self, missions_topic):
         dispatcher = rospy.Publisher(missions_topic, Mission, queue_size=self.team_size * 2)
 
-        current_assignment = 1
-        mission_id = 0
+        __current_robot_assignment = 1
+        __mission_id = 0
 
         while dispatcher.get_num_connections() < self.team_size:
             rospy.sleep(0.5)
@@ -51,10 +54,10 @@ class Observer(object):
 
         while not rospy.is_shutdown():
             mission = Mission()
-            task = Task()
+            task = Task()  # genera un Task random, vedi classe definita sotto
 
-            mission.robot_id = current_assignment
-            mission.mission_id = mission_id
+            mission.robot_id = __current_robot_assignment
+            mission.mission_id = __mission_id
             mission.name = task.name
             mission.action = task.action
 
@@ -62,12 +65,12 @@ class Observer(object):
 
             # aumenta di 1 il contatore del robot, cosi' da dare
             # un incarico al robot successivo
-            if current_assignment == self.team_size:
-                current_assignment = 1
+            if __current_robot_assignment == self.team_size:
+                __current_robot_assignment = 1
             else:
-                current_assignment += 1
+                __current_robot_assignment += 1
 
-            mission_id += 1
+            __mission_id += 1
             self.assignment_rate.sleep()
 
     def abort_mission(self):
