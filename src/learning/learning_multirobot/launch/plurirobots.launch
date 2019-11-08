@@ -1,5 +1,4 @@
 <launch>
-    <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
     <arg name="robot_1" value="robot_1" />
     <arg name="robot_2" value="robot_2" />
     <arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
@@ -21,8 +20,8 @@
     <group ns="$(arg robot_1)">
         <include file="$(find learning_multirobot)/launch/one_robot.launch">
             <arg name="robot_name" value="$(arg robot_1)" />
-            <arg name="x_pos" value="0" />
-            <arg name="y_pos" value="0" />
+            <arg name="x_pos" value="4" />
+            <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
         </include>
     </group>
@@ -38,5 +37,5 @@
     </group>
 
     <!-- RVIZ -->
-	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/complete_config.rviz"/>
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/multirobot_config.rviz"/>
 </launch>
