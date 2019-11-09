@@ -1,0 +1,16 @@
+<launch>
+    <!-- @ REQUIRED: x e y coordinate di spawn per init del modello MC; nome del robot -->
+    <arg name="robot_name" />
+    <arg name="x_pos" />
+    <arg name="y_pos" />
+
+    <!--AMCL -->
+    <node pkg="amcl" type="amcl" name="amcl" args="scan:=scan">
+        <remap from="static_map" to="/static_map" />
+        <param name="initial_pose_x" value="$(arg x_pos)" />
+        <param name="initial_pose_y" value="$(arg y_pos)" />
+        <param name="global_frame_id" value="map" />
+        <param name="odom_frame_id" value="$(arg robot_name)/odom" />
+        <param name="base_frame_id" value="$(arg robot_name)/base_link" />
+    </node>
+</launch>
