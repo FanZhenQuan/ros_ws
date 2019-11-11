@@ -1,5 +1,0 @@
-<launch>
-    <arg name="file_dir" value="/home/davide/ros_ws/src/learning/learning_navigation/maps/mymap.yaml" />
-
-    <node pkg="my_fun" type="test1.py" name="found" if="$(eval open(file_dir) != None)"/>
-</launch>
