@@ -5,28 +5,22 @@
 
     <node pkg="move_base" type="move_base" name="move_base" >
         <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
-
-        <!--<rosparam file="$(find learning_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" />-->
-        <rosparam file="$(find learning_multirobot)/param/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap" />
-        <rosparam file="$(find learning_multirobot)/param/costmap_common_params_$(arg model).yaml" command="load" ns="local_costmap" />
-		<rosparam file="$(find learning_multirobot)/param/local_costmap_params.yaml" command="load" />
-		<rosparam file="$(find learning_multirobot)/param/global_costmap_params.yaml" command="load" />
-        <!--<rosparam file="$(find learning_multirobot)/param/global_planner_params.yaml" command="load" />-->
-		<rosparam file="$(find learning_multirobot)/param/dwa_local_planner_params_$(arg model).yaml" command="load" />
-		<rosparam file="$(find learning_multirobot)/param/move_base_params.yaml" command="load" />
+        <param name="robot_base_frame" value="$(arg robot_name)/base_footprint" />
 
         <remap from="odom" to="/$(arg robot_name)/odom" />
         <remap from="map" to="/map" />
         <remap from="scan" to="/$(arg robot_name)/scan" />
-        <remap from="/move_base_simple/goal" to="/$(arg robot_name)/move_base_simple/goal" />
         <remap from="/DWAPlannerROS" to="/$(arg robot_name)/DWAPlannerROS" />
         <remap from="/move_base/local_costmap" to="/$(arg robot_name)/move_base/local_costmap" />
         <remap from="/move_base/global_costmap" to="/$(arg robot_name)/move_base/global_costmap" />
-        <!--<remap from="" to="/$(arg robot_name)" />-->
 
-        <!--<remap from="global_planner" to="$(arg robot_name)/move_base/global_planner" />-->
-        <!--<remap from="/DWAPlannerROS" to="$(arg robot_name)/move_base/DWAPlannerROS" />-->
-        <!--<remap from="/move_base/local_costmap" to="$(arg robot_name)/move_base/local_costmap" />-->
-        <!--<remap from="/move_base/global_costmap" to="$(arg robot_name)/move_base/global_costmap" />-->
+        <!--<rosparam file="$(find learning_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" />-->
+        <rosparam file="$(find learning_multirobot)/param/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find learning_multirobot)/param/costmap_common_params_$(arg model).yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find learning_multirobot)/param/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find learning_multirobot)/param/global_costmap_params.yaml" command="load" />
+        <!--<rosparam file="$(find learning_multirobot)/param/global_planner_params.yaml" command="load" />-->
+        <rosparam file="$(find learning_multirobot)/param/dwa_local_planner_params_$(arg model).yaml" command="load" />
+        <rosparam file="$(find learning_multirobot)/param/move_base_params.yaml" command="load" />
 	</node>
 </launch>

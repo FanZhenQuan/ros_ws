@@ -1,3 +1,2 @@
-runnare il comando
-
-sudo apt-get install ros-melodic-navigation
+- dare un'occhiata a questa pagina (markers Rviz)
+	@ http://wiki.ros.org/rviz/Tutorials/Interactive%20Markers%3A%20Getting%20Started

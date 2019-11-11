@@ -27,14 +27,14 @@
     </group>
 
     <!--robot 2-->
-    <group ns="$(arg robot_2)">
-        <include file="$(find learning_multirobot)/launch/one_robot.launch">
-            <arg name="robot_name" value="$(arg robot_2)" />
-            <arg name="x_pos" value="-3" />
-            <arg name="y_pos" value="1" />
-            <arg name="z_pos" value="0" />
-        </include>
-    </group>
+    <!--<group ns="$(arg robot_2)">-->
+    <!--    <include file="$(find learning_multirobot)/launch/one_robot.launch">-->
+    <!--        <arg name="robot_name" value="$(arg robot_2)" />-->
+    <!--        <arg name="x_pos" value="-3" />-->
+    <!--        <arg name="y_pos" value="1" />-->
+    <!--        <arg name="z_pos" value="0" />-->
+    <!--    </include>-->
+    <!--</group>-->
 
     <!-- RVIZ -->
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/multirobot_config.rviz"/>

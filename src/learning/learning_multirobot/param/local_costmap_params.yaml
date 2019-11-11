@@ -1,6 +1,7 @@
 local_costmap:
   global_frame: map
-  robot_base_frame: base_footprint
+#  robot_base_frame: base_footprint
+#  TODO: eliminare
 
   update_frequency: 60.0
   publish_frequency: 60.0
