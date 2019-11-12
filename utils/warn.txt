@@ -1,0 +1,1 @@
+[ WARN] [1573556920.087568294, 15.021000000]: Timed out waiting for transform from base_link to map to become available before running costmap, tf error: canTransform: source_frame base_link does not exist.. canTransform returned after 0.1 timeout was 0.1.
