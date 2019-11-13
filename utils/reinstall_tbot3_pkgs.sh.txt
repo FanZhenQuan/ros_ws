@@ -1,0 +1,1 @@
+sudo apt-get install ros-melodic-turtlebot3 ros-melodic-turtlebot3-msgs ros-melodic-turtlebot3-simulations ros-melodic-turtlebot3-applications
