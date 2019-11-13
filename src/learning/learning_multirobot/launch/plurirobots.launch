@@ -14,7 +14,7 @@
     </include>
 
     <!-- map server -->
-    <node pkg="map_server" type="map_server" name="map_loader" args="$(find learning_navigation)/maps/mymap.yaml" />
+    <node pkg="map_server" type="map_server" name="map_loader" args="$(find learning_multirobot)/maps/mymap.yaml" />
 
     <!--robot 1-->
     <group ns="$(arg robot_1)">

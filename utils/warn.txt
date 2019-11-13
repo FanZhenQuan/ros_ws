@@ -1,1 +1,9 @@
 [ WARN] [1573556920.087568294, 15.021000000]: Timed out waiting for transform from base_link to map to become available before running costmap, tf error: canTransform: source_frame base_link does not exist.. canTransform returned after 0.1 timeout was 0.1.
+
+- one_robot.launch: https://pastebin.com/jhSvEbHR
+- multirobot.launch: https://pastebin.com/zDz27Rnq
+- local costmap: https://pastebin.com/ia5gEGpS
+- global costmap: https://pastebin.com/0g8EhH8w
+- costmap common params: https://pastebin.com/CcVTZxnK
+- dwa planner: https://pastebin.com/Y8DgZNTQ
+- move_base: https://pastebin.com/9d8c2Uwi

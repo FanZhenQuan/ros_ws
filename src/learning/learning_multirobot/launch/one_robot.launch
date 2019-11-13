@@ -1,12 +1,10 @@
 <launch>
     <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
-    <!-- @ REQUIRED @ nome del robot e spawn position -->
+    <!-- @ REQUIRED @ robot name (same as namespace) and spawn position -->
     <arg name="robot_name" />
     <arg name="x_pos" />
     <arg name="y_pos" />
     <arg name="z_pos" />
-
-    <param name="tf_prefix" value="$(arg robot_name)" />
 
     <!-- tbot bringup -->
     <include file="$(find learning_multirobot)/launch/includes/turtlebot3_remote.launch">
