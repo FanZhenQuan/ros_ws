@@ -18,7 +18,7 @@
 
         <param name="global_costmap/global_frame" value="map" />
         <param name="global_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint" />
-        <param name="local_costmap/global_frame" value="$(arg robot_name)/odom" />
+        <param name="local_costmap/global_frame" value="map" />
         <param name="local_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint" />
 
         <!-- REMAPS -->

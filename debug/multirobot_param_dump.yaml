@@ -1,0 +1,129 @@
+gazebo: {auto_disable_bodies: false, cfm: 1.0e-05, contact_max_correcting_vel: 2000.0,
+  contact_surface_layer: 0.01, enable_ros_network: true, erp: 0.2, gravity_x: 0.0,
+  gravity_y: 0.0, gravity_z: -9.8, max_contacts: 20, max_update_rate: 1000.0, sor_pgs_iters: 150,
+  sor_pgs_precon_iters: 0, sor_pgs_rms_error_tol: 0.0, sor_pgs_w: 1.4, time_step: 0.001}
+robot_1:
+  amcl: {base_frame_id: robot_1/base_footprint, beam_skip_distance: 0.5, beam_skip_threshold: 0.3,
+    do_beamskip: false, first_map_only: true, global_frame_id: /map, gui_publish_rate: 10.0,
+    initial_cov_aa: 0.06848905809146005, initial_cov_xx: 0.24706530415604533, initial_cov_yy: 0.24600273131241746,
+    initial_pose_a: 0.0002636951556379413, initial_pose_x: 4.012770867783861, initial_pose_y: 0.9981571383519454,
+    kld_err: 0.01, kld_z: 0.99, laser_lambda_short: 0.1, laser_likelihood_max_dist: 2.0,
+    laser_max_beams: 30, laser_max_range: -1.0, laser_min_range: -1.0, laser_model_type: likelihood_field,
+    laser_sigma_hit: 0.2, laser_z_hit: 0.95, laser_z_max: 0.05, laser_z_rand: 0.05,
+    laser_z_short: 0.1, max_particles: 5000, min_particles: 100, odom_alpha1: 0.2,
+    odom_alpha2: 0.2, odom_alpha3: 0.2, odom_alpha4: 0.2, odom_alpha5: 0.2, odom_frame_id: robot_1/odom,
+    odom_model_type: diff, recovery_alpha_fast: 0.0, recovery_alpha_slow: 0.0, resample_interval: 2,
+    restore_defaults: false, save_pose_rate: 0.5, tf_broadcast: true, transform_tolerance: 0.1,
+    update_min_a: 0.523598775598, update_min_d: 0.2, use_map_topic: false}
+  camera:
+    imager_rate: 2.0
+    rgb:
+      image_raw:
+        compressed: {format: jpeg, jpeg_quality: 80, png_level: 9}
+        compressedDepth: {depth_max: 10.0, depth_quantization: 100.0, png_level: 9}
+        theora: {keyframe_frequency: 64, optimize_for: 1, quality: 31, target_bitrate: 800000}
+  move_base:
+    DWAPlannerROS: {acc_lim_theta: 3.2, acc_lim_trans: 0.1, acc_lim_x: 2.5, acc_lim_y: 0.0,
+      angular_sim_granularity: 0.1, controller_frequency: 20.0, forward_point_distance: 0.325,
+      global_frame_id: /robot_1/odom, goal_distance_bias: 100.0, latch_xy_goal_tolerance: false,
+      max_rot_vel: 1.82, max_scaling_factor: 0.2, max_trans_vel: 0.26, max_vel_theta: 1.0,
+      max_vel_trans: 0.55, max_vel_x: 0.26, max_vel_y: 0.0, min_rot_vel: 0.9, min_trans_vel: 0.13,
+      min_vel_theta: 0.4, min_vel_trans: 0.1, min_vel_x: -0.26, min_vel_y: 0.0, occdist_scale: 0.02,
+      oscillation_reset_angle: 0.2, oscillation_reset_dist: 0.1, path_distance_bias: 100.0,
+      prune_plan: false, publish_cost_grid_pc: true, publish_traj_pc: true, restore_defaults: false,
+      scaling_speed: 0.25, sim_granularity: 0.025, sim_time: 2.0, stop_time_buffer: 0.2,
+      theta_stopped_vel: 0.1, trans_stopped_vel: 0.1, twirling_scale: 0.0, use_dwa: true,
+      vth_samples: 40, vx_samples: 20, vy_samples: 1, xy_goal_tolerance: 0.05, yaw_goal_tolerance: 0.17}
+    aggressive_reset: {reset_distance: 1.84}
+    base_global_planner: navfn/NavfnROS
+    base_local_planner: dwa_local_planner/DWAPlannerROS
+    clearing_rotation_allowed: true
+    conservative_reset: {reset_distance: 3.0}
+    conservative_reset_dist: 3.0
+    controller_frequency: 30.0
+    controller_patience: 5.0
+    global_costmap:
+      footprint: '[[-0.205,-0.155],[-0.205,0.155],[0.077,0.155],[0.077,-0.155]]'
+      footprint_padding: 0.01
+      global_frame: map
+      height: 10
+      inflation_layer: {cost_scaling_factor: 3.0, enabled: true, inflate_unknown: false,
+        inflation_radius: 0.3}
+      map_type: costmap
+      obstacle_layer:
+        combination_method: 1
+        enabled: true
+        footprint_clearing_enabled: true
+        max_obstacle_height: 2.0
+        observation_sources: scan
+        obstacle_range: 0.7
+        raytrace_range: 3.5
+        scan: {clearing: true, data_type: LaserScan, marking: true, sensor_frame: base_scan,
+          topic: scan}
+      origin_x: 0.0
+      origin_y: 0.0
+      plugins:
+      - {name: static_layer, type: 'costmap_2d::StaticLayer'}
+      - {name: obstacle_layer, type: 'costmap_2d::ObstacleLayer'}
+      - {name: inflation_layer, type: 'costmap_2d::InflationLayer'}
+      publish_frequency: 30.0
+      resolution: 0.05
+      robot_base_frame: robot_1/base_footprint
+      robot_radius: 0.17
+      static_layer: {enabled: true}
+      static_map: true
+      transform_tolerance: 3.0
+      update_frequency: 30.0
+      width: 10
+    local_costmap:
+      footprint: '[[-0.205,-0.155],[-0.205,0.155],[0.077,0.155],[0.077,-0.155]]'
+      footprint_padding: 0.01
+      global_frame: robot_1/odom
+      height: 3
+      inflation_layer: {cost_scaling_factor: 3.0, enabled: true, inflate_unknown: false,
+        inflation_radius: 0.3}
+      map_type: costmap
+      obstacle_layer:
+        combination_method: 1
+        enabled: true
+        footprint_clearing_enabled: true
+        max_obstacle_height: 2.0
+        observation_sources: scan
+        obstacle_range: 0.7
+        raytrace_range: 3.5
+        scan: {clearing: true, data_type: LaserScan, marking: true, sensor_frame: base_scan,
+          topic: scan}
+      origin_x: 0.0
+      origin_y: 0.0
+      plugins:
+      - {name: obstacle_layer, type: 'costmap_2d::ObstacleLayer'}
+      - {name: inflation_layer, type: 'costmap_2d::InflationLayer'}
+      publish_frequency: 30.0
+      resolution: 0.05
+      robot_base_frame: robot_1/base_footprint
+      robot_radius: 0.17
+      rolling_window: true
+      static_map: false
+      transform_tolerance: 3.0
+      update_frequency: 30.0
+      width: 3
+    max_planning_retries: -1
+    oscillation_distance: 0.2
+    oscillation_timeout: 7.0
+    planner_frequency: 30.0
+    planner_patience: 2.0
+    recovery_behavior_enabled: true
+    restore_defaults: false
+    shutdown_costmaps: false
+  robot_state_publisher: {publish_frequency: 50.0, tf_prefix: robot_1}
+  tf_prefix: robot_1
+rosdistro: 'melodic
+
+  '
+roslaunch:
+  uris: {host_davide__44917: 'http://davide:44917/'}
+rosversion: '1.14.3
+
+  '
+run_id: 9e865f60-07be-11ea-bf12-3497f68ea553
+use_sim_time: true
