@@ -18,8 +18,11 @@
 	<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
           args="-urdf -model $(arg robot_name)
           -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos)
-          -param robot_description"
-    />
+          -param robot_description">
+        <remap from="joint_states" to="/$(arg robot_name)/joint_states" />
+        <remap from="scan" to="/$(arg robot_name)/scan" />
+        <remap from="cmd_vel" to="/$(arg robot_name)/cmd_vel" />
+    </node>
 
     <!-- AMCL -->
     <include file="$(find learning_multirobot)/launch/includes/amcl_multirobot.launch" >
