@@ -1,3 +1,0 @@
-global_planner:
-  default_tolerance: 0.5
-  use_dijkstra: false

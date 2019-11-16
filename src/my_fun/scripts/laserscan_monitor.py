@@ -6,9 +6,6 @@ from pynput.keyboard import Key
 from pynput import keyboard
 
 
-
-
-
 def on_press(key):
     try:
         if key == Key.ctrl:
