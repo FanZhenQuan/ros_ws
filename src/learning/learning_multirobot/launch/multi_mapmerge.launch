@@ -14,12 +14,9 @@
         <arg name="debug" value="false"/>
     </include>
 
-    <!-- map server -->
-    <node pkg="map_server" type="map_server" name="map_loader" args="$(find learning_multirobot)/maps/mymap.yaml" />
-
     <!--robot 1-->
     <group ns="$(arg robot_1)">
-        <include file="$(find learning_multirobot)/launch/one_robot.launch">
+        <include file="$(find learning_multirobot)/launch/one_mapper.launch">
             <arg name="robot_name" value="$(arg robot_1)" />
             <arg name="x_pos" value="4" />
             <arg name="y_pos" value="1" />
@@ -29,7 +26,7 @@
 
     <!--robot 2-->
     <group ns="$(arg robot_2)">
-        <include file="$(find learning_multirobot)/launch/one_robot.launch">
+        <include file="$(find learning_multirobot)/launch/one_mapper.launch">
             <arg name="robot_name" value="$(arg robot_2)" />
             <arg name="x_pos" value="-3" />
             <arg name="y_pos" value="1" />
@@ -38,7 +35,7 @@
     </group>
 
     <!-- RVIZ -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/amcl_navigation.rviz"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/gmapping_navigation.rviz"/>
 
     <!--rqt_console-->
     <node pkg="rqt_console" type="rqt_console" name="rqt_console" if="$(arg launch_rqt_console)" />

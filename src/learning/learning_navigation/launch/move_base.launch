@@ -1,0 +1,14 @@
+<launch>
+    <arg name="model" default="$(env TURTLEBOT3_MODEL)" />
+
+    <node pkg="move_base" type="move_base" name="move_base" >
+        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
+
+        <rosparam file="$(find learning_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find learning_navigation)/param/costmap_common_params_$(arg model).yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find learning_navigation)/param/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find learning_navigation)/param/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find learning_navigation)/param/dwa_local_planner_params_$(arg model).yaml" command="load" />
+        <rosparam file="$(find learning_navigation)/param/move_base_params.yaml" command="load" />
+    </node>
+</launch>
