@@ -2,9 +2,13 @@ global_costmap:
 #  global_frame: map
 #  robot_base_frame: base_footprint
 
-  update_frequency: 10.0
-  publish_frequency: 10.0
+#  update_frequency: 10.0
+#  publish_frequency: 10.0
+  update_frequency: 5.0
+  publish_frequency: 5.0
   transform_tolerance: 0.5
 
   static_map: true
  
+# the value of update/publish frequency was set to 5 because the move_base node
+# was sending warnings of "Map update loop missed its desidered rate of 10"
