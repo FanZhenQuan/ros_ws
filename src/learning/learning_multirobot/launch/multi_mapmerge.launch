@@ -44,7 +44,7 @@
 
     <!-- RVIZ -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/gmapping_navigation.rviz"/>
-    
+
     <!--goal dispatcher-->
     <node pkg="learning_multirobot" type="simple_goal_publisher.py" name="goal_publisher" />
 
