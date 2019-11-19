@@ -40,6 +40,9 @@
     <!-- RVIZ -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/amcl_navigation.rviz"/>
 
+    <!--goal dispatcher-->
+    <node pkg="learning_multirobot" type="simple_goal_publisher.py" name="goal_publisher" />
+
     <!--rqt_console-->
     <node pkg="rqt_console" type="rqt_console" name="rqt_console" if="$(arg launch_rqt_console)" />
 </launch>

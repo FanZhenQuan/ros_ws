@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import sys
 from Tkinter import *
 import tkMessageBox as messagebox
 from geometry_msgs.msg import PoseStamped, PointStamped
@@ -91,6 +92,9 @@ class Gui(object):
         self.send_goal_btn.grid(row=5, column=3)
         
         # mainloop
+        # self.root.mainloop()
+    
+    def mainloop(self):
         self.root.mainloop()
     
     def check_input(self):
@@ -143,12 +147,11 @@ class Gui(object):
         except ValueError:
             messagebox.showerror('Floatify error', entry_input + " e' una stringa malformata")
     
-    def send_goal(self, data):
+    @staticmethod
+    def send_goal(data):
         goal = PoseStamped()
-        publ = rospy.Publisher(data['target_robot'] + '/move_base_simple/goal', PoseStamped, queue_size=10)
-    
+        
         goal.header.frame_id = 'map'
-    
         goal.pose.position.x = data['x_pos']
         goal.pose.position.y = data['y_pos']
         goal.pose.position.z = data['z_pos']
@@ -171,10 +174,20 @@ class Gui(object):
             goal.pose.orientation.z = data['z_orient']
             goal.pose.orientation.w = data['w_orient']
     
+        publ = rospy.Publisher(data['target_robot'] + '/move_base_simple/goal', PoseStamped, queue_size=10)
         publ.publish(goal)
+    
+    def close(self):
+        self.root.destroy()
 
 
 if __name__ == '__main__':
-    rospy.init_node('dispatcher')
-
     g = Gui()
+
+    rospy.init_node('goal_publisher')
+    rospy.on_shutdown(g.close)
+    
+    try:
+        g.mainloop()
+    except rospy.ROSInterruptException:
+        g.close()
