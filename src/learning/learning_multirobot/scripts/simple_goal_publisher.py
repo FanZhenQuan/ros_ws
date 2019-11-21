@@ -187,7 +187,11 @@ class Gui(object):
         self.z_pos.insert(0, round(msg.point.z, 1))
     
     def close(self):
-        self.root.destroy()
+        try:
+            self.root.destroy()
+        except TclError:
+            # window already close, ignore exception
+            pass
 
 
 class CmdVelMonitor(object):
