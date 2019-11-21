@@ -4,7 +4,7 @@ import rospy
 import sys
 from Tkinter import *
 import tkMessageBox as messagebox
-from geometry_msgs.msg import PoseStamped, PointStamped
+from geometry_msgs.msg import PoseStamped, PointStamped, Twist
 
 
 PADDING = {
@@ -90,9 +90,6 @@ class Gui(object):
         
         self.send_goal_btn = Button(self.root, text="Send", bg="blue", fg="white", command=lambda: self.check_input())
         self.send_goal_btn.grid(row=5, column=3)
-        
-        # mainloop
-        # self.root.mainloop()
     
     def mainloop(self):
         self.root.mainloop()
@@ -124,19 +121,7 @@ class Gui(object):
         except Exception as e:
             messagebox.showerror('Check input error', e)
             print 'Error type: ' + str(e.__class__)
-    
-    def clicked_point_listener(self):
-        rospy.Subscriber('/clicked_point', PointStamped, self.clicked_point_received)
-    
-    def clicked_point_received(self, point):
-        self.x_pos.delete(0, 'end')
-        self.y_pos.delete(0, 'end')
-        self.z_pos.delete(0, 'end')
-        
-        self.x_pos.insert(0, round(point.point.x, 1))
-        self.y_pos.insert(0, round(point.point.y, 1))
-        self.z_pos.insert(0, round(point.point.z, 1))
-    
+
     @staticmethod
     def floatify(entry_input):
         try:
@@ -146,17 +131,18 @@ class Gui(object):
                 return float(entry_input)
         except ValueError:
             messagebox.showerror('Floatify error', entry_input + " e' una stringa malformata")
-    
+
     @staticmethod
     def send_goal(data):
         goal = PoseStamped()
-        
+    
         goal.header.frame_id = 'map'
+        goal.header.stamp = rospy.Time.now()
         goal.pose.position.x = data['x_pos']
         goal.pose.position.y = data['y_pos']
         goal.pose.position.z = data['z_pos']
     
-        if(
+        if (
                 data['x_orient'] == 0 and
                 data['y_orient'] == 0 and
                 data['z_orient'] == 0 and
@@ -166,28 +152,64 @@ class Gui(object):
             goal.pose.orientation.y = 0.0
             goal.pose.orientation.z = 0.67
             goal.pose.orientation.w = 0.3
-        
-            rospy.loginfo('Assuming conventional orientation for given goal')
+            
         else:
             goal.pose.orientation.x = data['x_orient']
             goal.pose.orientation.y = data['y_orient']
             goal.pose.orientation.z = data['z_orient']
             goal.pose.orientation.w = data['w_orient']
-    
+        
         publ = rospy.Publisher(data['target_robot'] + '/move_base_simple/goal', PoseStamped, queue_size=10)
         publ.publish(goal)
+        
+        cmd_vel_monitor = CmdVelMonitor(data['target_robot'] + '/cmd_vel')
+        
+        rospy.sleep(0.5)
+        
+        if cmd_vel_monitor.get_msgs_count() == 0:
+            publ.publish(goal)
+            rospy.logwarn('Goal resent')
+            
+        del cmd_vel_monitor
+    
+    def clicked_point_listener(self):
+        rospy.Subscriber('/clicked_point', PointStamped, self.clicked_point_received)
+    
+    def clicked_point_received(self, msg):
+        # clear the input values
+        self.x_pos.delete(0, 'end')
+        self.y_pos.delete(0, 'end')
+        self.z_pos.delete(0, 'end')
+        
+        # insert the ones coming off the topic
+        self.x_pos.insert(0, round(msg.point.x, 1))
+        self.y_pos.insert(0, round(msg.point.y, 1))
+        self.z_pos.insert(0, round(msg.point.z, 1))
     
     def close(self):
         self.root.destroy()
 
 
+class CmdVelMonitor(object):
+    messages = 0
+    
+    def __init__(self, topic):
+        rospy.Subscriber(topic, Twist, self.count)
+        
+    def count(self, msg):
+        self.messages += 1
+        
+    def get_msgs_count(self):
+        return self.messages
+
+
 if __name__ == '__main__':
-    g = Gui()
+    gui = Gui()
 
     rospy.init_node('goal_publisher')
-    rospy.on_shutdown(g.close)
+    rospy.on_shutdown(gui.close)
     
     try:
-        g.mainloop()
+        gui.mainloop()
     except rospy.ROSInterruptException:
-        g.close()
+        gui.close()

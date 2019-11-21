@@ -5,7 +5,7 @@ import tf
 
 
 if __name__ == '__main__':
-    rospy.init_node('fixed_tf_broadcaster')
+    rospy.init_node('fixed_map_tf_broadcaster')
     br = tf.TransformBroadcaster()
     rate = rospy.Rate(10.0)
     

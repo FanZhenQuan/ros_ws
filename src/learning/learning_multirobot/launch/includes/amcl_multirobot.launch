@@ -4,6 +4,8 @@
     <arg name="x_pos" />
     <arg name="y_pos" />
 
+    <!--TODO: parametri da migliorare se si vuole una localizzazione più accurata-->
+
     <!--AMCL -->
     <node pkg="amcl" type="amcl" name="amcl" args="scan:=scan">
         <param name="initial_pose_x" value="$(arg x_pos)" />

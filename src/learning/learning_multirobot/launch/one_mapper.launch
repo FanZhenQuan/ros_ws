@@ -37,7 +37,7 @@
     </include>
 
     <!-- world frame publisher -->
-    <node pkg="learning_multirobot" type="world_frame.py" name="world_tf_publisher" args="$(arg robot_name)/map" />
+    <node pkg="learning_multirobot" type="global_map_frame.py" name="map_tf_publisher" args="$(arg robot_name)/map" />
 
     <!-- move base -->
     <include file="$(find learning_multirobot)/launch/includes/move_base_multirobot.launch">

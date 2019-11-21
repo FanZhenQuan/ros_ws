@@ -7,7 +7,7 @@
 	<arg name="teleop_output" default="" doc="change with 'gnome-terminal --command' or 'gnome-terminal --tab'" />
 	<arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
 	<arg name="world" default="$(find learning_navigation)/worlds/turtlebot3_house.world" />
-	<arg name="map" value=""/>
+	<arg name="map" value="$(find learning_navigation)/maps/mymap.yaml"/>
 
 	<!--gazebo-->
 	<include file="$(find learning_navigation)/launch/main_gazebo.launch">
@@ -42,6 +42,9 @@
 		<!--<node pkg="learning_navigation" type="gmapping_and_mapsaver.py" name="gmapping_and_mapsaver" />-->
 		<include file="$(find learning_navigation)/launch/gmapping.launch" />
 	</group>
+
+	<!-- move_base -->
+	<include file="$(find learning_navigation)/launch/move_base.launch" />
 
 	<!-- RVIZ -->
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_navigation)/rviz/complete_config.rviz"/>
