@@ -14,7 +14,7 @@
 
         <!-- PARAMS -->
         <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
-        <param name="DWAPlannerROS/global_frame_id" value="/$(arg robot_name)/odom" />
+        <param name="DWAPlannerROS/global_frame_id" value="$(arg robot_name)/odom" />
 
         <param name="global_costmap/global_frame" value="map" />
         <param name="global_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint" />

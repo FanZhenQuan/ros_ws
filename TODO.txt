@@ -2,4 +2,10 @@
 	@ http://wiki.ros.org/rviz/Tutorials/Interactive%20Markers%3A%20Getting%20Started
 - social navigation layer
 	@ http://wiki.ros.org/social_navigation_layers
-- 
+- provare a configurare Stage
+
+
+################### COLLOQUIO #################
+- DWA planner vs TEB (per robot collision avoidance)
+- local costmap non viene renderizzata
+-
