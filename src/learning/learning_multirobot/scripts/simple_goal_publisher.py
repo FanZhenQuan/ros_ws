@@ -25,6 +25,9 @@ class Gui(object):
         self.root.title("Goal dispatcher")
         self.root.eval('tk::PlaceWindow %s center' % self.root.winfo_toplevel())
         
+        img = Image("photo", file='/home/davide/ros_ws/icon.png')
+        self.root.call('wm','iconphoto', self.root._w, img)
+        
         self.clicked_point_listener()
         
         # ---------- prima riga
