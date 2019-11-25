@@ -7,5 +7,5 @@
 
 ################### COLLOQUIO #################
 - DWA planner vs TEB (per robot collision avoidance)
-- local costmap non viene renderizzata
--
+- local costmap non viene renderizzata (mapmerge + plurirobots)
+- scanner offset rispetto ai muri

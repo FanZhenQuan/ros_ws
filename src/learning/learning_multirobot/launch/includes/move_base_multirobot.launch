@@ -1,7 +1,7 @@
 <launch>
     <!-- @ REQUIRED: nome del robot e modello -->
-    <arg name="robot_name" />
-    <arg name="model" />
+    <arg name="robot_name" default="robot_1"/>
+    <arg name="model" default="waffle"/>
 
     <node pkg="move_base" type="move_base" name="move_base" >
         <!-- INCLUDED PARAMS (from /param dir) -->
@@ -20,6 +20,7 @@
         <param name="global_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint" />
         <param name="local_costmap/global_frame" value="map" />
         <param name="local_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint" />
+        <!--<param name="observation_sources" value="(arg robot_name)/scan" />-->
 
         <!-- REMAPS -->
         <remap from="cmd_vel"                                                          to="/$(arg robot_name)/cmd_vel" />

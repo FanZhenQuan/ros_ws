@@ -1,0 +1,3 @@
+- segmentazione mappa w/ Voronoi
+- assegnazione (prima manuale) dei punti di interesse
+- 

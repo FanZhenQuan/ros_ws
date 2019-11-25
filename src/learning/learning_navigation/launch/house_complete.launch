@@ -28,20 +28,12 @@
 	<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
 
 	<!-- teleop -->
-	<node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen" launch-prefix="$(arg teleop_output)" />
+	<!--<node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen" launch-prefix="$(arg teleop_output)" />-->
 
-	<group if="$(eval map != '')">
-		<!-- AMCL + map-->
-		<include file="$(find learning_navigation)/launch/amcl_with_map.launch">
-			<arg name="map_dir" value="$(arg map)" />
-		</include>
-	</group>
-
-	<group if="$(eval map == '')">
-		<!--gmapping + map_saver-->
-		<!--<node pkg="learning_navigation" type="gmapping_and_mapsaver.py" name="gmapping_and_mapsaver" />-->
-		<include file="$(find learning_navigation)/launch/gmapping.launch" />
-	</group>
+	<!-- AMCL + map-->
+	<include file="$(find learning_navigation)/launch/amcl_with_map.launch">
+		<arg name="map_dir" value="$(arg map)" />
+	</include>
 
 	<!-- move_base -->
 	<include file="$(find learning_navigation)/launch/move_base.launch" />
