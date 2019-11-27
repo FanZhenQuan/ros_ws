@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-import sys
+import random
 from Tkinter import *
 import tkMessageBox as messagebox
 from geometry_msgs.msg import PoseStamped, PointStamped, Twist
@@ -25,8 +25,8 @@ class Gui(object):
         self.root.title("Goal dispatcher")
         self.root.eval('tk::PlaceWindow %s center' % self.root.winfo_toplevel())
         
-        # img = Image("photo", file='/home/davide/ros_ws/icon.png')
-        # self.root.call('wm','iconphoto', self.root._w, img)
+        img = Image("photo", file='/home/davide/ros_ws/icon.png')
+        self.root.call('wm','iconphoto', self.root._w, img)
         
         self.clicked_point_listener()
         
@@ -153,8 +153,8 @@ class Gui(object):
         ):
             goal.pose.orientation.x = 0.0
             goal.pose.orientation.y = 0.0
-            goal.pose.orientation.z = 0.67
-            goal.pose.orientation.w = 0.3
+            goal.pose.orientation.z = random.uniform(0, 6)
+            goal.pose.orientation.w = 1.0
             
         else:
             goal.pose.orientation.x = data['x_orient']

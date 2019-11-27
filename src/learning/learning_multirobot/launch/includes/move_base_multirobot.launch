@@ -1,8 +1,6 @@
 <launch>
     <!-- @ REQUIRED: nome del robot e modello -->
     <arg name="robot_name" default="robot_1"/>
-    <arg name="model" default="waffle"/>
-
     <node pkg="move_base" type="move_base" name="move_base" >
         <!-- INCLUDED PARAMS (from /param dir) -->
         <rosparam file="$(find learning_multirobot)/param/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap" />
@@ -14,13 +12,32 @@
 
         <!-- PARAMS -->
         <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
-        <param name="DWAPlannerROS/global_frame_id" value="$(arg robot_name)/odom" />
+        <!--NON ABILITARE: LA COSTMAP LOCALE RIMANE SEMPRE NULLA-->
+        <!--<param name="DWAPlannerROS/global_frame_id" value="$(arg robot_name)/odom" />-->
 
         <param name="global_costmap/global_frame" value="map" />
         <param name="global_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint" />
         <param name="local_costmap/global_frame" value="map" />
         <param name="local_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint" />
-        <!--<param name="observation_sources" value="(arg robot_name)/scan" />-->
+
+        <rosparam subst_value="true" command="load">
+            local_costmap:
+                scan: {
+                    sensor_frame: $(arg robot_name)/base_scan,
+                    data_type: LaserScan,
+                    topic: /$(arg robot_name)/scan,
+                    marking: true,
+                    clearing: true
+                }
+            global_costmap:
+                scan: {
+                    sensor_frame: $(arg robot_name)/base_scan,
+                    data_type: LaserScan,
+                    topic: /$(arg robot_name)/scan,
+                    marking: true,
+                    clearing: true
+                }
+        </rosparam>
 
         <!-- REMAPS -->
         <remap from="cmd_vel"                                                          to="/$(arg robot_name)/cmd_vel" />
@@ -87,4 +104,6 @@
         <!--<remap from="/move_base/set_logger_level"                               to="/$(arg robot_name)/move_base/set_logger_level" />-->
         <!--<remap from="/move_base/set_parameters"                                 to="/$(arg robot_name)/move_base/set_parameters" />-->
     </node>
+
+    <arg name="model" default="waffle"/>
 </launch>

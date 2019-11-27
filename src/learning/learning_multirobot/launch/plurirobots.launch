@@ -2,7 +2,7 @@
     <arg name="robot_1" value="robot_1" />
     <arg name="robot_2" value="robot_2" />
     <arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
-    <arg name="launch_rqt_console" default="true" /> <!-- LAUNCH RQT CONSOLE -->
+    <arg name="launch_rqt_console" default="false" /> <!-- LAUNCH RQT CONSOLE -->
 
     <!-- GAZEBO -->
     <include file="$(find learning_multirobot)/launch/includes/main_gazebo.launch">
@@ -28,20 +28,20 @@
     </group>
 
     <!--robot 2-->
-    <!--<group ns="$(arg robot_2)">-->
-    <!--    <include file="$(find learning_multirobot)/launch/one_robot.launch">-->
-    <!--        <arg name="robot_name" value="$(arg robot_2)" />-->
-    <!--        <arg name="x_pos" value="-3" />-->
-    <!--        <arg name="y_pos" value="1" />-->
-    <!--        <arg name="z_pos" value="0" />-->
-    <!--    </include>-->
-    <!--</group>-->
+    <group ns="$(arg robot_2)">
+        <include file="$(find learning_multirobot)/launch/one_robot.launch">
+            <arg name="robot_name" value="$(arg robot_2)" />
+            <arg name="x_pos" value="-3" />
+            <arg name="y_pos" value="1" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
 
     <!-- RVIZ -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/amcl_navigation.rviz" />
 
     <!--goal dispatcher-->
-    <!--<node pkg="learning_multirobot" type="simple_goal_publisher.py" name="goal_publisher" />-->
+    <node pkg="learning_multirobot" type="simple_goal_publisher.py" name="goal_publisher" />
 
     <!--rqt_console-->
     <node pkg="rqt_console" type="rqt_console" name="rqt_console" if="$(arg launch_rqt_console)" />
