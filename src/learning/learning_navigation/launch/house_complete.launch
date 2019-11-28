@@ -4,13 +4,14 @@
 	<arg name="z_pos" default="0.0"/>
 
 	<arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
-	<arg name="teleop_output" default="" doc="change with 'gnome-terminal --command' or 'gnome-terminal --tab'" />
-	<arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
+	<arg name="teleop_output" default="" doc="change with 'gnome-terminal --command'" />
 	<arg name="world" default="$(find learning_navigation)/worlds/turtlebot3_house.world" />
 	<arg name="map" value="$(find learning_navigation)/maps/mymap.yaml"/>
+	<arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
+	<arg name="known_map" value="$(eval map != '')" /> <!-- MAP IS KNOW IF $(ARG MAP) ISN'T EMPTY -->
 
 	<!--gazebo-->
-	<include file="$(find learning_navigation)/launch/main_gazebo.launch">
+	<include file="$(find learning_navigation)/launch/includes/main_gazebo.launch">
 		<arg name="world_name" value="$(arg world)"/>
 		<arg name="paused" value="false"/>
 		<arg name="use_sim_time" value="true"/>
@@ -31,12 +32,19 @@
 	<!--<node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen" launch-prefix="$(arg teleop_output)" />-->
 
 	<!-- AMCL + map-->
-	<include file="$(find learning_navigation)/launch/amcl_with_map.launch">
-		<arg name="map_dir" value="$(arg map)" />
-	</include>
+	<group if="$(arg known_map)">
+		<include file="$(find learning_navigation)/launch/includes/amcl_with_map.launch">
+			<arg name="map_dir" value="$(arg map)" />
+		</include>
+	</group>
+
+	<!--gmapping-->
+	<group unless="$(arg known_map)">
+		<include file="$(find learning_navigation)/launch/includes/gmapping.launch" />
+	</group>
 
 	<!-- move_base -->
-	<include file="$(find learning_navigation)/launch/move_base.launch" />
+	<include file="$(find learning_navigation)/launch/includes/move_base.launch" />
 
 	<!-- RVIZ -->
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_navigation)/rviz/complete_config.rviz"/>

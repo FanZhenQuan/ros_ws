@@ -1,10 +1,9 @@
 <launch>
-  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="model" />
   <arg name="multi_robot_name" default=""/>
 
-  <include file="$(find learning_navigation)/launch/includes/description.launch.xml">
-    <arg name="model" value="$(arg model)" />
-  </include>
+  <arg name="urdf_file" default="$(find xacro)/xacro '$(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro'" />
+  <param name="robot_description" command="$(arg urdf_file)" />
 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
