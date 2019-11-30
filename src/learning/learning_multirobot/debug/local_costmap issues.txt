@@ -1,0 +1,19 @@
+# DEFAULTS
+# local costmap frame = map
+# static_map: false
+# rolling_window: true
+	-> costmap nulla
+
+# local costmap frame = $(arg robot_name)/odom || map
+# static_map: false
+# rolling_window: true
+	-> se viene settato così, una volta inviato un goal compariranno i seguenti messaggi di errore:
+	@ Could not get local plan
+	@ Could not transform the global plan to the frame of the controller
+	@ Global Frame: robot_1/odom Plan Frame size 50: map 
+	@ Extrapolation Error: Lookup would require extrapolation into the future.  Requested time 23.991000000 but the latest data is at time 23.897000000, when looking up transform from frame [robot_1/odom] to frame [map] 
+
+# local costmap frame = map
+# static_map: true
+# rolling_window: false
+	-> fa sì che la costmap non sia più vuota, ma viene renderizzata su tutta la mappa e non nell'intorno del robot. i messaggi sopra scompaiono. i robot si scontrano comunque

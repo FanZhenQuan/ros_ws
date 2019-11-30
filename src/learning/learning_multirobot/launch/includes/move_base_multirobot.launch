@@ -1,7 +1,7 @@
 <launch>
     <!-- @ REQUIRED: nome del robot e modello -->
     <arg name="robot_name" default="robot_1"/>
-    <node pkg="move_base" type="move_base" name="move_base" >
+    <node pkg="move_base" type="move_base" name="move_base" output="log">
         <!-- INCLUDED PARAMS (from /param dir) -->
         <rosparam file="$(find learning_multirobot)/param/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap" />
         <rosparam file="$(find learning_multirobot)/param/costmap_common_params_$(arg model).yaml" command="load" ns="local_costmap" />

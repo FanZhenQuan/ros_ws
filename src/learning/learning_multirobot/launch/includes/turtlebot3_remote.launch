@@ -1,8 +1,10 @@
 <launch>
   <arg name="model" />
+  <arg name="color" />
   <arg name="multi_robot_name" default=""/>
-  <param name="robot_description" command="$(find xacro)/xacro '$(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro' " />
   <!--prefix:=$(arg multi_robot_name)-->
+  <!--<param name="robot_description" command="$(find xacro)/xacro '$(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro' " />-->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find learning_multirobot)/urdf/turtlebot3_$(arg model)_$(arg color).urdf.xacro' " />
 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />

@@ -18,6 +18,7 @@
     <group ns="$(arg robot_1)">
         <include file="$(find learning_multirobot)/launch/one_mapper.launch">
             <arg name="robot_name" value="$(arg robot_1)" />
+            <arg name="color" value="red" />
             <arg name="x_pos" value="4" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
@@ -28,6 +29,7 @@
     <group ns="$(arg robot_2)">
         <include file="$(find learning_multirobot)/launch/one_mapper.launch">
             <arg name="robot_name" value="$(arg robot_2)" />
+            <arg name="color" value="blue" />
             <arg name="x_pos" value="-3" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
