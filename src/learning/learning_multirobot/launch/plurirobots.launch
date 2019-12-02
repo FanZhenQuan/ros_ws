@@ -22,6 +22,7 @@
         <include file="$(find learning_multirobot)/launch/one_robot.launch">
             <arg name="robot_name" value="$(arg robot_1)" />
             <arg name="color" value="red" />
+
             <arg name="x_pos" value="4" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
@@ -33,6 +34,7 @@
         <include file="$(find learning_multirobot)/launch/one_robot.launch">
             <arg name="robot_name" value="$(arg robot_2)" />
             <arg name="color" value="blue" />
+
             <arg name="x_pos" value="-3" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
@@ -43,7 +45,7 @@
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_multirobot)/rviz/amcl_navigation.rviz" />
 
     <!--goal dispatcher-->
-    <node pkg="learning_multirobot" type="simple_goal_publisher.py" name="goal_publisher" />
+    <node pkg="learning_multirobot" type="simple_goal_publisher.py" name="goal_publisher" output="screen"/>
 
     <!--rqt_console-->
     <node pkg="rqt_console" type="rqt_console" name="rqt_console" if="$(arg launch_rqt_console)" />

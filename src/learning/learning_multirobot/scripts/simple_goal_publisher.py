@@ -2,6 +2,7 @@
 
 import rospy
 import random
+import subprocess
 from Tkinter import *
 import tkMessageBox as messagebox
 from geometry_msgs.msg import PoseStamped, PointStamped, Twist
@@ -18,6 +19,7 @@ ENTRY_WIDTH = {
 
 class Gui(object):
     publ = None
+    robots = []
     
     def __init__(self):
         # finestra root
@@ -25,10 +27,14 @@ class Gui(object):
         self.root.title("Goal dispatcher")
         self.root.eval('tk::PlaceWindow %s center' % self.root.winfo_toplevel())
         
+        self.place_above()
+        
         img = Image("photo", file='/home/davide/ros_ws/icon.png')
         self.root.call('wm','iconphoto', self.root._w, img)
         
         self.clicked_point_listener()
+        
+        self.robots = get_robots()
         
         # ---------- prima riga
         position_label = Label(self.root, text='Position')
@@ -87,27 +93,42 @@ class Gui(object):
         target_robot_label = Label(self.root, text='Send to')
         target_robot_label.grid(row=5, column=0, padx=15, pady=25)
         
-        self.target_robot = Entry(self.root, **ENTRY_WIDTH)
-        self.target_robot.insert(0, 'robot_1')
-        self.target_robot.grid(row=5, column=1)
-        
         self.send_goal_btn = Button(self.root, text="Send", bg="blue", fg="white", command=lambda: self.check_input())
         self.send_goal_btn.grid(row=5, column=3)
+        
+        self.target_robot = Entry(self.root, **ENTRY_WIDTH)
+        self.target_robot.insert(0, 'red')
+        self.target_robot.grid(row=5, column=1)
     
     def mainloop(self):
         self.root.mainloop()
+
+    @staticmethod
+    def place_above():
+        pop = subprocess.Popen(["wmctrl", "-r", "Goal dispatcher", "-b", "add,above"])
+        
+        pop.communicate()
     
     def check_input(self):
         try:
-            x_pos = self.floatify(self.x_pos.get())
-            y_pos = self.floatify(self.y_pos.get())
-            z_pos = self.floatify(self.z_pos.get())
-            x_orient = self.floatify(self.x_orient.get())
-            y_orient = self.floatify(self.y_orient.get())
-            z_orient = self.floatify(self.z_orient.get())
-            w_orient = self.floatify(self.w_orient.get())
+            x_pos = self.to_float(self.x_pos.get())
+            y_pos = self.to_float(self.y_pos.get())
+            z_pos = self.to_float(self.z_pos.get())
+            x_orient = self.to_float(self.x_orient.get())
+            y_orient = self.to_float(self.y_orient.get())
+            z_orient = self.to_float(self.z_orient.get())
+            w_orient = self.to_float(self.w_orient.get())
             
-            target_robot = str(self.target_robot.get()).strip('/ ')
+            target_robot_ent = str(self.target_robot.get())
+            
+            target_robot = None
+            
+            if not target_robot_ent.startswith('robot_'):
+                for r in self.robots:
+                    if r[0] == target_robot_ent:
+                        target_robot = r[1]
+            else:
+                target_robot = str(target_robot_ent).strip('/ ')
             
             goal = {
                 'x_pos': x_pos,
@@ -123,10 +144,10 @@ class Gui(object):
             self.send_goal(goal)
         except Exception as e:
             messagebox.showerror('Check input error', e)
-            print 'Error type: ' + str(e.__class__)
-
+            rospy.logerr('Error type: ' + str(e.__class__))
+    
     @staticmethod
-    def floatify(entry_input):
+    def to_float(entry_input):
         try:
             if entry_input == '':
                 return 0.0
@@ -134,17 +155,17 @@ class Gui(object):
                 return float(entry_input)
         except ValueError:
             messagebox.showerror('Floatify error', entry_input + " e' una stringa malformata")
-
+    
     @staticmethod
     def send_goal(data):
         goal = PoseStamped()
-    
+        
         goal.header.frame_id = 'map'
         goal.header.stamp = rospy.Time.now()
         goal.pose.position.x = data['x_pos']
         goal.pose.position.y = data['y_pos']
         goal.pose.position.z = data['z_pos']
-    
+        
         if (
                 data['x_orient'] == 0 and
                 data['y_orient'] == 0 and
@@ -155,7 +176,7 @@ class Gui(object):
             goal.pose.orientation.y = 0.0
             goal.pose.orientation.z = random.uniform(0, 6)
             goal.pose.orientation.w = 1.0
-            
+        
         else:
             goal.pose.orientation.x = data['x_orient']
             goal.pose.orientation.y = data['y_orient']
@@ -169,10 +190,19 @@ class Gui(object):
         
         rospy.sleep(0.5)
         
-        if cmd_vel_monitor.get_msgs_count() == 0:
-            publ.publish(goal)
-            rospy.logwarn('Goal resent')
+        attempts = 3
+        
+        while attempts != 0:
+            if cmd_vel_monitor.get_msgs_count() == 0:
+                publ.publish(goal)
+                rospy.logwarn('Goal resent')
+                
+                break
+            attempts -= 1
             
+        if attempts == 0:
+            rospy.logerr('Topic ' + data['target_robot'] + '/cmd_vel' + " doesn't seem to be published.")
+        
         del cmd_vel_monitor
     
     def clicked_point_listener(self):
@@ -189,7 +219,7 @@ class Gui(object):
         self.y_pos.insert(0, round(msg.point.y, 1))
         self.z_pos.insert(0, round(msg.point.z, 1))
     
-    def close(self):
+    def close_window(self):
         try:
             self.root.destroy()
         except TclError:
@@ -197,26 +227,49 @@ class Gui(object):
             pass
 
 
+def get_robots():
+    """
+    ottiene dal parameter service tutti i parametri, filtra secondo
+    il ns /colors/ e aggiunge alla lista robots una tupla contenente
+        [0]: colore del robot (param name)
+        [1]: ns del robot (param value)
+    
+    :return: robots, la lista delle tuple
+    """
+    parameters = rospy.get_param_names()
+    
+    robots = []
+    
+    for p in parameters:
+        if str(p).startswith('/colors'):
+            color = str(p).replace('/colors/', '')
+            robot_name = str(rospy.get_param(p))
+            
+            robots.append((color, robot_name))
+            
+    return robots
+
+
 class CmdVelMonitor(object):
-    messages = 0
+    messages_cnt = 0
     
     def __init__(self, topic):
         rospy.Subscriber(topic, Twist, self.count)
         
     def count(self, msg):
-        self.messages += 1
+        self.messages_cnt += 1
         
     def get_msgs_count(self):
-        return self.messages
+        return self.messages_cnt
 
 
 if __name__ == '__main__':
     gui = Gui()
 
     rospy.init_node('goal_publisher')
-    rospy.on_shutdown(gui.close)
+    rospy.on_shutdown(gui.close_window)
     
     try:
         gui.mainloop()
     except rospy.ROSInterruptException:
-        gui.close()
+        gui.close_window()
