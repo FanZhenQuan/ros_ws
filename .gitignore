@@ -4,6 +4,7 @@ install/
 logs/
 bin/
 lib/
+mongo/
 msg_gen/
 srv_gen/
 

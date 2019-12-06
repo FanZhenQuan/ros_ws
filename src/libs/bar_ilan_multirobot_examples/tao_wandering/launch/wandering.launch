@@ -1,0 +1,15 @@
+<launch>
+  <master auto="start"/>
+  <param name="/use_sim_time" value="true"/>
+  
+  <!-- start gazebo --> 
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find tao_wandering)/worlds/willowgarage.world" />
+    </include>
+   
+  <param name="robot_description" command="$(find xacro)/xacro.py $(find lizi_description)/urdf/lizi.urdf"/>
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-x 34 -y 18 -z 0 -Y 1.57 -urdf -param robot_description -model lizi1" output="screen"/>
+ 
+  <node name="wandering" pkg="tao_wandering" type="wandering_node" output="screen" />
+
+</launch>
