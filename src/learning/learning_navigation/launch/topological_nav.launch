@@ -1,0 +1,11 @@
+<launch>
+    <include file="$(find mongodb_store)/launch/mongodb_store.launch">
+        <arg name="db_path" value="/home/davide/ros_ws/mongo"/>
+    </include>
+    
+    <include file="$(find learning_navigation)/launch/house_complete.launch"/>
+
+    <include file="$(find topological_navigation)/launch/topological_navigation_empty_map.launch" >
+        <arg name="map" value="topomappa"/>
+    </include>
+</launch>
