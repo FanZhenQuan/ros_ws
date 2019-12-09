@@ -26,6 +26,7 @@ from mongodb_store.message_store import MessageStoreProxy
 from topological_navigation.navigation_stats import *
 from topological_navigation.tmap_utils import *
 from topological_navigation.route_search import *
+# TODO: non-existing folders
 
 import topological_navigation.msg
 import dynamic_reconfigure.client
@@ -94,10 +95,10 @@ class TopologicalNavServer(object):
 
 
         self.navigation_activated=False
-        self.stats_pub = rospy.Publisher('topological_navigation/Statistics', NavStatistics)
-        self.edge_pub = rospy.Publisher('topological_navigation/Edge', CurrentEdge)
-        self.route_pub = rospy.Publisher('topological_navigation/Route', strands_navigation_msgs.msg.TopologicalRoute)
-        self.cur_edge = rospy.Publisher('current_edge', String)
+        self.stats_pub = rospy.Publisher('topological_navigation/Statistics', NavStatistics, queue_size=10)
+        self.edge_pub = rospy.Publisher('topological_navigation/Edge', CurrentEdge, queue_size=10)
+        self.route_pub = rospy.Publisher('topological_navigation/Route', strands_navigation_msgs.msg.TopologicalRoute, queue_size=10)
+        self.cur_edge = rospy.Publisher('current_edge', String, queue_size=10)
         self.monit_nav_cli= False
 
 

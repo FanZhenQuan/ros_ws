@@ -19,6 +19,7 @@ from std_msgs.msg import String
 from strands_navigation_msgs.msg import TopologicalMap
 from topological_navigation.tmap_utils import *
 from topological_navigation.route_search import *
+# TODO: non-existing folders
         
 
 class SearchRoute(object):

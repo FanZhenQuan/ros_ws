@@ -1,11 +1,25 @@
 <launch>
+    <!--mongo db-->
     <include file="$(find mongodb_store)/launch/mongodb_store.launch">
         <arg name="db_path" value="/home/davide/ros_ws/mongo"/>
     </include>
-    
-    <include file="$(find learning_navigation)/launch/house_complete.launch"/>
 
-    <include file="$(find topological_navigation)/launch/topological_navigation_empty_map.launch" >
-        <arg name="map" value="topomappa"/>
+    <!--house navigation-->
+    <include file="$(find learning_navigation)/launch/house_complete.launch">
+        <arg name="rviz_config" value="-d $(find learning_navigation)/rviz/toponav_config.rviz" />
     </include>
+
+    <!--strands toponav-->
+    <include file="$(find topological_navigation)/launch/topological_navigation_empty_map.launch" >
+        <arg name="map" value="topomappa.tpg"/>
+    </include>
+
+    <!--spqrel toponav-->
+    <!--<include file="$(find spqrel_navigation)/ros/launch/spqrel_navigation.launch">-->
+    <!--    <arg name="initial_pose_x" value="-3.0" />-->
+    <!--    <arg name="initial_pose_y" value="1.0" />-->
+    <!--    <arg name="laser_topic" value="scan"/>-->
+    <!--</include>-->
+
+    <node pkg="rqt_console" type="rqt_console" name="rqt_console" />
 </launch>

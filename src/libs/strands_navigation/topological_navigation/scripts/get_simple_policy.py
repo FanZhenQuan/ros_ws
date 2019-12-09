@@ -7,6 +7,7 @@ from std_msgs.msg import String
 import strands_navigation_msgs.srv
 from strands_navigation_msgs.msg import TopologicalMap
 import topological_navigation.route_search
+# TODO: non existing
 #from topological_navigation.route_search import *
         
 

@@ -27,7 +27,7 @@ from strands_navigation_msgs.msg import TopologicalMap
 from mongodb_store.message_store import MessageStoreProxy
 #from topological_navigation.topological_node import *
 from topological_navigation.navigation_stats import *
-
+# TODO: non existing
 
 import topological_navigation.msg
 import strands_navigation_msgs.msg
