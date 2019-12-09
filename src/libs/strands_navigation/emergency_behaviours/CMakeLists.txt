@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
-  # strands_emails <- COMMENTATO IO
+  # strands_emails
   topological_navigation
 )
 

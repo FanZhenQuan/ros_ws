@@ -1,11 +1,19 @@
 <launch>
+    <!--mongo db-->
     <include file="$(find mongodb_store)/launch/mongodb_store.launch">
         <arg name="db_path" value="/home/davide/ros_ws/mongo"/>
     </include>
-    
+
+    <!--house navigation-->
     <include file="$(find learning_navigation)/launch/house_complete.launch"/>
 
+    <!--strands toponav-->
     <include file="$(find topological_navigation)/launch/topological_navigation_empty_map.launch" >
         <arg name="map" value="topomappa"/>
     </include>
+
+    <!--spqrel toponav-->
+    <!--<node pkg="spqrel_navigation" type="srrg_localizer2d_node" name="srrg_localizer2d_node" />-->
+
+    <node pkg="rqt_console" type="rqt_console" name="rqt_console" />
 </launch>
