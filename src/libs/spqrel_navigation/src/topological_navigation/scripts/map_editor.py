@@ -141,6 +141,9 @@ class TopologicalEditor(object):
         elif k == ord('w'):
             self._set_mode('none')
             self.write_map()
+        # elif k == ord('r'):
+        #     self._set_mode('rename')
+        #     self.rename_node()
 
     def write_map(self):
         text = "saving map to " + self.outfile
@@ -220,7 +223,8 @@ class TopologicalEditor(object):
 
     def connect_nodes(self, origin, dest):
         edge = dict()
-        edge['action'] = 'NAOqiPlanner/Goal'
+        # edge['action'] = 'NAOqiPlanner/Goal'
+        edge['action'] = 'move_base_simple/goal'
         edge['edge_id'] = origin + "_" + dest
         edge['node'] = dest
         new_edge = NodeEdges(edge)

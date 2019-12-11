@@ -14,6 +14,9 @@
         <arg name="debug" value="false"/>
     </include>
 
+    <!--gzserver killer-->
+	<node pkg="my_fun" type="gz_killer.py" name="gz_killer" output="screen" />
+
     <!--robot 1-->
     <group ns="$(arg robot_1)">
         <include file="$(find learning_multirobot)/launch/one_mapper.launch">
