@@ -7,3 +7,15 @@
 	+ map_editor
 	# aggiungere un parametro "node:visual_name" che sia più verboso
 	  e utilizzabile nell'invio del goal (es: Salotto al posto di Waypoint1)
+
+
+---------------------
+
+- pubblicare mappa topologica (array di punti di interesse) in un topic / parametro. 
+- planner: 
+	# associare ogni robot costantemente al punto di interesse più vicino
+	# eseguire pianificazione da una sorgente ad una destinazione
+	# consegnare un goal random nella mappa metrica dopo aver portato il robot al punto di interesse dato come goal
+
+- incrementare l'area pertinente ad un punto di interesse
+- assegnazione punti di interesse tramite segmentazione di Voronoi
