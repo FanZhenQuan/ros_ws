@@ -18,7 +18,7 @@ class NodeEdges(Geometry):
     def __init__(self, edges):
         self.action = edges['action']
         self.edge_id = edges['edge_id']
-        self.node = edges['node']
+        self.target = edges['target']
 
 
 class NodeOrientation(Geometry):
