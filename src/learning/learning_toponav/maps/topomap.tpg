@@ -2,10 +2,10 @@
     edges:
     - action: move_base_simple/goal
       edge_id: WayPoint1_WayPoint2
-      target: WayPoint2
+      node: WayPoint2
     - action: move_base_simple/goal
       edge_id: WayPoint1_WayPoint3
-      target: WayPoint3
+      node: WayPoint3
     name: WayPoint1
     pointset: NA
     pose:
@@ -39,10 +39,10 @@
     edges:
     - action: move_base_simple/goal
       edge_id: WayPoint2_WayPoint1
-      target: WayPoint1
+      node: WayPoint1
     - action: move_base_simple/goal
       edge_id: WayPoint2_WayPoint3
-      target: WayPoint3
+      node: WayPoint3
     name: WayPoint2
     pointset: NA
     pose:
@@ -76,10 +76,10 @@
     edges:
     - action: move_base_simple/goal
       edge_id: WayPoint3_WayPoint2
-      target: WayPoint2
+      node: WayPoint2
     - action: move_base_simple/goal
       edge_id: WayPoint3_WayPoint1
-      target: WayPoint1
+      node: WayPoint1
     name: WayPoint3
     pointset: NA
     pose:

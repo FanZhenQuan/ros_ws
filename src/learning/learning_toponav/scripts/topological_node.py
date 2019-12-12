@@ -18,7 +18,7 @@ class NodeEdges(Geometry):
     def __init__(self, edges):
         self.action = edges['action']
         self.edge_id = edges['edge_id']
-        self.target = edges['target']
+        self.node = edges['node']
 
 
 class NodeOrientation(Geometry):
@@ -70,3 +70,9 @@ class TopologicalNode(Geometry):
             e = NodeEdges(i)
             edges.append(e)
         return edges
+    
+    def get_position(self):
+        return self.pose.position
+    
+    def get_orientation(self):
+        return self.pose.orientation

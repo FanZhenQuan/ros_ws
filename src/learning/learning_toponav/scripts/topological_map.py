@@ -52,7 +52,7 @@ class TopologicalMap(object):
                 dd = {}
                 dd['action'] = j.action
                 dd['edge_id'] = j.edge_id
-                dd['target'] = j.target
+                dd['node'] = j.node
                 node['node']['edges'].append(dd)
 
             node['node']['verts'] = []
