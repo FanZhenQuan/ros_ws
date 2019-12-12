@@ -6,9 +6,10 @@
 	<arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
 	<arg name="teleop_output" default="" doc="change with 'gnome-terminal --command'" />
 	<arg name="world" default="$(find learning_navigation)/worlds/turtlebot3_house.world" />
-	<arg name="map" value="$(find learning_navigation)/maps/mymap.yaml"/>
+	<arg name="map" default="$(find learning_navigation)/maps/mymap.yaml"/>
 	<arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
 	<arg name="known_map" value="$(eval map != '')" /> <!-- MAP IS KNOW IF $(ARG MAP) ISN'T EMPTY -->
+	<arg name="rviz_config" default="-d $(find learning_navigation)/rviz/complete_config.rviz" />
 
 	<!--gazebo-->
 	<include file="$(find learning_navigation)/launch/includes/main_gazebo.launch">
@@ -19,6 +20,9 @@
 		<arg name="headless" value="false"/>
 		<arg name="debug" value="false"/>
 	</include>
+
+	<!--gzserver killer-->
+	<node pkg="my_fun" type="gz_killer.py" name="gz_killer" output="screen" />
 
 	<!--tbot bringup-->
 	<include file="$(find learning_navigation)/launch/includes/turtlebot3_remote.launch">
@@ -47,5 +51,5 @@
 	<include file="$(find learning_navigation)/launch/includes/move_base.launch" />
 
 	<!-- RVIZ -->
-	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find learning_navigation)/rviz/complete_config.rviz"/>
+	<node name="rviz" pkg="rviz" type="rviz" args="$(arg rviz_config)"/>
 </launch>

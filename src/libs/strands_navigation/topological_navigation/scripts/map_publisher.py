@@ -5,12 +5,14 @@ import sys
 
 import std_msgs.msg
 from topological_navigation.topological_node import *
+# TODO: non existing
 from strands_navigation_msgs.msg import TopologicalNode
 from strands_navigation_msgs.msg import TopologicalMap
 
 from mongodb_store.message_store import MessageStoreProxy
 
 from topological_navigation.publisher import map_publisher
+# TODO: non existing
 
 
 if __name__ == '__main__' :

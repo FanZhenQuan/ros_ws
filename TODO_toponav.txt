@@ -1,0 +1,9 @@
+- adattare all'uso di movebase
+	+ topological_navigation
+	+ route search
+	+ nav_client
+
+- modificare serializzazione della mappa in .tpg
+	+ map_editor
+	# aggiungere un parametro "node:visual_name" che sia più verboso
+	  e utilizzabile nell'invio del goal (es: Salotto al posto di Waypoint1)

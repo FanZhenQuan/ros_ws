@@ -27,6 +27,7 @@ from strands_navigation_msgs.msg import NavStatistics
 from strands_navigation_msgs.msg import TopologicalMap
 
 from topological_navigation.tmap_utils import *
+# TODO: non existing
 
 from strands_navigation_msgs.srv import *
 

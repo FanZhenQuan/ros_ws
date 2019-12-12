@@ -14,6 +14,9 @@
         <arg name="debug" value="false"/>
     </include>
 
+    <!--gzserver killer-->
+	<node pkg="my_fun" type="gz_killer.py" name="gz_killer" output="screen" />
+
     <!-- map server -->
     <node pkg="map_server" type="map_server" name="map_loader" args="$(find learning_multirobot)/maps/mymap.yaml" />
 

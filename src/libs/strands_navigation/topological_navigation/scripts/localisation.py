@@ -16,6 +16,7 @@ from strands_navigation_msgs.msg import TopologicalNode
 from strands_navigation_msgs.msg import TopologicalMap
 
 from topological_navigation.tmap_utils import *
+# TODO: non-existing folder
 #import topological_navigation.msg
 
 from threading import Thread

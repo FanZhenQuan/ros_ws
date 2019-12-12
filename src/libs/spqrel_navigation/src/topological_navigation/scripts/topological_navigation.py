@@ -12,7 +12,7 @@ from time import sleep
 from topological_map import TopologicalMap
 from route_search import TopologicalRouteSearch, get_node, get_edge_from_id
 from threading import Timer
-from naoqi import *
+# from naoqi import *
 
 import coloredlogs
 import logging

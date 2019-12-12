@@ -26,6 +26,7 @@ from mongodb_store.message_store import MessageStoreProxy
 from topological_navigation.navigation_stats import *
 from topological_navigation.tmap_utils import *
 from topological_navigation.route_search import *
+# TODO: non-existing folders
 
 import topological_navigation.msg
 import dynamic_reconfigure.client

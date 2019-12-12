@@ -37,7 +37,7 @@ from strands_navigation_msgs.msg import NavRoute
 from strands_navigation_msgs.msg import TopologicalMap
 import topological_navigation.policies
 import topological_navigation.map_marker
-
+# TODO: non existing
 
 class VisualiseMap(object):
     _killall_timers=False

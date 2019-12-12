@@ -10,7 +10,7 @@
 	<arg name="user" default="" />
 	<arg name="move_base_reconf_service" default="DWAPlannerROS" />
 
-	<machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
+	<!--<machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>-->
 
  	<node pkg="monitored_navigation" type="monitored_nav.py" name="monitored_nav" output="screen" args="$(arg mon_nav_config_file)">
 		<param name="wait_reset_bumper_duration" value="$(arg wait_reset_bumper_duration)"/>
