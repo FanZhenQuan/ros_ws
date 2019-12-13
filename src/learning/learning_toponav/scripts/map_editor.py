@@ -236,7 +236,8 @@ class TopologicalEditor(object):
 
     def load_msgs(self, msg_name):
         if(msg_name not in self.msg_cache.keys()):
-            with open(join(script_path, '../msgs/') +
+            # with open(join(script_path, '../msgs/') +
+            with open(join(script_path, '../') +
                       msg_name + '.yaml', 'r') as raw_msg:
                 self.msg_cache[msg_name] = yaml.load(raw_msg)
         return copy.deepcopy(self.msg_cache[msg_name])

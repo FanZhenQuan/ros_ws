@@ -5,12 +5,12 @@
 
     <!--house navigation-->
     <include file="$(find learning_navigation)/launch/house_complete.launch">
-        <arg name="rviz_config" value="-d $(find learning_toponav)/rviz/toponav_config.rviz" />
+        <arg name="rviz_config" value="-d $(find learning_toponav)/rviz/single_toponav.rviz" />
     </include>
 
     <!--toponodes publisher-->
     <node pkg="learning_toponav" type="toponodes_publisher.py" name="toponodes_publisher"
-        args="$(find learning_toponav)/maps/topomap.tpg"
+        args="--topomap $(find learning_toponav)/maps/topomap.tpg"
     />
 
     <!--strands-->

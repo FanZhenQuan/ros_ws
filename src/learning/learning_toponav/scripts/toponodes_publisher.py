@@ -11,7 +11,7 @@ from visualization_msgs.msg import Marker, MarkerArray
 from topological_map import TopologicalMap
 
 
-INTEREST_POINTS = 'interest_points'
+INTEREST_POINTS = '/interest_points'
 
 
 def node_to_marker(node, marker_id):
@@ -80,8 +80,6 @@ def shutdown():
 
 
 if __name__ == '__main__':
-    global INTEREST_POINTS
-    
     rospy.init_node('toponodes_publisher')
     rospy.on_shutdown(shutdown)
     
