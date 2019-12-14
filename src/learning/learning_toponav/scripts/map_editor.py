@@ -8,6 +8,7 @@ import numpy as np
 import signal
 import sys
 import yaml
+import json
 
 from os.path import dirname, realpath, join
 
@@ -30,7 +31,8 @@ class TopologicalEditor(object):
         'none': ''
     }
 
-    def __init__(self, mapprops, topomap, outfile):
+    def __init__(self, mapprops, topomap, outfile, edgelist):
+        self.edgelist_dir = edgelist
 
         self.debug = False
 
@@ -149,11 +151,34 @@ class TopologicalEditor(object):
         text = "saving map to " + self.outfile
         cv2.putText(self.img, text, (10, 30), self.font, 0.5, (20, 20, 20), 1)
         yml = yaml.safe_dump(self.top_map.get_dict(), default_flow_style=False)
+        
+        self.write_edgelist()
+        
         if self.debug:
             print yml
         with open(self.outfile, 'w') as outfile:
             outfile.write(str(yml))
             print "map Successfully writen to", self.outfile
+            
+    def write_edgelist(self):
+        topmap = self.top_map.get_dict()
+        
+        lines = []
+        for i in range(len(topmap)):
+            n = topmap[i]
+            l = n['node']['name']
+
+            for e in n['node']['edges']:
+                l += ', ' + e['node']
+
+            # skippa l'ultimo carattere \n
+            if i != len(topmap)-1:
+                l += '\n'
+
+            lines.append(l)
+
+        with open(self.edgelist_dir, 'w') as f:
+            f.writelines(lines)
 
     def _set_mode(self, new_mode):
             self.current_mode = new_mode
@@ -295,9 +320,10 @@ def main():
                         help="set to true to start with empty map")
     parser.add_argument("--outmap", type=str, default="out.tpg",
                         help="path to topological map")
+    parser.add_argument("--edgelist", type=str, help='Dir where to store edgelist')
     args = parser.parse_args()
 
-    TopologicalEditor(args.map, args.tmap if not args.empty else None, args.outmap)
+    TopologicalEditor(args.map, args.tmap if not args.empty else None, args.outmap, args.edgelist)
 
 if __name__ == '__main__':
     main()

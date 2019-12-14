@@ -1,0 +1,3 @@
+WayPoint1
+WayPoint2, WayPoint1
+WayPoint3, WayPoint2
