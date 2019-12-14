@@ -1,0 +1,10 @@
+<launch>
+    <arg name="edgelist" default="$(find learning_toponav)/maps/edgelist.txt" />
+    <arg name="source" default="" />
+    <arg name="dest" default="" />
+
+    <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"
+          args="--edgelist $(arg edgelist) --source $(arg source) --dest $(arg dest)"
+          output="screen"
+    />
+</launch>

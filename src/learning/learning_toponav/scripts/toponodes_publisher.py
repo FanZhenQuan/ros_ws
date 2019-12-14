@@ -93,5 +93,3 @@ if __name__ == '__main__':
     marker_array = build_marker_array(topomap)
 
     publish_marker_array(topic=INTEREST_POINTS)
-
-    rospy.spin()

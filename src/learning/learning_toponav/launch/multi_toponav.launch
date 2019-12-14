@@ -3,7 +3,7 @@
     <arg name="robot_2" value="robot_2" />
 
     <arg name="metric_map" default="$(find learning_toponav)/maps/mymap.yaml" />
-    <arg name="topomap" default="$(find learning_toponav)/maps/topomap.tpg" />
+    <arg name="topomap" default="$(find learning_toponav)/maps/topomap_2.tpg" />
     <arg name="rviz_config" default="-d $(find learning_toponav)/rviz/multi_toponav.rviz" />
     <arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
     <arg name="rqt_console" default="false" /> <!-- LAUNCH RQT CONSOLE -->
@@ -29,7 +29,7 @@
 
     <!--robot 1-->
     <group ns="$(arg robot_1)">
-        <include file="$(find learning_toponav)/launch/one_robot.launch">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
             <arg name="robot_name" value="$(arg robot_1)" />
             <arg name="color" value="red" />
 
@@ -41,7 +41,7 @@
 
     <!--robot 2-->
     <group ns="$(arg robot_2)">
-        <include file="$(find learning_toponav)/launch/one_robot.launch">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
             <arg name="robot_name" value="$(arg robot_2)" />
             <arg name="color" value="blue" />
 
