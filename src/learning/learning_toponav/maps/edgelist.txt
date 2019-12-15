@@ -1,8 +1,6 @@
-WayPoint1, WayPoint2
-WayPoint2, WayPoint1, WayPoint3, WayPoint4
-WayPoint3, WayPoint2, WayPoint4, WayPoint5
-WayPoint4, WayPoint2, WayPoint3
-WayPoint5, WayPoint6, WayPoint3, WayPoint7, WayPoint8
-WayPoint6, WayPoint5, WayPoint7
-WayPoint7, WayPoint6, WayPoint5
-WayPoint8, WayPoint5
+WayPoint1, WayPoint2, WayPoint5
+WayPoint2, WayPoint1, WayPoint4, WayPoint3
+WayPoint3, WayPoint2
+WayPoint4, WayPoint2
+WayPoint5, WayPoint1, WayPoint6
+WayPoint6, WayPoint5

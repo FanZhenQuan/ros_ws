@@ -3,8 +3,17 @@
     <arg name="source" default="" />
     <arg name="dest" default="" />
 
-    <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"
-          args="--edgelist $(arg edgelist) --source $(arg source) --dest $(arg dest)"
-          output="screen"
-    />
+    <group if="$(eval source != '' and dest != '')">
+        <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"
+              args="--edgelist $(arg edgelist) --source $(arg source) --dest $(arg dest)"
+              output="screen"
+        />
+    </group>
+
+    <group if="$(eval source == '' and dest == '')">
+        <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"
+              args="--edgelist $(arg edgelist)"
+              output="screen"
+        />
+    </group>
 </launch>

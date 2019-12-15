@@ -15,8 +15,6 @@ AFFERENCES_TOPIC = '/afferences'
 
 class Topolocaliser(object):
     def __init__(self, robot):
-        global INTEREST_POINTS
-        
         self.robot_ns = robot
         self.int_points = rospy.get_param(INTEREST_POINTS)
 
@@ -55,8 +53,6 @@ class Topolocaliser(object):
         self.publish_robot_afference(ipoint=closest_ipoint, distance=min_dist)
     
     def publish_robot_afference(self, ipoint, distance):
-        global AFFERENCES_TOPIC
-        
         afference = RobotAfference()
         afference.ipoint_name = ipoint
         afference.distance = distance
