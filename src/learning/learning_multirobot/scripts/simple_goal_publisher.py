@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 
 import rospy
+import sys
+sys.path.append('/home/davide/ros_ws/src/learning/learning_toponav/scripts')
 import random
 import subprocess
-from Tkinter import *
 import tkMessageBox as messagebox
+
+from Tkinter import *
+from ttk import Separator
 from geometry_msgs.msg import PoseStamped, PointStamped, Twist
+from learning_toponav.srv import RobotNavRequest, RobotNavRequestResponse
+from learning_toponav.msg import RobotAfference
+from topolocaliser import AFFERENCE_TOPIC
 
 
 PADDING = {
@@ -90,15 +97,34 @@ class Gui(object):
         self.w_orient.grid(row=4, column=3)
         
         # --------- sesta riga
-        target_robot_label = Label(self.root, text='Send to')
+        target_robot_label = Label(self.root, text='Send METRIC to')
         target_robot_label.grid(row=5, column=0, padx=15, pady=25)
-        
-        self.send_goal_btn = Button(self.root, text="Send", bg="blue", fg="white", command=lambda: self.check_input())
-        self.send_goal_btn.grid(row=5, column=3)
-        
+
         self.target_robot = Entry(self.root, **ENTRY_WIDTH)
         self.target_robot.insert(0, 'red')
         self.target_robot.grid(row=5, column=1)
+
+        self.send_goal_btn = Button(self.root, text="Send", bg="blue", fg="white", command=lambda: self.check_metric_input())
+        self.send_goal_btn.grid(row=5, column=3)
+        
+        # -------- separator
+        separator = Separator(self.root, orient="horizontal")
+        separator.grid(row=6, columnspan=4, sticky="ew")
+        
+        # -------- settima riga # TOPONAVIGATION
+        target_topo_robot_label = Label(self.root, text='Send TOPO to')
+        target_topo_robot_label.grid(row=7, column=0, padx=15, pady=25)
+
+        self.target_topo_robot_ent = Entry(self.root, width=8)
+        self.target_topo_robot_ent.insert(0, 'red')
+        self.target_topo_robot_ent.grid(row=7, column=1)
+
+        self.goal_topo = Entry(self.root, **ENTRY_WIDTH)
+        self.goal_topo.insert(0, 'WayPoint')
+        self.goal_topo.grid(row=7, column=2)
+
+        self.send_topogoal_btn = Button(self.root, text="Send", bg="green", fg="white", command=lambda: self.check_topo_input())
+        self.send_topogoal_btn.grid(row=7, column=3)
     
     def mainloop(self):
         self.root.mainloop()
@@ -109,7 +135,7 @@ class Gui(object):
         
         pop.communicate()
     
-    def check_input(self):
+    def check_metric_input(self):
         try:
             x_pos = self.to_float(self.x_pos.get())
             y_pos = self.to_float(self.y_pos.get())
@@ -123,6 +149,9 @@ class Gui(object):
             
             target_robot = None
             
+            # se non inizia con robot_, vuol dire che e'
+            # stato passato un colore -> cerca tra i robot
+            # salvati il ns del robot a partire dal suo colore
             if not target_robot_ent.startswith('robot_'):
                 for r in self.robots:
                     if r[0] == target_robot_ent:
@@ -145,6 +174,34 @@ class Gui(object):
         except Exception as e:
             messagebox.showerror('Check input error', e)
             rospy.logerr('Error type: ' + str(e.__class__))
+            
+    def check_topo_input(self):
+        target_robot_ent = self.target_topo_robot_ent.get()
+        # se non inizia con robot_, vuol dire che e'
+        # stato passato un colore -> cerca tra i robot
+        # salvati il ns del robot a partire dal suo colore
+        target_robot = None
+        if not target_robot_ent.startswith('robot_'):
+            for r in self.robots:
+                if r[0] == target_robot_ent:
+                    target_robot = r[1]
+        else:
+            target_robot = str(target_robot_ent).strip('/ ')
+
+        # check if destination exists
+        destination = self.goal_topo.get()
+        ipoints = rospy.get_param(INTEREST_POINTS)
+        ipoint_is_valid = False
+        for i in ipoints:
+            if i['name'] == destination:
+                ipoint_is_valid = True
+                
+        source = rospy.wait_for_message('/'+target_robot+AFFERENCE_TOPIC, RobotAfference).ipoint_name
+
+        if ipoint_is_valid:
+            self.send_topogoal(target_robot, source=source, dest=destination)
+        else:
+            messagebox.showerror('Interest point not found')
     
     @staticmethod
     def to_float(entry_input):
@@ -204,6 +261,15 @@ class Gui(object):
             rospy.logerr('Topic ' + data['target_robot'] + '/cmd_vel' + " doesn't seem to be published.")
         
         del cmd_vel_monitor
+
+    @staticmethod
+    def send_topogoal(robot, source, dest):
+        rospy.wait_for_service('robot_nav_request')
+
+        robot_nav_request = rospy.ServiceProxy('robot_nav_request', RobotNavRequest)
+        path = robot_nav_request(robot, source, dest).path
+        
+        # TODO: give path to robot's toponavigator
     
     def clicked_point_listener(self):
         rospy.Subscriber('/clicked_point', PointStamped, self.clicked_point_received)
