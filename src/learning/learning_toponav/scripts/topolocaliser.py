@@ -10,13 +10,14 @@ from learning_toponav.msg import RobotAfference
 from visualization_msgs.msg import Marker, MarkerArray
 
 
-AFFERENCES_TOPIC = '/afferences'
+AFFERENCE_TOPIC = '/afference'
 
 
 class Topolocaliser(object):
     def __init__(self, robot):
         self.robot_ns = robot
         self.int_points = rospy.get_param(INTEREST_POINTS)
+        self.afference_pub_rate = rospy.Rate(1)
 
     @staticmethod
     def eucl_dist(ipoint_pose, robot_pose):
@@ -58,10 +59,12 @@ class Topolocaliser(object):
         afference.distance = distance
         afference.robot_name = self.robot_ns
         
-        pub = rospy.Publisher(AFFERENCES_TOPIC, RobotAfference, queue_size=15)
+        pub = rospy.Publisher('/' + self.robot_ns + AFFERENCE_TOPIC, RobotAfference, queue_size=15)
         while pub.get_num_connections() < 1:
             rospy.sleep(0.3)
         pub.publish(afference)
+        
+        self.afference_pub_rate.sleep()
     
 
 def shutdown():
