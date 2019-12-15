@@ -1,4 +1,5 @@
 string robot_name
-string goal
+string source
+string dest
 ---
 string[] path

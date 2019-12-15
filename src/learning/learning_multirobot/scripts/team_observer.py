@@ -43,8 +43,8 @@ class Observer(object):
     def assign_missions(self, missions_topic):
         dispatcher = rospy.Publisher(missions_topic, Mission, queue_size=self.team_size * 2)
 
-        __current_robot_assignment = 1
-        __mission_id = 0
+        current_robot_assignment = 1
+        mission_id = 0
 
         while dispatcher.get_num_connections() < self.team_size:
             rospy.sleep(0.5)
@@ -56,8 +56,8 @@ class Observer(object):
             mission = Mission()
             task = Task()  # genera un Task random, vedi classe definita sotto
 
-            mission.robot_id = __current_robot_assignment
-            mission.mission_id = __mission_id
+            mission.robot_id = current_robot_assignment
+            mission.mission_id = mission_id
             mission.name = task.name
             mission.action = task.action
 
@@ -65,12 +65,12 @@ class Observer(object):
 
             # aumenta di 1 il contatore del robot, cosi' da dare
             # un incarico al robot successivo
-            if __current_robot_assignment == self.team_size:
-                __current_robot_assignment = 1
+            if current_robot_assignment == self.team_size:
+                current_robot_assignment = 1
             else:
-                __current_robot_assignment += 1
+                current_robot_assignment += 1
 
-            __mission_id += 1
+            mission_id += 1
             self.assignment_rate.sleep()
 
     def abort_mission(self):
