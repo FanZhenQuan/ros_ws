@@ -1,11 +1,11 @@
 - node:
     edges:
     - action: move_base_simple/goal
+      edge_id: WayPoint1_WayPoint6
+      node: WayPoint6
+    - action: move_base_simple/goal
       edge_id: WayPoint1_WayPoint2
       node: WayPoint2
-    - action: move_base_simple/goal
-      edge_id: WayPoint1_WayPoint5
-      node: WayPoint5
     name: WayPoint1
     pointset: NA
     pose:
@@ -15,8 +15,8 @@
         y: 0.0
         z: 0.0
       position:
-        x: -2.5
-        y: 1.3500000000000023
+        x: -2.6499999999999995
+        y: 1.1000000000000032
         z: 0.0
     verts:
     - x: 0.689999997616
@@ -41,11 +41,11 @@
       edge_id: WayPoint2_WayPoint1
       node: WayPoint1
     - action: move_base_simple/goal
-      edge_id: WayPoint2_WayPoint4
-      node: WayPoint4
-    - action: move_base_simple/goal
       edge_id: WayPoint2_WayPoint3
       node: WayPoint3
+    - action: move_base_simple/goal
+      edge_id: WayPoint2_WayPoint5
+      node: WayPoint5
     name: WayPoint2
     pointset: NA
     pose:
@@ -55,7 +55,7 @@
         y: 0.0
         z: 0.0
       position:
-        x: 5.100000000000001
+        x: 4.75
         y: 1.0000000000000018
         z: 0.0
     verts:
@@ -78,6 +78,9 @@
 - node:
     edges:
     - action: move_base_simple/goal
+      edge_id: WayPoint3_WayPoint4
+      node: WayPoint4
+    - action: move_base_simple/goal
       edge_id: WayPoint3_WayPoint2
       node: WayPoint2
     name: WayPoint3
@@ -89,8 +92,8 @@
         y: 0.0
         z: 0.0
       position:
-        x: 1.4000000000000004
-        y: 3.3500000000000023
+        x: 5.100000000000001
+        y: 3.650000000000002
         z: 0.0
     verts:
     - x: 0.689999997616
@@ -112,8 +115,8 @@
 - node:
     edges:
     - action: move_base_simple/goal
-      edge_id: WayPoint4_WayPoint2
-      node: WayPoint2
+      edge_id: WayPoint4_WayPoint3
+      node: WayPoint3
     name: WayPoint4
     pointset: NA
     pose:
@@ -123,8 +126,8 @@
         y: 0.0
         z: 0.0
       position:
-        x: 6.050000000000001
-        y: -3.7499999999999982
+        x: 1.0
+        y: 3.200000000000003
         z: 0.0
     verts:
     - x: 0.689999997616
@@ -146,11 +149,8 @@
 - node:
     edges:
     - action: move_base_simple/goal
-      edge_id: WayPoint5_WayPoint1
-      node: WayPoint1
-    - action: move_base_simple/goal
-      edge_id: WayPoint5_WayPoint6
-      node: WayPoint6
+      edge_id: WayPoint5_WayPoint2
+      node: WayPoint2
     name: WayPoint5
     pointset: NA
     pose:
@@ -160,8 +160,8 @@
         y: 0.0
         z: 0.0
       position:
-        x: -6.3
-        y: 3.3500000000000023
+        x: 6.100000000000001
+        y: -3.849999999999998
         z: 0.0
     verts:
     - x: 0.689999997616
@@ -183,8 +183,11 @@
 - node:
     edges:
     - action: move_base_simple/goal
-      edge_id: WayPoint6_WayPoint5
-      node: WayPoint5
+      edge_id: WayPoint6_WayPoint7
+      node: WayPoint7
+    - action: move_base_simple/goal
+      edge_id: WayPoint6_WayPoint1
+      node: WayPoint1
     name: WayPoint6
     pointset: NA
     pose:
@@ -194,8 +197,42 @@
         y: 0.0
         z: 0.0
       position:
-        x: -6.35
-        y: -2.049999999999997
+        x: -6.55
+        y: 3.2500000000000027
+        z: 0.0
+    verts:
+    - x: 0.689999997616
+      y: 0.287000000477
+    - x: 0.287000000477
+      y: 0.689999997616
+    - x: -0.287000000477
+      y: 0.689999997616
+    - x: -0.689999997616
+      y: 0.287000000477
+    - x: -0.689999997616
+      y: -0.287000000477
+    - x: -0.287000000477
+      y: -0.689999997616
+    - x: 0.287000000477
+      y: -0.689999997616
+    - x: 0.689999997616
+      y: -0.287000000477
+- node:
+    edges:
+    - action: move_base_simple/goal
+      edge_id: WayPoint7_WayPoint6
+      node: WayPoint6
+    name: WayPoint7
+    pointset: NA
+    pose:
+      orientation:
+        w: 1.0
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      position:
+        x: -6.5
+        y: -1.6999999999999975
         z: 0.0
     verts:
     - x: 0.689999997616

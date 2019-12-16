@@ -51,6 +51,9 @@
         </include>
     </group>
 
+    <!--topoplanner-->
+    <include file="$(find learning_toponav)/launch/includes/topoplanner.launch" />
+
     <!-- RVIZ -->
     <node name="rviz" pkg="rviz" type="rviz" args="$(arg rviz_config)" />
 

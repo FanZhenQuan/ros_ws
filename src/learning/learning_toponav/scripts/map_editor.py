@@ -31,8 +31,9 @@ class TopologicalEditor(object):
         'none': ''
     }
 
-    def __init__(self, mapprops, topomap, outfile, edgelist):
+    def __init__(self, mapprops, topomap, outfile, edgelist, png_image):
         self.edgelist_dir = edgelist
+        self.png_image = png_image
 
         self.debug = False
 
@@ -143,16 +144,13 @@ class TopologicalEditor(object):
         elif k == ord('w'):
             self._set_mode('none')
             self.write_map()
-        # elif k == ord('r'):
-        #     self._set_mode('rename')
-        #     self.rename_node()
+            self.write_edgelist()
+            self.save_image()
 
     def write_map(self):
         text = "saving map to " + self.outfile
         cv2.putText(self.img, text, (10, 30), self.font, 0.5, (20, 20, 20), 1)
         yml = yaml.safe_dump(self.top_map.get_dict(), default_flow_style=False)
-        
-        self.write_edgelist()
         
         if self.debug:
             print yml
@@ -179,6 +177,9 @@ class TopologicalEditor(object):
 
         with open(self.edgelist_dir, 'w') as f:
             f.writelines(lines)
+            
+    def save_image(self):
+        cv2.imwrite(filename=self.png_image, img=self.img)
 
     def _set_mode(self, new_mode):
             self.current_mode = new_mode
@@ -321,9 +322,14 @@ def main():
     parser.add_argument("--outmap", type=str, default="out.tpg",
                         help="path to topological map")
     parser.add_argument("--edgelist", type=str, help='Dir where to store edgelist')
+    parser.add_argument("--png", type=str, help='Dir where to save png image')
     args = parser.parse_args()
 
-    TopologicalEditor(args.map, args.tmap if not args.empty else None, args.outmap, args.edgelist)
+    TopologicalEditor(args.map,
+                      args.tmap if not args.empty else None,
+                      args.outmap,
+                      args.edgelist,
+                      args.png)
 
 if __name__ == '__main__':
     main()

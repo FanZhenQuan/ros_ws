@@ -11,6 +11,7 @@ find_package(catkin REQUIRED
 	roscpp
 	rospy
 	std_msgs
+	geometry_msgs
 	message_generation
 )
 
@@ -52,13 +53,16 @@ add_message_files(
   FILES
   RobotAfference.msg
   RobotState.msg
+  RobotNavRequest.msg
+  RobotTopopath.msg
+  ToponavIpoint.msg
 )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  RobotNavRequest.srv
-)
+# add_service_files(
+#   FILES
+#   Service.srv
+# )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -71,6 +75,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   std_msgs  # Or other packages containing msgs
+  geometry_msgs
 )
 
 ################################################

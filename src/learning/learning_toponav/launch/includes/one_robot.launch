@@ -46,4 +46,7 @@
 
     <!--topolocaliser-->
     <node pkg="learning_toponav" type="topolocaliser.py" name="topolocaliser" args="--robot $(arg robot_name)" />
+
+    <!--toponavigator-->
+    <node pkg="learning_toponav" type="toponavigator.py" name="toponavigator" args="--robot $(arg robot_name)" output="screen"/>
 </launch>
