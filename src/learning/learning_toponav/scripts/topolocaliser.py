@@ -2,29 +2,32 @@
 
 import rospy
 import argparse
-import scipy.spatial.distance as scipy
+import yaml
+import math
 
-from toponodes_publisher import INTEREST_POINTS
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from learning_toponav.msg import RobotAfference
 from visualization_msgs.msg import Marker, MarkerArray
 
 
-AFFERENCE_TOPIC = '/afference'
-
-
 class Topolocaliser(object):
-    def __init__(self, robot):
+    def __init__(self, robot, yaml):
         self.robot_ns = robot
-        self.int_points = rospy.get_param(INTEREST_POINTS)
-        self.afference_pub_rate = rospy.Rate(1)
-
-    @staticmethod
-    def eucl_dist(ipoint_pose, robot_pose):
-        return scipy.euclidean(ipoint_pose, robot_pose)
+        self.yaml = yaml
+        self.afference_pub_rate = rospy.Rate(15)
+        
+        while not rospy.has_param(self.yaml['interest_points']):
+            rospy.sleep(0.1)
+        self.int_points = rospy.get_param(self.yaml['interest_points'])
+        
+    def sleep(self):
+        self.afference_pub_rate.sleep()
 
     def read_amcl_pose(self):
-        rospy.Subscriber('/' + self.robot_ns + '/amcl_pose', PoseWithCovarianceStamped, self.on_amcl_pose)
+        s = rospy.Subscriber('/' + self.robot_ns + '/amcl_pose', PoseWithCovarianceStamped, self.on_amcl_pose)
+        
+        while s.get_num_connections() < 1:
+            rospy.sleep(0.1)
         
     def on_amcl_pose(self, robot_pose):
         # checks the closest interest point
@@ -33,18 +36,32 @@ class Topolocaliser(object):
         
         for ipoint in self.int_points:
             # the two different style signatures have to be kept!
-            ipoint_pose = [
-                ipoint['pose']['position']['x'],
-                ipoint['pose']['position']['y'],
-                ipoint['pose']['position']['z']
-            ]
-            rbt_pose = [
-                robot_pose.pose.pose.position.x,
-                robot_pose.pose.pose.position.y,
-                robot_pose.pose.pose.position.z
-            ]
-            
-            e_dist = self.eucl_dist(ipoint_pose, rbt_pose)
+            # ipoint_pose = [
+            #     ipoint['pose']['position']['x'],
+            #     ipoint['pose']['position']['y'],
+            #     ipoint['pose']['position']['z']
+            # ]
+            # rbt_pose = [
+            #     robot_pose.pose.pose.position.x,
+            #     robot_pose.pose.pose.position.y,
+            #     robot_pose.pose.pose.position.z
+            # ]
+            #
+            # e_dist = self.eucl_dist(ipoint_pose, rbt_pose)
+            ipoint_pose = {
+                'x': ipoint['pose']['position']['x'],
+                'y': ipoint['pose']['position']['y'],
+                'z': ipoint['pose']['position']['z'],
+            }
+            rbt_pose = {
+                'x': robot_pose.pose.pose.position.x,
+                'y': robot_pose.pose.pose.position.y,
+                'z': robot_pose.pose.pose.position.z
+            }
+            e_dist = math.hypot(
+                ipoint_pose['x'] - rbt_pose['x'],
+                ipoint_pose['y'] - rbt_pose['y']
+            )
             
             # assign minimum distance
             if e_dist < min_dist:
@@ -59,12 +76,10 @@ class Topolocaliser(object):
         afference.distance = distance
         afference.robot_name = self.robot_ns
         
-        pub = rospy.Publisher('/' + self.robot_ns + AFFERENCE_TOPIC, RobotAfference, queue_size=15)
+        pub = rospy.Publisher('/' + self.robot_ns + self.yaml['afference'], RobotAfference, queue_size=30)
         while pub.get_num_connections() < 1:
             rospy.sleep(0.3)
         pub.publish(afference)
-        
-        self.afference_pub_rate.sleep()
     
 
 def shutdown():
@@ -74,9 +89,15 @@ def shutdown():
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--robot', type=str, help='Robot namespace')
+    parser.add_argument('--yaml', type=str, help='File where used topics_yaml are saved')
     args, unknown = parser.parse_known_args()
     
     return args
+
+
+def parse_yaml(dir):
+    f = open(dir, 'r')
+    return yaml.load(f)
     
 
 if __name__ == '__main__':
@@ -84,7 +105,9 @@ if __name__ == '__main__':
     rospy.on_shutdown(shutdown)
     
     args = parse_args()
-    localiser = Topolocaliser(robot=args.robot)
+    yaml = parse_yaml(args.yaml)
+    localiser = Topolocaliser(robot=args.robot, yaml=yaml)
 
     while not rospy.is_shutdown():
         localiser.read_amcl_pose()
+        localiser.sleep()

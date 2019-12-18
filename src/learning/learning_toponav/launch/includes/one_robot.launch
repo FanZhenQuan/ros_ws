@@ -6,6 +6,7 @@
     <arg name="x_pos" />
     <arg name="y_pos" />
     <arg name="z_pos" />
+    <arg name="topics_yaml" />
 
     <param name="tf_prefix" value="$(arg robot_name)" />
 
@@ -45,8 +46,12 @@
     </include>
 
     <!--topolocaliser-->
-    <node pkg="learning_toponav" type="topolocaliser.py" name="topolocaliser" args="--robot $(arg robot_name)" />
+    <node pkg="learning_toponav" type="topolocaliser.py" name="topolocaliser"
+          args="--robot $(arg robot_name) --yaml $(arg topics_yaml)"
+    />
 
     <!--toponavigator-->
-    <node pkg="learning_toponav" type="toponavigator.py" name="toponavigator" args="--robot $(arg robot_name)" output="screen"/>
+    <node pkg="learning_toponav" type="toponavigator.py" name="toponavigator"
+          args="--robot $(arg robot_name) --yaml $(arg topics_yaml)"
+    />
 </launch>

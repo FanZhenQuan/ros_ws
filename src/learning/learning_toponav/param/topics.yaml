@@ -1,0 +1,5 @@
+robot_state: '/state'
+planner_requests: '/topoplanner/nav_request'
+robot_topopath: '/topopath'
+interest_points: '/interest_points'
+afference: '/afference'

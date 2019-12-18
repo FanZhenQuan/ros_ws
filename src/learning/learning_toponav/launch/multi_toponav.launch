@@ -4,6 +4,7 @@
 
     <arg name="metric_map" default="$(find learning_toponav)/maps/mymap.yaml" />
     <arg name="topomap" default="$(find learning_toponav)/maps/topomap_2.tpg" />
+    <arg name="topics_yaml" default="$(find learning_toponav)/param/topics.yaml" />
     <arg name="rviz_config" default="-d $(find learning_toponav)/rviz/multi_toponav.rviz" />
     <arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
     <arg name="rqt_console" default="false" /> <!-- LAUNCH RQT CONSOLE -->
@@ -25,13 +26,16 @@
     <node pkg="map_server" type="map_server" name="map_loader" args="$(arg metric_map)" />
 
     <!--toponodes publisher-->
-    <node pkg="learning_toponav" type="toponodes_publisher.py" name="toponodes_publisher" args="--topomap $(arg topomap)" />
+    <node pkg="learning_toponav" type="toponodes_publisher.py" name="toponodes_publisher"
+          args="--topomap $(arg topomap) --yaml $(arg topics_yaml)"
+    />
 
     <!--robot 1-->
     <group ns="$(arg robot_1)">
         <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
             <arg name="robot_name" value="$(arg robot_1)" />
             <arg name="color" value="red" />
+            <arg name="topics_yaml" value="$(arg topics_yaml)" />
 
             <arg name="x_pos" value="4" />
             <arg name="y_pos" value="1" />
@@ -44,6 +48,7 @@
         <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
             <arg name="robot_name" value="$(arg robot_2)" />
             <arg name="color" value="blue" />
+            <arg name="topics_yaml" value="$(arg topics_yaml)" />
 
             <arg name="x_pos" value="-3" />
             <arg name="y_pos" value="1" />
@@ -52,13 +57,18 @@
     </group>
 
     <!--topoplanner-->
-    <include file="$(find learning_toponav)/launch/includes/topoplanner.launch" />
+    <include file="$(find learning_toponav)/launch/includes/topoplanner.launch">
+        <arg name="adjlist" value="$(find learning_toponav)/maps/adjlist.txt" />
+        <arg name="topics_yaml" value="$(arg topics_yaml)" />
+    </include>
 
     <!-- RVIZ -->
     <node name="rviz" pkg="rviz" type="rviz" args="$(arg rviz_config)" />
 
     <!--goal dispatcher-->
-    <!--<node pkg="learning_multirobot" type="simple_goal_publisher.py" name="goal_publisher" output="screen"/>-->
+    <node pkg="learning_multirobot" type="simple_goal_publisher.py" name="goal_publisher"
+        args="--yaml $(arg topics_yaml)"
+    />
 
     <!--rqt_console-->
     <node pkg="rqt_console" type="rqt_console" name="rqt_console" if="$(arg rqt_console)" />

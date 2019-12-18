@@ -2,7 +2,7 @@
     <arg name="empty" default="true" />
     <arg name="metric_map" default="$(find learning_toponav)/maps/mymap.yaml" />
     <arg name="outmap" default="$(find learning_toponav)/maps/topomap_2.tpg" />
-    <arg name="edgelist_dir" default="$(find learning_toponav)/maps/edgelist.txt" />
+    <arg name="edgelist_dir" default="$(find learning_toponav)/maps/adjlist.txt" />
     <arg name="png" default="$(find learning_toponav)/maps/visualimage.png" />
 
     <node pkg="learning_toponav" type="map_editor.py" name="map_editor"

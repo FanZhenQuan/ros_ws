@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 import rospy
-import sys
-sys.path.append('/home/davide/ros_ws/src/learning/learning_toponav/scripts')
+import os
+import yaml
+import argparse
 import random
 import subprocess
 import tkMessageBox as messagebox
@@ -10,9 +11,11 @@ import tkMessageBox as messagebox
 from Tkinter import *
 from ttk import Separator
 from geometry_msgs.msg import PoseStamped, PointStamped, Twist
-from learning_toponav.srv import RobotNavRequest, RobotNavRequestResponse
-from learning_toponav.msg import RobotAfference
-from topolocaliser import AFFERENCE_TOPIC
+from learning_toponav.msg import RobotNavRequest, RobotAfference
+
+
+CONFIG_DIR = '/home/davide/.simplegoalpublisher/'
+CONFIG_FILE = 'config.txt'
 
 
 PADDING = {
@@ -28,11 +31,20 @@ class Gui(object):
     publ = None
     robots = []
     
-    def __init__(self):
+    def __init__(self, yaml):
         # finestra root
+        self.yaml = yaml
+        
         self.root = Tk()
         self.root.title("Goal dispatcher")
-        self.root.eval('tk::PlaceWindow %s center' % self.root.winfo_toplevel())
+        self.root.protocol("WM_DELETE_WINDOW", self.close_window)
+        try:
+            file = open(CONFIG_DIR + CONFIG_FILE, 'r')
+            coords = file.readline()
+
+            self.root.geometry(coords)
+        except IOError:
+            self.root.eval('tk::PlaceWindow %s center' % self.root.winfo_toplevel())
         
         self.place_above()
         
@@ -120,7 +132,7 @@ class Gui(object):
         self.target_topo_robot_ent.grid(row=7, column=1)
 
         self.goal_topo = Entry(self.root, **ENTRY_WIDTH)
-        self.goal_topo.insert(0, 'WayPoint')
+        # self.goal_topo.insert(0, 'WayPoint')
         self.goal_topo.grid(row=7, column=2)
 
         self.send_topogoal_btn = Button(self.root, text="Send", bg="green", fg="white", command=lambda: self.check_topo_input())
@@ -190,13 +202,16 @@ class Gui(object):
 
         # check if destination exists
         destination = self.goal_topo.get()
-        ipoints = rospy.get_param(INTEREST_POINTS)
+        if not destination.startswith('WayPoint'):
+            destination = 'WayPoint'+destination
+
+        ipoints = rospy.get_param(self.yaml['interest_points'])
         ipoint_is_valid = False
         for i in ipoints:
             if i['name'] == destination:
                 ipoint_is_valid = True
                 
-        source = rospy.wait_for_message('/'+target_robot+AFFERENCE_TOPIC, RobotAfference).ipoint_name
+        source = rospy.wait_for_message('/'+target_robot+self.yaml['afference'], RobotAfference).ipoint_name
 
         if ipoint_is_valid:
             self.send_topogoal(target_robot, source=source, dest=destination)
@@ -241,35 +256,20 @@ class Gui(object):
             goal.pose.orientation.w = data['w_orient']
         
         publ = rospy.Publisher(data['target_robot'] + '/move_base_simple/goal', PoseStamped, queue_size=10)
+        while publ.get_num_connections() < 1:
+            rospy.sleep(0.1)
         publ.publish(goal)
-        
-        cmd_vel_monitor = CmdVelMonitor(data['target_robot'] + '/cmd_vel')
-        
-        rospy.sleep(0.5)
-        
-        attempts = 3
-        
-        while attempts != 0:
-            if cmd_vel_monitor.get_msgs_count() == 0:
-                publ.publish(goal)
-                rospy.logwarn('Goal resent')
-                
-                break
-            attempts -= 1
-            
-        if attempts == 0:
-            rospy.logerr('Topic ' + data['target_robot'] + '/cmd_vel' + " doesn't seem to be published.")
-        
-        del cmd_vel_monitor
 
-    @staticmethod
-    def send_topogoal(robot, source, dest):
-        rospy.wait_for_service('robot_nav_request')
-
-        robot_nav_request = rospy.ServiceProxy('robot_nav_request', RobotNavRequest)
-        path = robot_nav_request(robot, source, dest).path
+    def send_topogoal(self, robot, source, dest):
+        msg = RobotNavRequest()
+        msg.robot_name = robot
+        msg.source = source
+        msg.dest = dest
         
-        # TODO: give path to robot's toponavigator
+        pub = rospy.Publisher(self.yaml['planner_requests'], RobotNavRequest, queue_size=10)
+        while pub.get_num_connections() < 1:
+            rospy.sleep(0.3)
+        pub.publish(msg)
     
     def clicked_point_listener(self):
         rospy.Subscriber('/clicked_point', PointStamped, self.clicked_point_received)
@@ -287,6 +287,15 @@ class Gui(object):
     
     def close_window(self):
         try:
+            x = self.root.winfo_x()
+            y = self.root.winfo_y()
+
+            if not os.path.exists(CONFIG_DIR):
+                os.makedirs(CONFIG_DIR)
+            
+            with open(CONFIG_DIR + CONFIG_FILE, 'w') as f:
+                line = '+%s+%s' % (x, y)
+                f.write(line)
             self.root.destroy()
         except TclError:
             # window already close, ignore exception
@@ -316,21 +325,18 @@ def get_robots():
     return robots
 
 
-class CmdVelMonitor(object):
-    messages_cnt = 0
+def load_yaml():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--yaml', type=str, required=True)
     
-    def __init__(self, topic):
-        rospy.Subscriber(topic, Twist, self.count)
-        
-    def count(self, msg):
-        self.messages_cnt += 1
-        
-    def get_msgs_count(self):
-        return self.messages_cnt
+    args, unknown = parser.parse_known_args()
+    f = open(args.yaml, 'r')
+    return yaml.load(f)
 
 
 if __name__ == '__main__':
-    gui = Gui()
+    yaml = load_yaml()
+    gui = Gui(yaml=yaml)
 
     rospy.init_node('goal_publisher')
     rospy.on_shutdown(gui.close_window)

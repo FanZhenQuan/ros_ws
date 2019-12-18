@@ -1,26 +1,23 @@
 #!/usr/bin/env python
 
 import rospy
+import yaml
 import argparse
 import networkx as nx
 
 from pprint import pprint
-from toponodes_publisher import INTEREST_POINTS
 from topological_node import TopologicalNode
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from std_msgs.msg import Header
-from learning_toponav.msg import RobotNavRequest, RobotTopopath, ToponavIpoint
-
-
-PLANNER_REQUESTS_TOPIC = '/topoplanner/nav_request'
-ROBOT_TOPOPATH_TOPIC = '/topopath'
+from learning_toponav.msg import *
+# TODO: implementare un planner sciente, invia goal di sua volonta sapendo lo stato del robot
 
 
 class Planner(object):
-    def __init__(self, edgelist):
-        self.graph = nx.read_adjlist(edgelist, delimiter=', ', nodetype=str)
-        self.nodes = rospy.get_param(INTEREST_POINTS)
-        self.nav_request = rospy.Subscriber(PLANNER_REQUESTS_TOPIC, RobotNavRequest, self._on_nav_request)
+    def __init__(self, adjlist, yaml):
+        self.graph = nx.read_adjlist(adjlist, delimiter=', ', nodetype=str)
+        self.yaml = yaml
+        self.nodes = rospy.get_param(yaml['interest_points'])
         
     def _find_node_by_name(self, name):
         for n in self.nodes:
@@ -45,29 +42,34 @@ class Planner(object):
         """
         return nx.dijkstra_path(self.graph, source, dest)
     
+    def listen_navrequests(self):
+        nav_request = rospy.Subscriber(self.yaml['planner_requests'], RobotNavRequest, self._on_nav_request)
+    
     def _on_nav_request(self, request):
         try:
             path = self.find_path(request.source, request.dest)
             toponav_ipoints = []
             for p in path:
                 node = self._find_node_by_name(p)
-                ipoint = self.__build_msg(node)
+                ipoint = self.__build_ipoint_msg(node)
                 toponav_ipoints.append(ipoint)
-                
             toponav_ipoints.pop(0)  # removes the start point (source)
 
             topopath = RobotTopopath(toponav_ipoints)
 
-            pub = rospy.Publisher('/'+request.robot_name+ROBOT_TOPOPATH_TOPIC, RobotTopopath, queue_size=10)
-            while pub.get_num_connections() < 1:
-                rospy.sleep(0.1)
-            pub.publish(topopath)
+            self.publish_path(topopath, request.robot_name)
             
             rospy.loginfo('Topoplanner: navrequest from %s fulfilled, path sent' % request.robot_name)
         except nx.NetworkXNoPath as e:
             rospy.logerr(str(e))
             
-    def __build_msg(self, node):
+    def publish_path(self, path, target_robot):
+        pub = rospy.Publisher('/' + target_robot + self.yaml['robot_topopath'], RobotTopopath, queue_size=10)
+        while pub.get_num_connections() < 1:
+            rospy.sleep(0.1)
+        pub.publish(path)
+            
+    def __build_ipoint_msg(self, node):
         position = Point(
             float(node['pose']['position']['x']),
             float(node['pose']['position']['y']),
@@ -83,13 +85,19 @@ class Planner(object):
         pose.pose = Pose(position, orientation)
         
         return ToponavIpoint(pose, node['name'])
+    
+    
+def parse_yaml(dir):
+    f = open(dir, 'r')
+    return yaml.load(f)
 
     
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--edgelist', type=str, required=True)
+    parser.add_argument('--adjlist', type=str, required=True)
     parser.add_argument('--source', type=str, required=False)
     parser.add_argument('--dest', type=str, required=False)
+    parser.add_argument('--yaml', type=str, help='File where used topics_yaml are saved')
     args, unknown = parser.parse_known_args()
     
     return args
@@ -99,17 +107,9 @@ if __name__ == '__main__':
     rospy.init_node('topoplanner')
     
     args = parse_args()
+    yaml = parse_yaml(args.yaml)
     
-    planner = Planner(args.edgelist)
-    
-    if args.source and args.dest:
-        source = 'WayPoint' + args.source
-        dest = 'WayPoint' + args.dest
-        
-        path = planner.find_path(source, dest)
-        rospy.loginfo(str(path))
-    else:
-        rospy.logwarn('Planner: no source and destination provided at launch')
-        pass
+    planner = Planner(args.adjlist, yaml=yaml)
+    planner.listen_navrequests()
     
     rospy.spin()

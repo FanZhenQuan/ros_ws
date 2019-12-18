@@ -2,16 +2,12 @@
 
 import rospy
 import argparse
+import yaml
 
 from std_msgs.msg import Header, String, ColorRGBA
 from geometry_msgs.msg import Pose, Vector3
 from visualization_msgs.msg import Marker, MarkerArray
-
-# from topological_node import TopologicalNode
 from topological_map import TopologicalMap
-
-
-INTEREST_POINTS = '/interest_points'
 
 
 def node_to_marker(node, marker_id):
@@ -67,7 +63,7 @@ def build_marker_array(topomap):
     return MarkerArray(markers)
 
 
-def publish_marker_array(topic):
+def publish_marker_array(topic, marker_array):
     pub = rospy.Publisher(topic, MarkerArray, queue_size=5)
     # wait for a subscriber (Rviz)
     while pub.get_num_connections() < 1:
@@ -79,17 +75,30 @@ def shutdown():
     rospy.loginfo('toponodes_publisher: Shutting down')
 
 
+def parse_yaml(dir):
+    f = open(dir, 'r')
+    return yaml.load(f)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--topomap', type=str, help='Topological map')
+    parser.add_argument('--yaml', type=str, help='File where used topics_yaml are saved')
+    args, unknown = parser.parse_known_args()
+    
+    return args
+
+
 if __name__ == '__main__':
     rospy.init_node('toponodes_publisher')
     rospy.on_shutdown(shutdown)
     
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--topomap', type=str, help='Topological map')
-    args, unknown = parser.parse_known_args()
+    args = parse_args()
+    yaml = parse_yaml(args.yaml)
 
     topomap = TopologicalMap(filename=args.topomap)
-    rospy.set_param(INTEREST_POINTS, topomap.nodes)
-    
+    rospy.set_param(yaml['interest_points'], topomap.nodes)
+
     marker_array = build_marker_array(topomap)
 
-    publish_marker_array(topic=INTEREST_POINTS)
+    publish_marker_array(topic=yaml['interest_points'], marker_array=marker_array)
