@@ -20,7 +20,7 @@
 
 [ ] incrementare l'area pertinente ad un punto di interesse
 [ ] assegnazione punti di interesse tramite segmentazione di Voronoi
-[ ] il planner dovrebbe inviare goal topologici ai robot, non i robot che 
+[v] il planner dovrebbe inviare goal topologici ai robot, non i robot che 
 	richiesta di un path. si può mantenere questa analogia, ma sviluppando anche
 	l'estensione del planner sciente, cioè che invia goal di sua volontà
 	sapendo però la disponibilità del robot ad accettare un goal

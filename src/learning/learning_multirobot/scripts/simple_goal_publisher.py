@@ -49,7 +49,7 @@ class Gui(object):
         self.place_above()
         
         img = Image("photo", file='/home/davide/ros_ws/icon.png')
-        self.root.call('wm','iconphoto', self.root._w, img)
+        self.root.call('wm', 'iconphoto', self.root._w, img)
         
         self.clicked_point_listener()
         
@@ -143,8 +143,8 @@ class Gui(object):
 
     @staticmethod
     def place_above():
-        pop = subprocess.Popen(["wmctrl", "-r", "Goal dispatcher", "-b", "add,above"])
-        
+        pop = subprocess.Popen(["wmctrl", "-r", "'Goal dispatcher'", "-b", "add,above"])
+        # pop = subprocess.Popen(['wmctrl', '-r', '0x03c00027', '-b', 'toggle,above'])
         pop.communicate()
     
     def check_metric_input(self):

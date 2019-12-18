@@ -2,11 +2,12 @@
 
 import rospy
 import yaml
+from threading import Thread
 import math
 import argparse
 
-from learning_toponav.msg import *
-from std_msgs.msg import Header
+from learning_toponav.msg import RobotTopopath
+from std_msgs.msg import Header, String
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 
 
@@ -20,17 +21,31 @@ class Toponavigator(object):
         self.current_goal = None
         self.goal_reached = None
         self.state = self.READY
+        
+        self.state_publisher()
+        
+    def state_publisher(self):
+        t = Thread(target=self.publish_state)
+        t.start()
+        
+    def publish_state(self):
+        rate = rospy.Rate(10)
+        
+        while not rospy.is_shutdown():
+            msg = String()
+            msg.data = self.state
+            
+            pub = rospy.Publisher('/' + self.robot_ns + self.yaml['robot_state'], String, queue_size=10)
+            pub.publish(msg)
+            
+            rate.sleep()
 
     def wait_topopaths(self):
-        if self.state == self.READY:
-            rospy.Subscriber('/'+self.robot_ns+self.yaml['robot_topopath'], RobotTopopath, self.on_topopath)
-        else:
-            rospy.loginfo('Toponavigator: robot %s busy, discarding requested topopath' % self.robot_ns)
-            rospy.sleep(1)
+        rospy.Subscriber('/'+self.robot_ns+self.yaml['robot_topopath'], RobotTopopath, self.on_topopath)
         
     def on_topopath(self, path):
-        move_base_goal_topic = '/'+self.robot_ns+'/move_base_simple/goal'
         # TODO: implementare consegna random di un punto nell'area di pertinenza (metrica)
+        move_base_goal_topic = '/'+self.robot_ns+'/move_base_simple/goal'
         
         pub = rospy.Publisher(move_base_goal_topic, PoseStamped, queue_size=30)
         while pub.get_num_connections() < 1:

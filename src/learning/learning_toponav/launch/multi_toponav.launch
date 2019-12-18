@@ -66,9 +66,7 @@
     <node name="rviz" pkg="rviz" type="rviz" args="$(arg rviz_config)" />
 
     <!--goal dispatcher-->
-    <node pkg="learning_multirobot" type="simple_goal_publisher.py" name="goal_publisher"
-        args="--yaml $(arg topics_yaml)"
-    />
+    <!--<node pkg="learning_multirobot" type="simple_goal_publisher.py" name="goal_publisher" args="&#45;&#45;yaml $(arg topics_yaml)" output="screen" />-->
 
     <!--rqt_console-->
     <node pkg="rqt_console" type="rqt_console" name="rqt_console" if="$(arg rqt_console)" />
