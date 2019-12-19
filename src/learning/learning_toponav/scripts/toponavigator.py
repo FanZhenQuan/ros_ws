@@ -6,19 +6,18 @@ from threading import Thread
 import math
 import argparse
 
-from learning_toponav.msg import RobotTopopath
+from learning_toponav.msg import RobotTopopath, RobotState
 from std_msgs.msg import Header, String
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 
 
 class Toponavigator(object):
     READY = 'ready'
-    BUSY = 'busy'
     
     def __init__(self, robot, yaml):
         self.robot_ns = robot
         self.yaml = yaml
-        self.current_goal = None
+        self.current_goal = self.latest_goal = None
         self.goal_reached = None
         self.state = self.READY
         
@@ -32,10 +31,21 @@ class Toponavigator(object):
         rate = rospy.Rate(10)
         
         while not rospy.is_shutdown():
-            msg = String()
-            msg.data = self.state
+            msg = RobotState()
+            msg.robot_name = self.robot_ns
+            msg.state = self.state
             
-            pub = rospy.Publisher('/' + self.robot_ns + self.yaml['robot_state'], String, queue_size=10)
+            if self.latest_goal is None:
+                msg.latest_goal = 'None'
+            else:
+                msg.latest_goal = self.latest_goal
+                
+            if self.current_goal is None:
+                msg.current_goal = 'None'
+            else:
+                msg.current_goal = self.current_goal.name
+            
+            pub = rospy.Publisher('/' + self.robot_ns + self.yaml['robot_state'], RobotState, queue_size=10)
             pub.publish(msg)
             
             rate.sleep()
@@ -52,27 +62,29 @@ class Toponavigator(object):
             rospy.sleep(0.1)
         
         for ipoint in path.path:
-            goal = ipoint.pose
-            self.current_goal = goal
+            # goal = ipoint.pose
+            self.current_goal = ipoint
             self.goal_reached = False
-            self.state = self.BUSY
+            self.state = 'busy'
             
-            pub.publish(goal)
+            pub.publish(ipoint.pose)
             
             self.has_reached_goal()
             
             while not self.goal_reached:
                 rospy.sleep(1)
                 
-        rospy.loginfo('Toponavigator: end goal goal_reached')
+        rospy.loginfo('Toponavigator: %s end goal reached' % self.robot_ns)
         self.state = self.READY
+        self.latest_goal = self.current_goal.name
+        # self.current_goal = None
             
     def has_reached_goal(self):
         rospy.Subscriber('/'+self.robot_ns+'/amcl_pose', PoseWithCovarianceStamped, self.on_amcl)
 
     def on_amcl(self, amcl_pose):
         amcl_posit = amcl_pose.pose.pose.position
-        goal_posit = self.current_goal.pose.position
+        goal_posit = self.current_goal.pose.pose.position
         
         # if amclpose is inside a circle built around
         # goal, return true, else false
