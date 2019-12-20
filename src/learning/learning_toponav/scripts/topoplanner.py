@@ -31,6 +31,7 @@ class Planner(object):
 
         colors = rospy.get_param('/colors/')
         self.robot_namespaces = ['/' + ns for color, ns in colors.items()]
+        
         self.available_robots = []
         self.__availability_checker = Thread(
             target=self.find_available_robots
@@ -39,6 +40,23 @@ class Planner(object):
         
     def on_shutdown(self):
         self.__availability_checker.join()
+        
+    def debug(self):
+        path_rbt1 = self.find_path('WayPoint2', 'WayPoint1')
+        path_rbt2 = self.find_path('WayPoint1', 'WayPoint2')
+        
+        tp_rbt1 = self.build_topopath(path_rbt1)
+        tp_rbt2 = self.build_topopath(path_rbt2)
+        
+        while not self.available_robots:
+            rospy.sleep(1)
+        
+        self.publish_path(tp_rbt1, '/robot_1')
+        self.publish_path(tp_rbt2, '/robot_2')
+        
+        rospy.loginfo('Goal debug consegnati')
+        
+        rospy.spin()
 
     def _get_node_by_name(self, name):
         for n in self.nodes:
@@ -114,8 +132,8 @@ class Planner(object):
                     else:
                         self.update_available_dests(remove=msg.current_goal)
                         
-                # leave this as is, prevents multiple
-                # goals being sent at the same time
+                # LEAVE THIS AS IS, prevents multiple
+                # goals being sent simultaneously at launch
                 rospy.sleep(2)
         except rospy.ROSInterruptException:
             pass
@@ -217,9 +235,6 @@ if __name__ == '__main__':
     yaml = parse_yaml(args.yaml)
     
     planner = Planner(args.adjlist, yaml=yaml)
-    # rospy.on_shutdown(planner.on_shutdown)
     # planner.listen_navrequests()
-    planner.dispatch_goals()
-    
-    
-    # rospy.spin()
+    # planner.dispatch_goals()
+    planner.debug()
