@@ -35,19 +35,6 @@ class Topolocaliser(object):
         closest_ipoint = None
         
         for ipoint in self.int_points:
-            # the two different style signatures have to be kept!
-            # ipoint_pose = [
-            #     ipoint['pose']['position']['x'],
-            #     ipoint['pose']['position']['y'],
-            #     ipoint['pose']['position']['z']
-            # ]
-            # rbt_pose = [
-            #     robot_pose.pose.pose.position.x,
-            #     robot_pose.pose.pose.position.y,
-            #     robot_pose.pose.pose.position.z
-            # ]
-            #
-            # e_dist = self.eucl_dist(ipoint_pose, rbt_pose)
             ipoint_pose = {
                 'x': ipoint['pose']['position']['x'],
                 'y': ipoint['pose']['position']['y'],
@@ -81,10 +68,6 @@ class Topolocaliser(object):
             rospy.sleep(0.3)
         pub.publish(afference)
     
-
-def shutdown():
-    rospy.loginfo('Topolocaliser shutting down')
-    
     
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -102,12 +85,14 @@ def parse_yaml(dir):
 
 if __name__ == '__main__':
     rospy.init_node('topolocaliser')
-    rospy.on_shutdown(shutdown)
     
     args = parse_args()
     yaml = parse_yaml(args.yaml)
     localiser = Topolocaliser(robot=args.robot, yaml=yaml)
 
-    while not rospy.is_shutdown():
-        localiser.read_amcl_pose()
-        localiser.sleep()
+    try:
+        while not rospy.is_shutdown():
+            localiser.read_amcl_pose()
+            localiser.sleep()
+    except rospy.ROSInterruptException:
+        pass

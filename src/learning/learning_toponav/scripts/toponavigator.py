@@ -21,38 +21,42 @@ class Toponavigator(object):
         self.goal_reached = None
         self.state = self.READY
         
-        self.state_publisher()
-        
-    def state_publisher(self):
+        self.state_publisher = rospy.Publisher('/'+robot+yaml['robot_state'], RobotState, queue_size=10)
+        self.publisher_thread()
+    
+    def publisher_thread(self):
         t = Thread(target=self.publish_state)
         t.start()
-        
+        # for some reason, doesn't need to be .join()-ed
+        # upon receiving rospy.is_shutdown() flag ...
+    
     def publish_state(self):
-        rate = rospy.Rate(10)
+        try:
+            rate = rospy.Rate(30)
+            while not rospy.is_shutdown():
+                msg = RobotState()
+                msg.robot_name = self.robot_ns
+                msg.state = self.state
         
-        while not rospy.is_shutdown():
-            msg = RobotState()
-            msg.robot_name = self.robot_ns
-            msg.state = self.state
-            
-            if self.latest_goal is None:
-                msg.latest_goal = 'None'
-            else:
-                msg.latest_goal = self.latest_goal
-                
-            if self.current_goal is None:
-                msg.current_goal = 'None'
-            else:
-                msg.current_goal = self.current_goal.name
-            
-            pub = rospy.Publisher('/' + self.robot_ns + self.yaml['robot_state'], RobotState, queue_size=10)
-            pub.publish(msg)
-            
-            rate.sleep()
-
+                if self.latest_goal is None:
+                    msg.latest_goal = 'None'
+                else:
+                    msg.latest_goal = self.latest_goal
+        
+                if self.current_goal is None:
+                    msg.current_goal = 'None'
+                else:
+                    msg.current_goal = self.current_goal.name
+        
+                self.state_publisher.publish(msg)
+        
+                rate.sleep()
+        except rospy.ROSInterruptException:
+            pass
+    
     def wait_topopaths(self):
-        rospy.Subscriber('/'+self.robot_ns+self.yaml['robot_topopath'], RobotTopopath, self.on_topopath)
-        
+        rospy.Subscriber('/' + self.robot_ns + self.yaml['robot_topopath'], RobotTopopath, self.on_topopath)
+    
     def on_topopath(self, path):
         # TODO: implementare consegna random di un punto nell'area di pertinenza (metrica)
         move_base_goal_topic = '/'+self.robot_ns+'/move_base_simple/goal'
@@ -62,7 +66,6 @@ class Toponavigator(object):
             rospy.sleep(0.1)
         
         for ipoint in path.path:
-            # goal = ipoint.pose
             self.current_goal = ipoint
             self.goal_reached = False
             self.state = 'busy'
@@ -73,15 +76,14 @@ class Toponavigator(object):
             
             while not self.goal_reached:
                 rospy.sleep(1)
-                
+        
         rospy.loginfo('Toponavigator: %s end goal reached' % self.robot_ns)
         self.state = self.READY
         self.latest_goal = self.current_goal.name
-        # self.current_goal = None
-            
+        
     def has_reached_goal(self):
-        rospy.Subscriber('/'+self.robot_ns+'/amcl_pose', PoseWithCovarianceStamped, self.on_amcl)
-
+        rospy.Subscriber('/' + self.robot_ns + '/amcl_pose', PoseWithCovarianceStamped, self.on_amcl)
+    
     def on_amcl(self, amcl_pose):
         amcl_posit = amcl_pose.pose.pose.position
         goal_posit = self.current_goal.pose.pose.position
@@ -106,7 +108,7 @@ def parse_args():
     parser.add_argument('--robot', type=str, help='Robot namespace')
     parser.add_argument('--yaml', type=str, help='File where used topics_yaml are saved')
     args, unknown = parser.parse_known_args()
-
+    
     return args
 
 

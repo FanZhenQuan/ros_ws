@@ -7,7 +7,7 @@
     <arg name="topics_yaml" default="$(find learning_toponav)/param/topics.yaml" />
     <arg name="rviz_config" default="-d $(find learning_toponav)/rviz/multi_toponav.rviz" />
     <arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
-    <arg name="rqt_console" default="false" /> <!-- LAUNCH RQT CONSOLE -->
+    <arg name="rqt_console" default="true" /> <!-- LAUNCH RQT CONSOLE -->
 
     <!-- GAZEBO -->
     <include file="$(find learning_multirobot)/launch/includes/main_gazebo.launch">
