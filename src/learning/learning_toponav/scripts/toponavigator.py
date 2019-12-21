@@ -40,6 +40,7 @@ class Toponavigator(object):
         
                 if self.latest_goal is None:
                     msg.latest_goal = 'None'
+                    # msg.latest_goal = self.current_goal
                 else:
                     msg.latest_goal = self.latest_goal
         
@@ -49,7 +50,6 @@ class Toponavigator(object):
                     msg.current_goal = self.current_goal.name
         
                 self.state_publisher.publish(msg)
-        
                 rate.sleep()
         except rospy.ROSInterruptException:
             pass
@@ -80,6 +80,8 @@ class Toponavigator(object):
         rospy.loginfo('Toponavigator: %s end goal reached' % self.robot_ns)
         self.state = self.READY
         self.latest_goal = self.current_goal.name
+        # self.current_goal = None
+        # TODO: check if this matters
         
     def has_reached_goal(self):
         rospy.Subscriber('/' + self.robot_ns + '/amcl_pose', PoseWithCovarianceStamped, self.on_amcl)

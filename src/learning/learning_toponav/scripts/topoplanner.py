@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 import rospy
-from threading import Thread
 import yaml
 import random
 import argparse
 import networkx as nx
+import json
 
+from threading import Thread
 from pprint import pprint
 from topological_node import TopologicalNode
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
@@ -38,10 +39,12 @@ class Planner(object):
         )
         self.__availability_checker.start()
         
-    def on_shutdown(self):
-        self.__availability_checker.join()
+        # ---------------
+        dests_logger = Thread(target=self.destinations_log)
+        dests_logger.start()
         
     def debug(self):
+        # crash test
         path_rbt1 = self.find_path('WayPoint2', 'WayPoint1')
         path_rbt2 = self.find_path('WayPoint1', 'WayPoint2')
         
@@ -118,8 +121,6 @@ class Planner(object):
         return RobotTopopath(toponav_ipoints)
 
     def find_available_robots(self):
-        self.available_robots = []
-        
         try:
             while not rospy.is_shutdown():
                 for r in self.robot_namespaces:
@@ -193,6 +194,22 @@ class Planner(object):
                 availables.append(dest['name'])
         
         return random.choice(availables)
+    
+    def destinations_log(self):
+        pub = rospy.Publisher(self.yaml['destinations_log'], DestinationDebug, queue_size=30)
+        rate = rospy.Rate(10)
+        
+        try:
+            while not rospy.is_shutdown():
+                for d in self.destinations:
+                    msg = DestinationDebug()
+                    msg.available = d['available']
+                    msg.name = d['name']
+                    
+                    pub.publish(msg)
+                    rate.sleep()
+        except rospy.ROSInterruptException:
+            pass
 
     def listen_navrequests(self):
         nav_request = rospy.Subscriber(self.yaml['planner_requests'], RobotNavRequest, self._on_nav_request)
@@ -236,5 +253,5 @@ if __name__ == '__main__':
     
     planner = Planner(args.adjlist, yaml=yaml)
     # planner.listen_navrequests()
-    # planner.dispatch_goals()
-    planner.debug()
+    # planner.debug()
+    planner.dispatch_goals()
