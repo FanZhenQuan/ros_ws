@@ -1,0 +1,6 @@
+<launch>
+    <node pkg="my_fun" type="test_args.py" name="test_args" output="screen">
+        <param name="foo" value="bar" />
+        <param name="spam" value="eggs" />
+    </node>
+</launch>

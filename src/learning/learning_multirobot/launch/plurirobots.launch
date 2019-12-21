@@ -29,6 +29,9 @@
             <arg name="x_pos" value="4" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
+            <!--<arg name="x_pos" value="-4" />-->
+            <!--<arg name="y_pos" value="1" />-->
+            <!--<arg name="z_pos" value="0" />-->
         </include>
     </group>
 
@@ -41,6 +44,9 @@
             <arg name="x_pos" value="-3" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
+            <!--<arg name="x_pos" value="-1" />-->
+            <!--<arg name="y_pos" value="4" />-->
+            <!--<arg name="z_pos" value="0" />-->
         </include>
     </group>
 

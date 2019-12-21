@@ -326,12 +326,15 @@ def get_robots():
 
 
 def load_yaml():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--yaml', type=str, required=True)
-    
-    args, unknown = parser.parse_known_args()
-    f = open(args.yaml, 'r')
-    return yaml.load(f)
+    try:
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--yaml', type=str, required=False)
+        
+        args, unknown = parser.parse_known_args()
+        f = open(args.yaml, 'r')
+        return yaml.load(f)
+    except:
+        return None
 
 
 if __name__ == '__main__':

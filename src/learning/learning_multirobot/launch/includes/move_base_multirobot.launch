@@ -1,6 +1,8 @@
 <launch>
     <!-- @ REQUIRED: nome del robot e modello -->
+    <arg name="model" default="waffle"/>
     <arg name="robot_name" default="robot_1"/>
+
     <node pkg="move_base" type="move_base" name="move_base" output="log">
         <!-- INCLUDED PARAMS (from /param dir) -->
         <rosparam file="$(find learning_multirobot)/param/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap" />
@@ -9,12 +11,10 @@
         <rosparam file="$(find learning_multirobot)/param/global_costmap_params.yaml" command="load" />
         <rosparam file="$(find learning_multirobot)/param/dwa_local_planner_params_$(arg model).yaml" command="load" />
         <rosparam file="$(find learning_multirobot)/param/move_base_params.yaml" command="load" />
-
         <!-- PARAMS -->
         <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
         <!--NON ABILITARE: LA COSTMAP LOCALE RIMANE SEMPRE NULLA-->
         <!--<param name="DWAPlannerROS/global_frame_id" value="$(arg robot_name)/odom" />-->
-
         <param name="global_costmap/global_frame" value="map" />
         <param name="global_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint" />
         <param name="local_costmap/global_frame" value="map" />
@@ -104,6 +104,4 @@
         <!--<remap from="/move_base/set_logger_level"                               to="/$(arg robot_name)/move_base/set_logger_level" />-->
         <!--<remap from="/move_base/set_parameters"                                 to="/$(arg robot_name)/move_base/set_parameters" />-->
     </node>
-
-    <arg name="model" default="waffle"/>
 </launch>
