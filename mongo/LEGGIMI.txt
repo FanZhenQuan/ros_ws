@@ -1,1 +1,0 @@
-directory dove vengono inserite tutti i dati di mongo_db (dependency di strands)

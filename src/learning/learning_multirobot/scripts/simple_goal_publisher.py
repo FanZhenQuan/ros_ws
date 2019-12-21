@@ -132,7 +132,6 @@ class Gui(object):
         self.target_topo_robot_ent.grid(row=7, column=1)
 
         self.goal_topo = Entry(self.root, **ENTRY_WIDTH)
-        # self.goal_topo.insert(0, 'WayPoint')
         self.goal_topo.grid(row=7, column=2)
 
         self.send_topogoal_btn = Button(self.root, text="Send", bg="green", fg="white", command=lambda: self.check_topo_input())
