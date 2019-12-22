@@ -13,6 +13,8 @@ from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 
 class Toponavigator(object):
     READY = 'ready'
+    BUSY = 'busy'
+    GOAL_DISTANCE_BIAS = 0.4
     
     def __init__(self, robot, yaml):
         self.robot_ns = robot
@@ -68,7 +70,7 @@ class Toponavigator(object):
         for ipoint in path.path:
             self.current_goal = ipoint
             self.goal_reached = False
-            self.state = 'busy'
+            self.state = self.BUSY
             
             pub.publish(ipoint.pose)
             
@@ -97,9 +99,7 @@ class Toponavigator(object):
             amcl_posit.y - goal_posit.y
         )
         
-        tolerance = 0.4
-        
-        if distance <= tolerance:
+        if distance <= self.GOAL_DISTANCE_BIAS:
             self.goal_reached = True
         else:
             self.goal_reached = False

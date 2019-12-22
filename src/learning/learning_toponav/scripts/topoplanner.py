@@ -45,8 +45,13 @@ class Planner(object):
         
     def debug(self):
         # crash test
-        path_rbt1 = self.find_path('WayPoint2', 'WayPoint1')
-        path_rbt2 = self.find_path('WayPoint1', 'WayPoint2')
+        # start_1 = 'WayPoint2'; goal_1 = 'WayPoint1'
+        # start_2 = 'WayPoint1'; goal_2 = 'WayPoint2'
+        start_1 = 'WayPoint2'; goal_1 = 'WayPoint4'
+        start_2 = 'WayPoint1'; goal_2 = 'WayPoint7'
+        
+        path_rbt1 = self.find_path(start_1, goal_1)
+        path_rbt2 = self.find_path(start_2, goal_2)
         
         tp_rbt1 = self.build_topopath(path_rbt1)
         tp_rbt2 = self.build_topopath(path_rbt2)
@@ -162,9 +167,7 @@ class Planner(object):
     def dispatch_goals(self):
         robots_num = len(self.robot_namespaces)
         
-        rate = rospy.Rate(robots_num)
         i = 0
-        
         try:
             while not rospy.is_shutdown():
                 if not self.available_robots:

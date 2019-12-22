@@ -99,6 +99,8 @@ if __name__ == '__main__':
     topomap = TopologicalMap(filename=args.topomap)
     rospy.set_param(yaml['interest_points'], topomap.nodes)
 
-    marker_array = build_marker_array(topomap)
-
-    publish_marker_array(topic=yaml['interest_points'], marker_array=marker_array)
+    try:
+        marker_array = build_marker_array(topomap)
+        publish_marker_array(topic=yaml['interest_points'], marker_array=marker_array)
+    except rospy.ROSInterruptException:
+        pass
