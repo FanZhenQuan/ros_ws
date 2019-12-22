@@ -2,10 +2,10 @@
 
 import rospy
 import yaml
-from threading import Thread
 import math
 import argparse
 
+from threading import Thread
 from learning_toponav.msg import RobotTopopath, RobotState
 from std_msgs.msg import Header, String
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
@@ -41,8 +41,11 @@ class Toponavigator(object):
                 msg.state = self.state
         
                 if self.latest_goal is None:
-                    msg.latest_goal = 'None'
-                    # msg.latest_goal = self.current_goal
+                    if self.current_goal is None:
+                        msg.latest_goal = 'None'
+                    else:
+                        msg.latest_goal = self.current_goal.name
+                    # msg.latest_goal = 'None'
                 else:
                     msg.latest_goal = self.latest_goal
         
@@ -57,7 +60,7 @@ class Toponavigator(object):
             pass
     
     def wait_topopaths(self):
-        rospy.Subscriber('/' + self.robot_ns + self.yaml['robot_topopath'], RobotTopopath, self.on_topopath)
+        rospy.Subscriber('/'+self.robot_ns+self.yaml['robot_topopath'], RobotTopopath, self.on_topopath)
     
     def on_topopath(self, path):
         # TODO: implementare consegna random di un punto nell'area di pertinenza (metrica)
@@ -82,11 +85,9 @@ class Toponavigator(object):
         rospy.loginfo('Toponavigator: %s end goal reached' % self.robot_ns)
         self.state = self.READY
         self.latest_goal = self.current_goal.name
-        # self.current_goal = None
-        # TODO: check if this matters
         
     def has_reached_goal(self):
-        rospy.Subscriber('/' + self.robot_ns + '/amcl_pose', PoseWithCovarianceStamped, self.on_amcl)
+        rospy.Subscriber('/'+self.robot_ns+'/amcl_pose', PoseWithCovarianceStamped, self.on_amcl)
     
     def on_amcl(self, amcl_pose):
         amcl_posit = amcl_pose.pose.pose.position

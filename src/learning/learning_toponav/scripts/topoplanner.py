@@ -134,9 +134,16 @@ class Planner(object):
                 
                     if msg.state == 'ready':
                         self.available_robots.append(r)
-                        self.update_available_dests(add=msg.latest_goal)
+                        self.update_available_dests(
+                            add=[msg.latest_goal, msg.current_goal]
+                            # add=msg.latest_goal
+                        )
                     else:
-                        self.update_available_dests(remove=msg.current_goal)
+                        self.update_available_dests(
+                            # add=[msg.latest_goal, msg.current_goal],
+                            add=msg.latest_goal,
+                            remove=msg.current_goal
+                        )
                         
                 # LEAVE THIS AS IS, prevents multiple
                 # goals being sent simultaneously at launch
@@ -146,11 +153,24 @@ class Planner(object):
 
     def update_available_dests(self, add=None, remove=None):
         for d in self.destinations:
-            if add and d['name'] == add:
-                d['available'] = True
+            if add:
+                if add[0] or add[1]:
+                    if add[0] and d['name'] == add[0]:
+                        d['available'] = True
+                        # rospy.logwarn(add[0])
+                    elif add[1] and d['name'] == add[1]:
+                        d['available'] = True
+                        # rospy.logwarn(add[1])
+            # if add and d['name'] == add:
+            #     d['available'] = True
             
-            if remove and d['name'] == remove:
+            if (
+                remove and
+                d['name'] == remove and
+                remove != add
+            ):
                 d['available'] = False
+                # rospy.logerr(remove)
     
     def find_path(self, source, dest):
         """
@@ -256,5 +276,5 @@ if __name__ == '__main__':
     
     planner = Planner(args.adjlist, yaml=yaml)
     # planner.listen_navrequests()
-    # planner.debug()
-    planner.dispatch_goals()
+    planner.debug()
+    # planner.dispatch_goals()
