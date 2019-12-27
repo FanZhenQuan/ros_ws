@@ -155,7 +155,7 @@ class DestDebugger(object):
         rospy.Subscriber('/robot_2'+self.yaml['robot_state'], RobotState, self.on_state)
         
     def on_state(self, msg):
-        if msg.robot_name == 'robot_1':
+        if msg.robot_name == '/robot_1':
             self.robot_1_cgoal.delete(0, 'end')
             self.robot_1_lgoal.delete(0, 'end')
             

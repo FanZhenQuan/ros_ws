@@ -7,7 +7,6 @@ import math
 
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from learning_toponav.msg import RobotAfference
-from visualization_msgs.msg import Marker, MarkerArray
 
 
 class Topolocaliser(object):

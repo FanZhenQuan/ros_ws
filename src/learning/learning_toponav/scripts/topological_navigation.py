@@ -139,7 +139,6 @@ class TopologicalLocaliser(object):
             self.goal_active = False
 
 
-    # TODO IS THIS USED???
     # def _on_get_plan(self, data):
     #     print('on_get_plan: %s' % data)
     #     route = self.get_route(goal)
@@ -157,7 +156,6 @@ class TopologicalLocaliser(object):
     #                 nn = get_node(self.map, j.node)
     #                 step['dest']['x'] = nn.pose.position.x
     #                 step['dest']['y'] = nn.pose.position.y
-    #                 # TODO ADD ORIENTATION
     #         plan.append(step)
     #     if route:
     #         self.memProxy.insertData("TopologicalNav/Route",

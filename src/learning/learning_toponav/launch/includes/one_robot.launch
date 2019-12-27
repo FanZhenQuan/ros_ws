@@ -45,12 +45,6 @@
         <arg name="model" value="$(arg model)" />
     </include>
 
-    <!--topolocaliser-->
-    <node pkg="learning_toponav" type="topolocaliser.py" name="topolocaliser"
-          args="--robot $(arg robot_name) --yaml $(arg topics_yaml)"
-          output="screen"
-    />
-
     <!--toponavigator-->
     <node pkg="learning_toponav" type="toponavigator.py" name="toponavigator"
           args="--robot $(arg robot_name) --yaml $(arg topics_yaml)"

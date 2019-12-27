@@ -11,8 +11,8 @@
 	richiesta di un path. si può mantenere questa analogia, ma sviluppando anche
 	l'estensione del planner sciente, cioè che invia goal di sua volontà
 	sapendo però la disponibilità del robot ad accettare un goal
-[ ] fondere localiser e navigator
+[v] fondere localiser e navigator
 	- afference e state
 	- separare i publisher in thread
-[ ] sostituire il rospy.wait_for_msg <-- subscriber
-[ ] 
+[v] sostituire il rospy.wait_for_msg <-- subscriber
+[ ] pubblicare lo stato "ready" solo una volta

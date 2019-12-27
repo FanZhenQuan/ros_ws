@@ -1,24 +1,28 @@
 #!/usr/bin/env python
 
-import rospy
-import yaml
-import random
 import argparse
+import random
+import yaml
+import rospy
 import networkx as nx
-import json
 
+from termcolor import colored
+from robot import Robot
 from threading import Thread
-from pprint import pprint
-from topological_node import TopologicalNode
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
-from std_msgs.msg import Header, String
 from learning_toponav.msg import *
+from std_msgs.msg import Header
 
 
 class Planner(object):
     def __init__(self, adjlist, yaml):
         self.graph = nx.read_adjlist(adjlist, delimiter=', ', nodetype=str)
         
+        colors = rospy.get_param('/colors/')
+        self.robots = [Robot(ns='/'+ns, color=color) for color, ns in colors.items()]
+        self.nodes = rospy.get_param(yaml['interest_points'])
+        self.yaml = yaml
+        self.available_robots = self.busy_robots = []
         self.destinations = []
         for n in list(self.graph.nodes()):
             d = {
@@ -26,22 +30,56 @@ class Planner(object):
                 'available': True
             }
             self.destinations.append(d)
-        
-        self.nodes = rospy.get_param(yaml['interest_points'])
-        self.yaml = yaml
 
-        colors = rospy.get_param('/colors/')
-        self.robot_namespaces = ['/' + ns for color, ns in colors.items()]
-        
-        self.available_robots = []
-        self.__availability_checker = Thread(
-            target=self.find_available_robots
-        )
-        self.__availability_checker.start()
-        
         # ---------------
+        self.start_threads()
+        self.update_robot_state()
+        
+    def start_threads(self):
         dests_logger = Thread(target=self.destinations_log)
         dests_logger.start()
+        
+        # robot_state_updater = Thread(target=self.update_robot_state)
+        # robot_state_updater.start()
+        
+    def update_robot_state(self):
+        for r in self.robots:
+            rospy.Subscriber(r.ns + yaml['robot_state'], RobotState, self.on_robot_state)
+        
+    def on_robot_state(self, msg):
+        upd = {
+            'robot_name': msg.robot_name,
+            'state': msg.state,
+            'current_goal': msg.current_goal,
+            'latest_goal': msg.latest_goal,
+            'afference': msg.afference,
+            'distance': msg.distance
+        }
+        
+        for index, r in enumerate(self.robots):
+            if r.ns == upd['robot_name']:
+                self.robots[index].state = upd['state']
+                self.robots[index].current_goal = upd['current_goal']
+                self.robots[index].latest_goal = upd['latest_goal']
+                self.robots[index].afference = upd['afference']
+                self.robots[index].distance = upd['distance']
+                
+            if r.state == 'ready' and r not in self.available_robots:
+                self.available_robots.append(r)
+        
+        if msg.state == 'ready':
+            self.update_available_dests(
+                add=[msg.latest_goal, msg.current_goal]
+                # add=msg.latest_goal
+            )
+        else:
+            self.update_available_dests(
+                # add=[msg.latest_goal, msg.current_goal],
+                add=msg.latest_goal,
+                remove=msg.current_goal
+            )
+
+        # rospy.sleep(2)
         
     def debug(self):
         # crash test
@@ -71,28 +109,10 @@ class Planner(object):
             if n['name'] == name:
                 return n
             
-    def _get_posit_by_nodename(self, name):
-        for n in self.nodes:
-            if n['name'] == name:
-                return n['pose']['position']
-            
-    def _get_verts_by_nodename(self, name):
-        for n in self.nodes:
-            if n['name'] == name:
-                return n['verts']
-
-    def get_robot_state(self, robot_ns):
-        # TODO: check usage
-        topic = robot_ns + self.yaml['robot_state']
-        msg = rospy.wait_for_message(topic, RobotState)
-    
-        return msg.state
-
-    def get_robot_afference(self, robot_ns):
-        topic = robot_ns + self.yaml['afference']
-        msg = rospy.wait_for_message(topic, RobotAfference)
-    
-        return msg.ipoint_name
+    def _get_robot_by_ns(self, ns):
+        for r in self.robots:
+            if r.ns == ns:
+                return r
 
     def build_ipoint_msg(self, node):
         position = Point(
@@ -124,32 +144,6 @@ class Planner(object):
         toponav_ipoints.pop(0)  # removes the start point (source)
     
         return RobotTopopath(toponav_ipoints)
-
-    def find_available_robots(self):
-        try:
-            while not rospy.is_shutdown():
-                for r in self.robot_namespaces:
-                    state_topic = r + self.yaml['robot_state']
-                    msg = rospy.wait_for_message(state_topic, RobotState)
-                
-                    if msg.state == 'ready':
-                        self.available_robots.append(r)
-                        self.update_available_dests(
-                            add=[msg.latest_goal, msg.current_goal]
-                            # add=msg.latest_goal
-                        )
-                    else:
-                        self.update_available_dests(
-                            # add=[msg.latest_goal, msg.current_goal],
-                            add=msg.latest_goal,
-                            remove=msg.current_goal
-                        )
-                        
-                # LEAVE THIS AS IS, prevents multiple
-                # goals being sent simultaneously at launch
-                rospy.sleep(2)
-        except rospy.ROSInterruptException:
-            pass
 
     def update_available_dests(self, add=None, remove=None):
         for d in self.destinations:
@@ -185,27 +179,31 @@ class Planner(object):
             return None
 
     def dispatch_goals(self):
-        robots_num = len(self.robot_namespaces)
-        
+        robots_num = len(self.robots)
+        rate = rospy.Rate(.5)
         i = 0
+
+        print colored('Topoplanner starting soon...', 'cyan', attrs=['bold'])
         try:
             while not rospy.is_shutdown():
                 if not self.available_robots:
                     rospy.sleep(1)
                 else:
                     robot = self.available_robots.pop(0)
-                    source = self.get_robot_afference(robot)
+                    source = robot.afference
                     dest = self.choose_destination(robot, source)
                     path = self.find_path(source=source, dest=dest)
                     
                     topopath = self.build_topopath(path)
-                    self.publish_path(topopath, robot)
-                    rospy.loginfo('Topoplanner: path from %s to %s sent to %s' % (source, dest, robot))
+                    self.publish_path(topopath, robot.ns)
+                    rospy.loginfo('Path from %s to %s sent to %s' % (source, dest, robot.ns))
                     
                     if i == robots_num - 1:
                         i = 0
                     else:
                         i += 1
+                        
+                    # rate.sleep()
         except rospy.ROSInterruptException:
             pass
 
@@ -276,5 +274,5 @@ if __name__ == '__main__':
     
     planner = Planner(args.adjlist, yaml=yaml)
     # planner.listen_navrequests()
-    planner.debug()
-    # planner.dispatch_goals()
+    # planner.debug()
+    planner.dispatch_goals()
