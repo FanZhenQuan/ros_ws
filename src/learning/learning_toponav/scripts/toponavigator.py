@@ -23,7 +23,12 @@ class Toponavigator(object):
     
     def __init__(self, robot, yaml):
         self.yaml = yaml if yaml else None
-        self.robot = Robot(ns='/'+robot, state=self.READY)
+        
+        if robot.startswith('/'):
+            name = robot
+        else:
+            name = '/'+robot
+        self.robot = Robot(ns=name, state=self.READY)
         self.goal_reached = None
         
         self.state_publisher = self.movebase_goal_pub = None
@@ -58,11 +63,11 @@ class Toponavigator(object):
                 msg.distance = self.robot.distance
         
                 if self.robot.latest_goal is None:
-                    if self.robot.current_goal is None:
-                        msg.latest_goal = 'None'
-                    else:
-                        msg.latest_goal = self.robot.current_goal.name
-                    # msg.latest_goal = 'None'
+                    # if self.robot.current_goal is None:
+                    #     msg.latest_goal = 'None'
+                    # else:
+                    #     msg.latest_goal = self.robot.current_goal.name
+                    msg.latest_goal = 'None'
                 else:
                     msg.latest_goal = self.robot.latest_goal
         
@@ -73,9 +78,6 @@ class Toponavigator(object):
 
                 self.state_publisher.publish(msg)
                 rate.sleep()
-                
-                while self.robot.state == self.READY:
-                    rospy.sleep(0.1)
         except rospy.ROSInterruptException:
             pass
     
@@ -89,18 +91,18 @@ class Toponavigator(object):
                 rospy.sleep(0.1)
             
             for ipoint in path.path:
-                self.robot.state = self.BUSY
                 self.robot.current_goal = ipoint
                 self.goal_reached = False
                 
                 self.movebase_goal_pub.publish(ipoint.pose)
-                
                 while not self.goal_reached:
                     rospy.sleep(1)
+                
+                self.robot.latest_goal = self.robot.current_goal.name
             
-            rospy.loginfo('Toponavigator: %s end goal reached' % self.robot.ns)
+            # rospy.loginfo('Toponavigator: %s end goal reached' % self.robot.ns)
+            print colored('%s: end goal reached' % self.robot.ns, 'green')
             self.robot.state = self.READY
-            self.robot.latest_goal = self.robot.current_goal.name
     
     def on_amcl(self, amcl_pose):
         # -- distance-to-goal calc

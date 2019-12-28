@@ -15,4 +15,4 @@
 	- afference e state
 	- separare i publisher in thread
 [v] sostituire il rospy.wait_for_msg <-- subscriber
-[ ] pubblicare lo stato "ready" solo una volta
+[?] pubblicare lo stato "ready" solo una volta

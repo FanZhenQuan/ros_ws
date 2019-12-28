@@ -6,6 +6,7 @@ import yaml
 import rospy
 import networkx as nx
 
+from pprint import pprint
 from termcolor import colored
 from robot import Robot
 from threading import Thread
@@ -17,12 +18,10 @@ from std_msgs.msg import Header
 class Planner(object):
     def __init__(self, adjlist, yaml):
         self.graph = nx.read_adjlist(adjlist, delimiter=', ', nodetype=str)
-        
-        colors = rospy.get_param('/colors/')
-        self.robots = [Robot(ns='/'+ns, color=color) for color, ns in colors.items()]
         self.nodes = rospy.get_param(yaml['interest_points'])
         self.yaml = yaml
         self.available_robots = self.busy_robots = []
+        
         self.destinations = []
         for n in list(self.graph.nodes()):
             d = {
@@ -31,9 +30,17 @@ class Planner(object):
             }
             self.destinations.append(d)
 
+        self.robots = []
+        colors = rospy.get_param('/colors/')
+        for color, ns in colors.items():
+            if ns.startswith('/'):
+                self.robots.append(Robot(ns=ns, color=color))
+            else:
+                self.robots.append(Robot(ns='/' + ns, color=color))
+
         # ---------------
         self.start_threads()
-        self.update_robot_state()
+        self.update_robot_state()  # can be threaded, just uncomment in self.start_threads()
         
     def start_threads(self):
         dests_logger = Thread(target=self.destinations_log)
@@ -65,22 +72,26 @@ class Planner(object):
                 self.robots[index].distance = upd['distance']
                 
             if r.state == 'ready' and r not in self.available_robots:
+                # TODO: all'inizio, viene aggiunto un robot piu di una volta
                 self.available_robots.append(r)
-                print colored('%s is available' % r.ns, 'green', attrs=['bold'])
+                print colored('%s is available' % r.ns, 'blue', attrs=['bold'])
         
-        if msg.state == 'ready':
-            self.update_available_dests(
-                add=[msg.latest_goal, msg.current_goal]
-                # add=msg.latest_goal
-            )
-        else:
-            self.update_available_dests(
-                # add=[msg.latest_goal, msg.current_goal],
-                add=msg.latest_goal,
-                remove=msg.current_goal
-            )
-
-        # rospy.sleep(2)
+        # if msg.state == 'ready':
+        #     self.update_available_dests(
+        #         _add=[msg.latest_goal, msg.current_goal]
+        #         # add=msg.latest_goal
+        #     )
+        # elif msg.state == 'busy':
+        #     self.update_available_dests(
+        #         # add=[msg.latest_goal, msg.current_goal],
+        #         _add=msg.latest_goal,
+        #         _remove=msg.current_goal
+        #     )
+        if msg.current_goal != 'None':
+            if msg.latest_goal != 'None':
+                self.update_available_dests(add=msg.latest_goal, remove=msg.current_goal)
+            else:
+                self.update_available_dests(remove=msg.current_goal)
         
     def debug(self):
         # crash test
@@ -147,25 +158,31 @@ class Planner(object):
         return RobotTopopath(toponav_ipoints)
 
     def update_available_dests(self, add=None, remove=None):
+        # for d in self.destinations:
+        #     if add:
+        #         if add[0] or add[1]:
+        #             if add[0] and d['name'] == add[0]:
+        #                 d['available'] = True
+        #                 # rospy.logwarn(add[0])
+        #             elif add[1] and d['name'] == add[1]:
+        #                 d['available'] = True
+        #                 # rospy.logwarn(add[1])
+        #     # if add and d['name'] == add:
+        #     #     d['available'] = True
+        #
+        #     if (
+        #         remove and
+        #         d['name'] == remove and
+        #         remove != add
+        #     ):
+        #         d['available'] = False
+        #         # rospy.logerr(remove)
         for d in self.destinations:
-            if add:
-                if add[0] or add[1]:
-                    if add[0] and d['name'] == add[0]:
-                        d['available'] = True
-                        # rospy.logwarn(add[0])
-                    elif add[1] and d['name'] == add[1]:
-                        d['available'] = True
-                        # rospy.logwarn(add[1])
-            # if add and d['name'] == add:
-            #     d['available'] = True
-            
-            if (
-                remove and
-                d['name'] == remove and
-                remove != add
-            ):
+            if add and d['name'] == add:
+                d['available'] = True
+                
+            if remove and d['name'] == remove and remove != add:
                 d['available'] = False
-                # rospy.logerr(remove)
     
     def find_path(self, source, dest):
         """
@@ -184,7 +201,6 @@ class Planner(object):
         rate = rospy.Rate(.5)
         i = 0
 
-        print colored('Topoplanner starting soon...', 'cyan', attrs=['bold'])
         try:
             while not rospy.is_shutdown():
                 if not self.available_robots:
@@ -197,7 +213,8 @@ class Planner(object):
                     
                     topopath = self.build_topopath(path)
                     self.publish_path(topopath, robot.ns)
-                    rospy.loginfo('Path from %s to %s sent to %s' % (source, dest, robot.ns))
+                    # rospy.loginfo('Path from %s to %s sent to %s' % (source, dest, robot.ns))
+                    print colored('%s: %s -> %s' % (robot.ns, source, dest), 'red')
                     
                     if i == robots_num - 1:
                         i = 0
@@ -215,6 +232,11 @@ class Planner(object):
             if dest['available'] and dest['name'] != source:
                 availables.append(dest['name'])
         
+        # l = len(availables)
+        # if robot.ns == '/robot_1':
+        #     return random.choice(availables[l/2:])
+        # elif robot.ns == '/robot_2':
+        #     return random.choice(availables[:l/2])
         return random.choice(availables)
     
     def destinations_log(self):
