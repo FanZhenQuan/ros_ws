@@ -34,7 +34,7 @@ class Toponavigator(object):
         rospy.Subscriber(self.robot.ns+'/amcl_pose', PoseWithCovarianceStamped, self.on_amcl)
         
         # -- publishers
-        self.movebase_goal_pub = rospy.Publisher(self.robot.ns+'/move_base_simple/goal', PoseStamped, queue_size=10)
+        self.movebase_goal_pub = rospy.Publisher(self.robot.ns+self.yaml['goal_topic'], PoseStamped, queue_size=10)
         self.state_publisher = rospy.Publisher(self.robot.ns+self.yaml['robot_state'], RobotState, queue_size=STATE_RATE*2)
         t = Thread(target=self.publish_state)
         t.start()
@@ -73,6 +73,9 @@ class Toponavigator(object):
 
                 self.state_publisher.publish(msg)
                 rate.sleep()
+                
+                while self.robot.state == self.READY:
+                    rospy.sleep(0.1)
         except rospy.ROSInterruptException:
             pass
     
@@ -82,14 +85,13 @@ class Toponavigator(object):
             rospy.logwarn('Goal ignored: robot %s is busy' % self.robot.ns)
         else:
             self.robot.state = self.BUSY
-            self.has_goal = True
             while self.movebase_goal_pub.get_num_connections() < 1:
                 rospy.sleep(0.1)
             
             for ipoint in path.path:
                 self.robot.state = self.BUSY
                 self.robot.current_goal = ipoint
-                self.robot.goal_reached = False
+                self.goal_reached = False
                 
                 self.movebase_goal_pub.publish(ipoint.pose)
                 
@@ -113,9 +115,9 @@ class Toponavigator(object):
                 amcl_posit.y - goal_posit.y
             )
             if distance <= self.GOAL_DISTANCE_BIAS:
-                self.robot.goal_reached = True
+                self.goal_reached = True
             else:
-                self.robot.goal_reached = False
+                self.goal_reached = False
     
         # -- afference calc
         while not rospy.has_param(self.yaml['interest_points']):

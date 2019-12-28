@@ -66,6 +66,7 @@ class Planner(object):
                 
             if r.state == 'ready' and r not in self.available_robots:
                 self.available_robots.append(r)
+                print colored('%s is available' % r.ns, 'green', attrs=['bold'])
         
         if msg.state == 'ready':
             self.update_available_dests(
