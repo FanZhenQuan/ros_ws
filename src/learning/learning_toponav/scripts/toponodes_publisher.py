@@ -69,10 +69,6 @@ def publish_marker_array(topic, marker_array):
     while pub.get_num_connections() < 1:
         rospy.sleep(0.1)
     pub.publish(marker_array)
-        
-        
-def shutdown():
-    rospy.loginfo('toponodes_publisher: Shutting down')
 
 
 def parse_yaml(dir):
@@ -91,7 +87,6 @@ def parse_args():
 
 if __name__ == '__main__':
     rospy.init_node('toponodes_publisher')
-    rospy.on_shutdown(shutdown)
     
     args = parse_args()
     yaml = parse_yaml(args.yaml)

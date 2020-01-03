@@ -1,0 +1,13 @@
+<launch>
+    <arg name="topomap" default="$(find learning_toponav)/maps/topomap_2.tpg" />
+    <arg name="topics_yaml" default="$(find learning_toponav)/param/topics.yaml" />
+    <arg name="map" default="$(find learning_toponav)/maps/mymap.pgm" />
+
+    <node pkg="learning_toponav" type="toponodes_publisher.py" name="toponodes_publisher"
+          args="--topomap $(arg topomap) --yaml $(arg topics_yaml)"
+    />
+
+    <node pkg="learning_toponav" type="map_segmentation.py" name="map_segmentation"
+          args="--map $(arg map)" output="screen"
+    />
+</launch>
