@@ -6,7 +6,7 @@
 	[ ] consegnare un goal random nella mappa metrica dopo aver portato il robot al 	punto di interesse dato come goal
 
 [ ] incrementare l'area pertinente ad un punto di interesse
-[ ] assegnazione punti di interesse tramite segmentazione di Voronoi
+[-] assegnazione punti di interesse tramite segmentazione di Voronoi
 [v] il planner dovrebbe inviare goal topologici ai robot, non i robot che 
 	richiesta di un path. si può mantenere questa analogia, ma sviluppando anche
 	l'estensione del planner sciente, cioè che invia goal di sua volontà
@@ -16,3 +16,7 @@
 	- separare i publisher in thread
 [v] sostituire il rospy.wait_for_msg <-- subscriber
 [?] pubblicare lo stato "ready" solo una volta
+[ ] calcolare la idleness di ogni toponodo (tempo che rimane non osservato)
+[ ] stima percorrenza di un path in sec.
+    - chiedere uno pseudo-path a movebase e calcolarne la percorrenza a velocità costante
+[ ] estrarre statistiche della idleness (min, max, med, var...)
