@@ -12,6 +12,7 @@ from robot import Robot
 from threading import Thread
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from learning_toponav.msg import *
+from destination import Destination
 from std_msgs.msg import Header
 
 
@@ -24,10 +25,7 @@ class Planner(object):
         
         self.destinations = []
         for n in list(self.graph.nodes()):
-            d = {
-                'name': n,
-                'available': True
-            }
+            d = Destination(name=n)
             self.destinations.append(d)
 
         self.robots = []
@@ -178,11 +176,11 @@ class Planner(object):
         #         d['available'] = False
         #         # rospy.logerr(remove)
         for d in self.destinations:
-            if add and d['name'] == add:
-                d['available'] = True
+            if add and d.name == add:
+                d.available = True
                 
-            if remove and d['name'] == remove and remove != add:
-                d['available'] = False
+            if remove and d.name == remove and remove != add:
+                d.available = False
     
     def find_path(self, source, dest):
         """
@@ -229,14 +227,11 @@ class Planner(object):
         # per ora, si ignora una destinazione "intelligente" per il robot
         availables = []
         for dest in self.destinations:
-            if dest['available'] and dest['name'] != source:
-                availables.append(dest['name'])
+            if dest.available and dest.name != source:
+                availables.append(dest.name)
+
+        # TODO: make destinations comparable using max() and min() func
         
-        # l = len(availables)
-        # if robot.ns == '/robot_1':
-        #     return random.choice(availables[l/2:])
-        # elif robot.ns == '/robot_2':
-        #     return random.choice(availables[:l/2])
         return random.choice(availables)
     
     def destinations_log(self):
@@ -247,24 +242,24 @@ class Planner(object):
             while not rospy.is_shutdown():
                 for d in self.destinations:
                     msg = DestinationDebug()
-                    msg.available = d['available']
-                    msg.name = d['name']
+                    msg.available = d.available
+                    msg.name = d.name
                     
                     pub.publish(msg)
                     rate.sleep()
         except rospy.ROSInterruptException:
             pass
 
-    def listen_navrequests(self):
-        nav_request = rospy.Subscriber(self.yaml['planner_requests'], RobotNavRequest, self._on_nav_request)
-    
-    def _on_nav_request(self, request):
-        path = self.find_path(request.source, request.dest)
-        topopath = self.build_topopath(path)
-
-        self.publish_path(topopath, '/'+request.robot_name)
-        
-        rospy.loginfo('Topoplanner: path from %s to %s sent to %s' % (request.source, request.dest, request.robot_name))
+    # def listen_navrequests(self):
+    #     nav_request = rospy.Subscriber(self.yaml['planner_requests'], RobotNavRequest, self._on_nav_request)
+    #
+    # def _on_nav_request(self, request):
+    #     path = self.find_path(request.source, request.dest)
+    #     topopath = self.build_topopath(path)
+    #
+    #     self.publish_path(topopath, '/'+request.robot_name)
+    #
+    #     rospy.loginfo('Topoplanner: path from %s to %s sent to %s' % (request.source, request.dest, request.robot_name))
         
     def publish_path(self, path, target_robot):
         pub = rospy.Publisher(target_robot + self.yaml['robot_topopath'], RobotTopopath, queue_size=10)
