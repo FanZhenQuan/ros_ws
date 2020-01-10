@@ -37,8 +37,8 @@ class DestDebugger(object):
         self.root = Tk()
         self.root.title("Destinations debugger")
         try:
-            file = open(CONFIG_DIR + CONFIG_FILE, 'r')
-            coords = file.readline()
+            f = open(CONFIG_DIR + CONFIG_FILE, 'r')
+            coords = f.readline()
         
             self.root.geometry(coords)
         except IOError:
@@ -50,14 +50,17 @@ class DestDebugger(object):
         for i in range(1, dest_count+1):
             frame = Frame(self.root, name='waypoint'+str(i), **FRAME_UI)
             frame.grid(row=row, column=col)
-        
+            
+            wp_name = Label(frame, text='WayPoint'+str(i))
+            wp_name.grid(row=0, column=0)
+            
+            wp_idl = Entry(frame, width=8, name='idl_waypoint'+str(i))
+            wp_idl.grid(row=1, column=0)
+            
             col += 1
             if col == base:
                 row += 1
                 col = 0
-        
-            l = Label(frame, text='WayPoint'+str(i))
-            l.grid(row=0, column=0)
 
         # -------- separator
         row += 1
@@ -145,6 +148,11 @@ class DestDebugger(object):
         name = str(msg.name).lower()
         frame = self.root.nametowidget(name)
         
+        idleness = round(float(msg.idleness), 3)
+        wp_idl = frame.nametowidget('idl_'+name)
+        wp_idl.delete(0, 'end')
+        wp_idl.insert(0, str(idleness))
+        
         if msg.available:
             frame['bg'] = 'green'
         else:
@@ -158,20 +166,18 @@ class DestDebugger(object):
         if msg.robot_name == '/robot_1':
             self.robot_1_cgoal.delete(0, 'end')
             self.robot_1_lgoal.delete(0, 'end')
+            self.robot_1_state.delete(0, 'end')
             
             self.robot_1_cgoal.insert(0, msg.current_goal)
             self.robot_1_lgoal.insert(0, msg.latest_goal)
-            
-            self.robot_1_state.delete(0, 'end')
             self.robot_1_state.insert(0, msg.state)
         else:
             self.robot_2_cgoal.delete(0, 'end')
             self.robot_2_lgoal.delete(0, 'end')
+            self.robot_2_state.delete(0, 'end')
             
             self.robot_2_cgoal.insert(0, msg.current_goal)
             self.robot_2_lgoal.insert(0, msg.latest_goal)
-            
-            self.robot_2_state.delete(0, 'end')
             self.robot_2_state.insert(0, msg.state)
             
     def robot_afference(self):
