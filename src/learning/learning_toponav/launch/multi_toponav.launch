@@ -6,7 +6,6 @@
     <arg name="topomap" default="$(find learning_toponav)/maps/topomap_2.tpg" />
     <arg name="topics_yaml" default="$(find learning_toponav)/param/topics.yaml" />
     <arg name="rviz_config" default="-d $(find learning_toponav)/rviz/multi_toponav.rviz" />
-    <arg name="dest_debug" default="false" />
     <arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
     <arg name="rqt_console" default="false" /> <!-- LAUNCH RQT CONSOLE -->
 
@@ -64,6 +63,7 @@
     </include>
 
     <!--destinations debugger-->
+    <arg name="dest_debug" default="true" />
     <node pkg="learning_toponav" type="destinations_debugger.py" name="destinations_debugger"
           args="--yaml $(find learning_toponav)/param/topics.yaml" if="$(arg dest_debug)"
     />

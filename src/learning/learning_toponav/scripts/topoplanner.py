@@ -224,15 +224,30 @@ class Planner(object):
             pass
 
     def choose_destination(self, robot, source):
-        # per ora, si ignora una destinazione "intelligente" per il robot
-        availables = []
-        for dest in self.destinations:
-            if dest.available and dest.name != source:
-                availables.append(dest.name)
+        """
+        :param robot: the namespace of the robot (str)  <-- UNUSED
+        :param source: source of the robot (afference)
+        :return: destination name (str)
+        """
+        # availables = []
+        # for dest in self.destinations:
+        #     if dest.available and dest.name != source:
+        #         availables.append(dest.name)
+        #
+        # return random.choice(availables)
+        dest = None
+        curr_idl = -1
+        selected = []
+        for d in self.destinations:
+            # TODO: sometimes dests get chosen even if they're not available
+            if d.available and d.name != source:
+                if d.get_idleness() >= curr_idl:
+                    # dest = d.name
+                    selected.append(d.name)
 
-        # TODO: make destinations comparable using max() and min() func
-        
-        return random.choice(availables)
+        # return dest
+        print colored('Selected: %s, len: %s' % (', '.join(selected), len(selected)), 'cyan')
+        return random.choice(selected)
     
     def destinations_log(self):
         pub = rospy.Publisher(self.yaml['destinations_log'], DestinationDebug, queue_size=30)
@@ -244,6 +259,7 @@ class Planner(object):
                     msg = DestinationDebug()
                     msg.available = d.available
                     msg.name = d.name
+                    msg.idleness = d.get_idleness()
                     
                     pub.publish(msg)
                     rate.sleep()
