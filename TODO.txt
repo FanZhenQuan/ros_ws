@@ -1,15 +1,2 @@
-- dare un'occhiata a questa pagina (markers Rviz)
-	@ http://wiki.ros.org/rviz/Tutorials/Interactive%20Markers%3A%20Getting%20Started
-- social navigation layer
-	@ http://wiki.ros.org/social_navigation_layers
-- provare a configurare Stage
-
----------------------------------
-
-- automatizzare la consegna dei goal
-	- topological navigation: naviga nell'ambiente mettendo in corrispondenza la rappr.
-	topologica della mappa con la rappr metrica (coordinate)
-		@ per ora i goal sono selezionati a random
-	- implementare un algoritmo di esplorazione topologica sulla base del grafo prodotto
-	prima
-- generare goal che siano "intelligenti" e non più random	
+- chiedere come salvare i dati statistici delle idlenesses
+- aiuto con voronoi segmentation

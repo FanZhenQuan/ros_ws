@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import rospy
+import tkMessageBox
+import time
 import sys
 import os
 path = os.path.dirname(os.path.realpath(__file__))
@@ -12,6 +14,7 @@ class Destination(object):
     def __init__(self, name, available=True):
         self.name = name
         self.idleness = 0
+        self.__stats = []  # stores every idleness registered
         self.__latest_available = True
         self.__available = available
         self.__latest_usage = rospy.Time.now()
@@ -27,7 +30,8 @@ class Destination(object):
         if(
             self.__latest_available is False and
             self.__available is True
-        ):
+        ):  # destination has been freed, reset idleness
+            self.__append_idleness()
             self.reset()
         
     def get_idleness(self, travel_time=None):
@@ -43,6 +47,12 @@ class Destination(object):
             msg = 'travel_time argument is of type %s, should be either float or int' % type(travel_time)
             raise Exception(msg)
         
+    def __append_idleness(self):
+        self.__stats.append(self.get_idleness())
+        
+    def get_stats(self):
+        return self.__stats
+        
     def reset(self):
         self.idleness = 0
         self.__latest_usage = rospy.Time.now()
@@ -52,3 +62,33 @@ class Destination(object):
     
     def __eq__(self, other):
         return self.name == other.name
+    
+
+class DestinationStatLogger(object):
+    DEFAULT_PATH = '/home/davide/ros_ws/src/learning/learning_toponav/idleness/'
+    
+    def __init__(self, dest_list, path=DEFAULT_PATH):
+        if all(isinstance(d, Destination) for d in dest_list):
+            self.dest_list = dest_list
+        else:
+            raise ValueError("Items of dest_list aren't of type <Destination>")
+        self.path = path
+        
+    @staticmethod
+    def show_confirm_gui():
+        msg = 'Do you want to save the observed idlenesses of the destinations?'
+        return tkMessageBox.askyesno('Dump destinations', msg)
+        
+    def write_statfile(self):
+        datetime = time.strftime("%d-%m@%H:%M", time.gmtime())
+        filename = datetime+'.txt'
+        
+        lines = []
+        for d in self.dest_list:
+            idlenesses_str = [str(i) for i in d.get_stats()]
+            line = d.name + ': ' + ', '.join(idlenesses_str) + '\n'
+            lines.append(line)
+        lines = sorted(lines)
+        
+        file = open(self.path+filename, 'w')
+        file.writelines(lines)

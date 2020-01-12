@@ -12,7 +12,7 @@ from robot import Robot
 from threading import Thread
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from learning_toponav.msg import *
-from destination import Destination
+from destination import Destination, DestinationStatLogger
 from std_msgs.msg import Header
 
 
@@ -282,6 +282,15 @@ class Planner(object):
         while pub.get_num_connections() < 1:
             rospy.sleep(0.1)
         pub.publish(path)
+        
+    def on_shutdown(self):
+        dest_logger = DestinationStatLogger(self.destinations)
+        confirm_save = dest_logger.show_confirm_gui()
+        if confirm_save:
+            dest_logger.write_statfile()
+            rospy.loginfo('Destination idlenesses have been wrote to %s' % dest_logger.path)
+        else:
+            rospy.logwarn('Destination idlenesses have NOT been saved')
     
     
 def parse_yaml(dir):
@@ -307,6 +316,7 @@ if __name__ == '__main__':
     yaml = parse_yaml(args.yaml)
     
     planner = Planner(args.adjlist, yaml=yaml)
+    rospy.on_shutdown(planner.on_shutdown)  # dumps idlenesses of destinations
     # planner.listen_navrequests()
     # planner.debug()
     planner.dispatch_goals()

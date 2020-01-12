@@ -1,0 +1,7 @@
+WayPoint1: 36.0
+WayPoint2: 
+WayPoint3: 
+WayPoint4: 
+WayPoint5: 
+WayPoint6: 
+WayPoint7: 
