@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import tkinter as tk
 import tkMessageBox
 import time
 import sys
@@ -67,12 +68,13 @@ class Destination(object):
 class DestinationStatLogger(object):
     DEFAULT_PATH = '/home/davide/ros_ws/src/learning/learning_toponav/idleness/'
     
-    def __init__(self, dest_list, path=DEFAULT_PATH):
+    def __init__(self, dest_list, environment, path=DEFAULT_PATH):
         if all(isinstance(d, Destination) for d in dest_list):
             self.dest_list = dest_list
         else:
             raise ValueError("Items of dest_list aren't of type <Destination>")
         self.path = path
+        self.environment = environment  # office, house ...
         
     @staticmethod
     def show_confirm_gui():
@@ -80,8 +82,8 @@ class DestinationStatLogger(object):
         return tkMessageBox.askyesno('Dump destinations', msg)
         
     def write_statfile(self):
-        datetime = time.strftime("%d-%m@%H:%M", time.gmtime())
-        filename = datetime+'.txt'
+        datetime = time.strftime("%d-%m@%H:%M", time.localtime())
+        filename = "%s-%s.txt" % (datetime, self.environment)
         
         lines = []
         for d in self.dest_list:

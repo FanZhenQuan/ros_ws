@@ -58,13 +58,14 @@
     </group>
 
     <!--topoplanner-->
-    <include file="$(find learning_toponav)/launch/includes/topoplanner.launch">
-        <arg name="adjlist" value="$(find learning_toponav)/maps/$(arg environment)/adjlist.txt" />
-        <arg name="topics_yaml" value="$(arg topics_yaml)" />
-    </include>
+    <arg name="adjlist" value="$(find learning_toponav)/maps/$(arg environment)/adjlist.txt" />
+    <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"
+          args="--adjlist $(arg adjlist) --environment $(arg environment) --yaml $(arg topics_yaml)"
+          output="screen"
+    />
 
     <!--destinations debugger-->
-    <arg name="dest_debug" default="false" />
+    <arg name="dest_debug" default="true" />
     <node pkg="learning_toponav" type="destinations_debugger.py" name="destinations_debugger"
           args="--yaml $(find learning_toponav)/param/topics.yaml" if="$(arg dest_debug)"
     />

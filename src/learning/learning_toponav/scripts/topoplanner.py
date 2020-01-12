@@ -17,10 +17,11 @@ from std_msgs.msg import Header
 
 
 class Planner(object):
-    def __init__(self, adjlist, yaml):
+    def __init__(self, adjlist, environment, yaml):
         self.graph = nx.read_adjlist(adjlist, delimiter=', ', nodetype=str)
         self.nodes = rospy.get_param(yaml['interest_points'])
         self.yaml = yaml
+        self.environment = environment  # house, office ...
         self.available_robots = self.busy_robots = []
         
         self.destinations = []
@@ -284,7 +285,7 @@ class Planner(object):
         pub.publish(path)
         
     def on_shutdown(self):
-        dest_logger = DestinationStatLogger(self.destinations)
+        dest_logger = DestinationStatLogger(dest_list=self.destinations, environment=self.environment)
         confirm_save = dest_logger.show_confirm_gui()
         if confirm_save:
             dest_logger.write_statfile()
@@ -301,8 +302,7 @@ def parse_yaml(dir):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--adjlist', type=str, required=True)
-    parser.add_argument('--source', type=str, required=False)
-    parser.add_argument('--dest', type=str, required=False)
+    parser.add_argument('--environment', type=str, required=True)
     parser.add_argument('--yaml', type=str, help='File where used topics_yaml are saved')
     args, unknown = parser.parse_known_args()
     
@@ -315,7 +315,7 @@ if __name__ == '__main__':
     args = parse_args()
     yaml = parse_yaml(args.yaml)
     
-    planner = Planner(args.adjlist, yaml=yaml)
+    planner = Planner(args.adjlist, environment=args.environment, yaml=yaml)
     rospy.on_shutdown(planner.on_shutdown)  # dumps idlenesses of destinations
     # planner.listen_navrequests()
     # planner.debug()

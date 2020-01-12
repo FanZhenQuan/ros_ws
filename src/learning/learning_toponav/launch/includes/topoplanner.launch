@@ -1,15 +1,6 @@
 <launch>
     <arg name="adjlist" />
     <arg name="topics_yaml" />
-    <arg name="source" default="" />
-    <arg name="dest" default="" />
-
-    <group if="$(eval source != '' and dest != '')">
-        <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"
-              args="--adjlist $(arg adjlist) --source $(arg source) --dest $(arg dest) --yaml $(arg topics_yaml)"
-              output="screen"
-        />
-    </group>
 
     <group if="$(eval source == '' and dest == '')">
         <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"

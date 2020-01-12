@@ -1,2 +1,3 @@
 - chiedere come salvare i dati statistici delle idlenesses
 - aiuto con voronoi segmentation
+- !! destinazioni partono con idleness > 90 quando si runna office.world

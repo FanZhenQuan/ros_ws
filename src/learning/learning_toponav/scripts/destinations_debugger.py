@@ -207,8 +207,11 @@ if __name__ == "__main__":
     rospy.init_node('destinations_debugger')
     
     yaml = parse_args()
+    while not rospy.has_param(yaml['interest_points']):
+        rospy.sleep(0.1)
+    dest_num = len(rospy.get_param(yaml['interest_points']))
     
-    dest_debugger = DestDebugger(yaml=yaml, dest_count=7)
+    dest_debugger = DestDebugger(yaml=yaml, dest_count=dest_num)
     rospy.on_shutdown(dest_debugger.on_shutdown)
     
     dest_debugger.listen_destinations()
