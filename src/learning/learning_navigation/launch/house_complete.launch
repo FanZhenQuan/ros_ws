@@ -1,15 +1,15 @@
 <launch>
 	<arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
-	<arg name="x_pos" default="-3.0"/>
-	<arg name="y_pos" default="1.0"/>
+	<arg name="x_pos" default="0.0"/>
+	<arg name="y_pos" default="0.0"/>
 	<arg name="z_pos" default="0.0"/>
 
 	<arg name="default_rviz_conf" default="true" />
-	<arg name="house_map" default="true" />
+	<arg name="house_map" default="false" />
 	<arg name="gazebo_gui" default="false" /> <!-- GAZEBO GUI -->
 
 	<arg name="teleop_output" default="" doc="change with 'gnome-terminal --command'" />
-	<arg name="world" default="$(find learning_multirobot)/worlds/turtlebot3_house.world" />
+	<arg name="world" default="$(find learning_multirobot)/worlds/office.world" />
 	<arg name="map" value="$(find learning_navigation)/maps/mymap.yaml" if="$(arg house_map)"/>
 	<arg name="map" value=""                                        unless="$(arg house_map)"/>
 	<arg name="rviz_config" default="-d $(find learning_navigation)/rviz/complete_config.rviz" if="$(arg default_rviz_conf)"/>
@@ -40,9 +40,9 @@
 	/>
 
 	<!-- teleop -->
-	<!--<node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard" -->
-	<!--	  output="screen" launch-prefix="$(arg teleop_output)"-->
-	<!--/>-->
+	<node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"
+		  output="screen" launch-prefix="$(arg teleop_output)"
+	/>
 
 	<!-- AMCL + map-->
 	<group if="$(eval map != '')">

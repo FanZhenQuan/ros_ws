@@ -1,5 +1,5 @@
 <launch>
-    <arg name="topomap" default="$(find learning_toponav)/maps/topomap_2.tpg" />
+    <arg name="topomap" default="topomap.tpg" />
     <arg name="topics_yaml" default="$(find learning_toponav)/param/topics.yaml" />
     <arg name="map" default="$(find learning_toponav)/maps/mymap.pgm" />
 

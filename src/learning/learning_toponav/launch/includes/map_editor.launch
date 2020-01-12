@@ -1,11 +1,12 @@
 <launch>
-    <arg name="metric_map" default="$(find learning_toponav)/maps/mymap.yaml" />
-    <arg name="outmap" default="$(find learning_toponav)/maps/topomap_2.tpg" />
+    <arg name="environment" value="house" />
+    <arg name="metric_map" default="$(find learning_toponav)/maps/$(arg environment)/metric.yaml" />
+    <arg name="outmap" default="$(find learning_toponav)/maps/$(arg environment)/topomap.tpg" />
     <arg name="in_topomap" default="$(arg outmap)" />
-    <arg name="edgelist_dir" default="$(find learning_toponav)/maps/adjlist.txt" />
-    <arg name="png" default="$(find learning_toponav)/maps/visualimage.png" />
+    <arg name="edgelist_dir" default="$(find learning_toponav)/maps/$(arg environment)/adjlist.txt" />
+    <arg name="png" default="$(find learning_toponav)/maps/$(arg environment)/visualimage.png" />
 
-    <arg name="edit_mode" value="true" />
+    <arg name="edit_mode" value="false" />
 
     <node pkg="learning_toponav" type="map_editor.py" name="map_editor"
           args="--empty true --map $(arg metric_map)

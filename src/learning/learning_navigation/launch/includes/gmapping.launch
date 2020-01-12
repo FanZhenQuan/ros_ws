@@ -1,5 +1,5 @@
 <launch>
-	<node type="slam_gmapping" pkg="gmapping" name="gmapping">
+	<node type="slam_gmapping" pkg="gmapping" name="gmapping" output="log">
 		<param name="map_update_interval" value="4.0"/>
 		<param name="maxUrange" value="3.0"/>
 		<param name="maxUrange" value="3.0"/>
