@@ -3,14 +3,16 @@
 import rospy
 import yaml
 import math
+import numpy as np
 import argparse
 from robot import Robot
 
 from termcolor import colored
-from threading import Thread, Lock
+from threading import Thread
 from learning_toponav.msg import *
+from nav_msgs.srv import GetPlan
 from std_msgs.msg import Header, String
-from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
+from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion, PoseWithCovarianceStamped
 
 
 class Toponavigator(object):
@@ -120,6 +122,14 @@ class Toponavigator(object):
                 self.goal_reached = False
     
         # -- afference calc
+        # self.eucl_afference(amcl_posit=amcl_posit)
+        
+        if self.robot.current_goal:
+            source = amcl_pose.pose
+            dest = self.robot.current_goal.pose
+            self.movebase_afference(amcl_pose=source, goal_pose=dest)
+        
+    def eucl_afference(self, amcl_posit):
         while not rospy.has_param(self.yaml['interest_points']):
             rospy.sleep(0.1)
         int_points = rospy.get_param(self.yaml['interest_points'])
@@ -149,6 +159,49 @@ class Toponavigator(object):
                 
         self.robot.afference = closest_ipoint
         self.robot.distance = min_dist
+        
+    def movebase_afference(self, amcl_pose, goal_pose):
+        while not rospy.has_param(self.yaml['interest_points']):
+            rospy.sleep(0.1)
+        ipoints = rospy.get_param(self.yaml['interest_points'])
+
+        min_dist = float('inf')
+        afference = None
+        for ip in ipoints:
+            header = Header()
+            header.stamp = rospy.Time.now()
+            
+            ip_x = ip['pose']['position']['x']
+            ip_y = ip['pose']['position']['y']
+            ip_z = ip['pose']['position']['z']
+            
+            ip_pose = PoseStamped()
+            ip_pose.header = header
+            ip_pose.pose = ((ip_x, ip_y, ip_z), (0, 0, 0, 1))
+            
+            rospy.wait_for_service(self.robot.ns+'/move_base/NavfnROS/make_plan')
+            try:
+                make_plan = rospy.ServiceProxy(self.robot.ns+'/move_base/NavfnROS/make_plan', GetPlan)
+                plan = make_plan(amcl_pose, ip_pose)
+                
+                path_length = 0
+                for i in range(len(plan.poses) - 1):
+                    position_a_x = plan.poses[i].pose.position.x
+                    position_b_x = plan.poses[i + 1].pose.position.x
+                    position_a_y = plan.poses[i].pose.position.y
+                    position_b_y = plan.poses[i + 1].pose.position.y
+    
+                    path_length += np.sqrt(
+                        np.power((position_b_x - position_a_x), 2) + np.power((position_b_y - position_a_y), 2))
+                    
+                    if path_length <= min_dist:
+                        min_dist = path_length
+                        afference = ip['name']
+                        
+                self.robot.distance = path_length
+                self.robot.afference = afference
+            except rospy.ServiceException, e:
+                print "Make_plan call failed: %s" % e
 
 
 def parse_args():

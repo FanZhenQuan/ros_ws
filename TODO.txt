@@ -1,1 +1,2 @@
 - aiuto con voronoi segmentation
+- thread sync at boot (multiple goal sent)

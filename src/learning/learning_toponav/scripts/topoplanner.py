@@ -236,18 +236,17 @@ class Planner(object):
         #         availables.append(dest.name)
         #
         # return random.choice(availables)
-        dest = None
         curr_idl = -1
         selected = []
         for d in self.destinations:
-            # TODO: sometimes dests get chosen even if they're not available
+            # TODO: a volte viene scelta una dest occupata
             if d.available and d.name != source:
                 if d.get_idleness() >= curr_idl:
-                    # dest = d.name
                     selected.append(d.name)
+                    curr_idl = d.get_idleness()
 
         # return dest
-        print colored('Selected: %s, len: %s' % (', '.join(selected), len(selected)), 'cyan')
+        print colored('Destinations: %s, len: %s' % (', '.join(selected), len(selected)), 'cyan')
         return random.choice(selected)
     
     def destinations_log(self):
@@ -302,7 +301,7 @@ def parse_yaml(dir):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--adjlist', type=str, required=True)
-    parser.add_argument('--environment', type=str, required=True)
+    parser.add_argument('--environment', type=str, required=True, help="Name of the map environment")
     parser.add_argument('--yaml', type=str, help='File where used topics_yaml are saved')
     args, unknown = parser.parse_known_args()
     
@@ -314,8 +313,9 @@ if __name__ == '__main__':
     
     args = parse_args()
     yaml = parse_yaml(args.yaml)
+    environment = args.environment
     
-    planner = Planner(args.adjlist, environment=args.environment, yaml=yaml)
+    planner = Planner(args.adjlist, environment=environment, yaml=yaml)
     rospy.on_shutdown(planner.on_shutdown)  # dumps idlenesses of destinations
     # planner.listen_navrequests()
     # planner.debug()
