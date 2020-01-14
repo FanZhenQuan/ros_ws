@@ -1,0 +1,39 @@
+<launch>
+    <arg name="strands" value="false" />
+    <arg name="spqrel" value="false" />
+    <arg name="rqt_console" default="false" />
+
+    <!--house navigation-->
+    <include file="$(find learning_navigation)/launch/house_complete.launch">
+        <arg name="rviz_config" value="-d $(find learning_toponav)/rviz/single_toponav.rviz" />
+    </include>
+
+    <!--toponodes publisher-->
+    <node pkg="learning_toponav" type="toponodes_publisher.py" name="toponodes_publisher"
+        args="--topomap $(find learning_toponav)/maps/topomap.tpg"
+    />
+
+    <!--strands-->
+    <group if="$(arg strands)">
+        <!--mongo db-->
+        <include file="$(find mongodb_store)/launch/mongodb_store.launch">
+            <arg name="db_path" value="/home/davide/ros_ws/mongo"/>
+        </include>
+
+        <!--toponav-->
+        <include file="$(find topological_navigation)/launch/topological_navigation_empty_map.launch" >
+            <arg name="map" value="topomappa.tpg"/>
+        </include>
+    </group>
+
+    <!--spqrel toponav-->
+    <group if="$(arg spqrel)">
+        <include file="$(find spqrel_navigation)/ros/launch/spqrel_navigation.launch">
+            <arg name="initial_pose_x" value="-3.0" />
+            <arg name="initial_pose_y" value="1.0" />
+            <arg name="laser_topic" value="scan"/>
+        </include>
+    </group>
+
+    <node pkg="rqt_console" type="rqt_console" name="rqt_console" if="$(arg rqt_console)" />
+</launch>

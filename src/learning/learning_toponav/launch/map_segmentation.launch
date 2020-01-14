@@ -1,8 +1,7 @@
 <launch>
-    <arg name="environment" value="office" />
-    <arg name="topomap" default="$(find learning_toponav)/maps/$(arg environment)/topomap.tpg" />
+    <arg name="topomap" default="topomap.tpg" />
     <arg name="topics_yaml" default="$(find learning_toponav)/param/topics.yaml" />
-    <arg name="map" default="$(find learning_toponav)/maps/$(arg environment)/metric.pgm" />
+    <arg name="map" default="$(find learning_toponav)/maps/mymap.pgm" />
 
     <node pkg="learning_toponav" type="toponodes_publisher.py" name="toponodes_publisher"
           args="--topomap $(arg topomap) --yaml $(arg topics_yaml)"

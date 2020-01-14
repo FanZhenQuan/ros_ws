@@ -2,7 +2,7 @@
     <arg name="robot_1" value="robot_1" />
     <arg name="robot_2" value="robot_2" />
 
-    <arg name="environment" value="house" />
+    <arg name="environment" value="office" />
     <arg name="metric_map" default="$(find learning_toponav)/maps/$(arg environment)/metric.yaml" />
     <arg name="topomap" default="$(find learning_toponav)/maps/$(arg environment)/topomap.tpg" />
     <arg name="topics_yaml" default="$(find learning_toponav)/param/topics.yaml" />
@@ -38,7 +38,7 @@
             <arg name="color" value="red" />
             <arg name="topics_yaml" value="$(arg topics_yaml)" />
 
-            <arg name="x_pos" value="4" />
+            <arg name="x_pos" value="1" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
         </include>
@@ -51,7 +51,7 @@
             <arg name="color" value="blue" />
             <arg name="topics_yaml" value="$(arg topics_yaml)" />
 
-            <arg name="x_pos" value="-3" />
+            <arg name="x_pos" value="-1" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
         </include>

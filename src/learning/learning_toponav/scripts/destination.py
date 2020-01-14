@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 
 import rospy
+import tkinter as tk
 import tkMessageBox
 import time
+import sys
+import os
+path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(path)
 
 
 class Destination(object):
-    IDLENESS_THRESH = 3
     
     def __init__(self, name, available=True):
         self.name = name
@@ -45,9 +49,7 @@ class Destination(object):
             raise Exception(msg)
         
     def __append_idleness(self):
-        # evita di segnare come idleness tempi molto piccoli come 1 sec
-        if self.get_idleness() >= self.IDLENESS_THRESH:
-            self.__stats.append(self.get_idleness())
+        self.__stats.append(self.get_idleness())
         
     def get_stats(self):
         return self.__stats
