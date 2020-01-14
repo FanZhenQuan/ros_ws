@@ -3,14 +3,17 @@
 import rospy
 import yaml
 import math
+import numpy as np
 import argparse
-from robot import Robot
 
+from robot import Robot
 from termcolor import colored
-from threading import Thread, Lock
+from threading import Thread
+from prettytable import PrettyTable
 from learning_toponav.msg import *
 from std_msgs.msg import Header, String
-from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
+from nav_msgs.srv import GetPlan
+from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Pose, Point, Quaternion
 
 
 class Toponavigator(object):
@@ -38,7 +41,8 @@ class Toponavigator(object):
         
         # -- publishers
         self.movebase_goal_pub = rospy.Publisher(self.robot.ns+self.yaml['goal_topic'], PoseStamped, queue_size=10)
-        self.state_publisher = rospy.Publisher(self.robot.ns+self.yaml['robot_state'], RobotState, queue_size=self.STATE_RATE*2)
+        self.state_publisher = rospy.Publisher(self.robot.ns+self.yaml['robot_state'],
+                                               RobotState, queue_size=self.STATE_RATE*2)
         t = Thread(target=self.publish_state)
         t.start()
         # for some reason, doesn't need to be .join()-ed
@@ -120,11 +124,19 @@ class Toponavigator(object):
                 self.goal_reached = False
     
         # -- afference calc
+        eucl = self.eucl_afference(amcl_posit=amcl_posit)
+        
+        pose_stamped = PoseStamped(amcl_pose.header, amcl_pose.pose.pose)
+        movebase = self.movebase_afference(amcl_pose=pose_stamped)
+        
+        self.debug_aff(eucl, movebase)
+        
+    def eucl_afference(self, amcl_posit):
         while not rospy.has_param(self.yaml['interest_points']):
             rospy.sleep(0.1)
         int_points = rospy.get_param(self.yaml['interest_points'])
-        closest_ipoint = None
-        min_dist = float('inf')
+        afference = None
+        afference_dist = float('inf')
     
         for ipoint in int_points:
             ipoint_pose = {
@@ -143,13 +155,87 @@ class Toponavigator(object):
             )
         
             # assign minimum distance
-            if e_dist < min_dist:
-                min_dist = e_dist
-                closest_ipoint = ipoint['name']
+            if e_dist < afference_dist:
+                afference_dist = e_dist
+                afference = ipoint['name']
                 
-        self.robot.afference = closest_ipoint
-        self.robot.distance = min_dist
+        # self.robot.afference = afference
+        # self.robot.distance = afference_dist
+        
+        return {
+            'mode': 'euclidean',
+            'afference': afference,
+            'dist': afference_dist
+        }
 
+    def movebase_afference(self, amcl_pose):
+        while not rospy.has_param(self.yaml['interest_points']):
+            rospy.sleep(0.1)
+        ipoints = rospy.get_param(self.yaml['interest_points'])
+    
+        afference_dist = float('inf')
+        afference = None
+        for ip in ipoints:
+            ip_pose = self.get_ip_posestamp(ip)
+        
+            rospy.wait_for_service(self.robot.ns + '/move_base/NavfnROS/make_plan')
+            try:
+                make_plan = rospy.ServiceProxy(self.robot.ns + '/move_base/NavfnROS/make_plan', GetPlan)
+                response = make_plan(amcl_pose, ip_pose, self.GOAL_DISTANCE_BIAS)
+            
+                path_length = self.get_plan_len(response.plan)
+                if path_length <= afference_dist:
+                    afference_dist = path_length
+                    afference = ip['name']
+            except rospy.ServiceException as e:
+                print "Make_plan call failed: %s" % e
+    
+        self.robot.distance = afference_dist
+        self.robot.afference = afference
+
+        return {
+            'mode': 'movebase',
+            'afference': afference,
+            'dist': afference_dist
+        }
+        
+    def debug_aff(self, eucl, movebase):
+        pt = PrettyTable(['Robot', 'Mode', 'Afference', 'Distance'])
+        pt.add_row([self.robot.ns, eucl['mode'], eucl['afference'], eucl['dist']])
+        pt.add_row([self.robot.ns, movebase['mode'], movebase['afference'], movebase['dist']])
+        
+        print pt
+        
+
+    @staticmethod
+    def get_plan_len(plan):
+        path_length = 0
+        for i in range(len(plan.poses) - 1):
+            position_a_x = plan.poses[i].pose.position.x
+            position_b_x = plan.poses[i + 1].pose.position.x
+            position_a_y = plan.poses[i].pose.position.y
+            position_b_y = plan.poses[i + 1].pose.position.y
+        
+            path_length += np.sqrt(
+                np.power((position_b_x - position_a_x), 2) + np.power((position_b_y - position_a_y), 2))
+            
+        return path_length
+    
+    @staticmethod
+    def get_ip_posestamp(ip):
+        header = Header()
+        header.stamp = rospy.Time.now()
+        header.frame_id = 'map'
+    
+        ip_x = ip['pose']['position']['x']
+        ip_y = ip['pose']['position']['y']
+        ip_z = ip['pose']['position']['z']
+    
+        ip_pose = PoseStamped()
+        ip_pose.header = header
+        ip_pose.pose = Pose(Point(ip_x, ip_y, ip_z), Quaternion(0, 0, 0, 1))
+        
+        return ip_pose
 
 def parse_args():
     parser = argparse.ArgumentParser()

@@ -124,6 +124,7 @@ class DestDebugger(object):
         self.robot_2_aff.grid(row=0, column=0)
         
     def on_shutdown(self):
+        self.dest_sub.unregister()
         try:
             x = self.root.winfo_x()
             y = self.root.winfo_y()
@@ -142,7 +143,7 @@ class DestDebugger(object):
         self.root.mainloop()
     
     def listen_destinations(self):
-        rospy.Subscriber(self.yaml['destinations_log'], DestinationDebug, self.on_destination)
+        self.dest_sub = rospy.Subscriber(self.yaml['destinations_log'], DestinationDebug, self.on_destination)
     
     def on_destination(self, msg):
         name = str(msg.name).lower()

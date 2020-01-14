@@ -2,7 +2,7 @@
     <arg name="robot_1" value="robot_1" />
     <arg name="robot_2" value="robot_2" />
 
-    <arg name="environment" value="office" />
+    <arg name="environment" value="house" />
     <arg name="metric_map" default="$(find learning_toponav)/maps/$(arg environment)/metric.yaml" />
     <arg name="topomap" default="$(find learning_toponav)/maps/$(arg environment)/topomap.tpg" />
     <arg name="topics_yaml" default="$(find learning_toponav)/param/topics.yaml" />
@@ -65,7 +65,7 @@
     />
 
     <!--destinations debugger-->
-    <arg name="dest_debug" default="true" />
+    <arg name="dest_debug" default="false" />
     <node pkg="learning_toponav" type="destinations_debugger.py" name="destinations_debugger"
           args="--yaml $(find learning_toponav)/param/topics.yaml" if="$(arg dest_debug)"
     />

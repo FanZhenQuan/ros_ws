@@ -17,11 +17,13 @@ from std_msgs.msg import Header
 
 
 class Planner(object):
-    def __init__(self, adjlist, environment, yaml):
+    def __init__(self, adjlist, environment, yaml, logging):
         self.graph = nx.read_adjlist(adjlist, delimiter=', ', nodetype=str)
         self.nodes = rospy.get_param(yaml['interest_points'])
         self.yaml = yaml
         self.environment = environment  # house, office ...
+        # self.logging = logging  # bool, whether to print colored logs or not
+        self.logging = False
         self.available_robots = self.busy_robots = []
         
         self.destinations = []
@@ -73,7 +75,7 @@ class Planner(object):
             if r.state == 'ready' and r not in self.available_robots:
                 # TODO: all'inizio, viene aggiunto un robot piu di una volta
                 self.available_robots.append(r)
-                print colored('%s is available' % r.ns, 'blue', attrs=['bold'])
+                self.log('%s is available' % r.ns, 'blue', attrs=['bold'])
         
         # if msg.state == 'ready':
         #     self.update_available_dests(
@@ -213,7 +215,7 @@ class Planner(object):
                     topopath = self.build_topopath(path)
                     self.publish_path(topopath, robot.ns)
                     # rospy.loginfo('Path from %s to %s sent to %s' % (source, dest, robot.ns))
-                    print colored('%s: %s -> %s' % (robot.ns, source, dest), 'red')
+                    self.log('%s: %s -> %s' % (robot.ns, source, dest), 'red')
                     
                     if i == robots_num - 1:
                         i = 0
@@ -247,7 +249,7 @@ class Planner(object):
                     selected.append(d.name)
 
         # return dest
-        print colored('Selected: %s, len: %s' % (', '.join(selected), len(selected)), 'cyan')
+        # self.log('Destinations: %s, len: %s' % (', '.join(selected), len(selected)), 'cyan')
         return random.choice(selected)
     
     def destinations_log(self):
@@ -284,6 +286,10 @@ class Planner(object):
             rospy.sleep(0.1)
         pub.publish(path)
         
+    def log(self, msg, color, attrs=None):
+        if self.logging:
+            print colored(msg, color=color, attrs=attrs)
+        
     def on_shutdown(self):
         dest_logger = DestinationStatLogger(dest_list=self.destinations, environment=self.environment)
         confirm_save = dest_logger.show_confirm_gui()
@@ -304,6 +310,7 @@ def parse_args():
     parser.add_argument('--adjlist', type=str, required=True)
     parser.add_argument('--environment', type=str, required=True)
     parser.add_argument('--yaml', type=str, help='File where used topics_yaml are saved')
+    parser.add_argument('--logging', type=bool, default=True, help="Show colored debugging msgs")
     args, unknown = parser.parse_known_args()
     
     return args
@@ -315,7 +322,7 @@ if __name__ == '__main__':
     args = parse_args()
     yaml = parse_yaml(args.yaml)
     
-    planner = Planner(args.adjlist, environment=args.environment, yaml=yaml)
+    planner = Planner(args.adjlist, environment=args.environment, yaml=yaml, logging=args.logging)
     rospy.on_shutdown(planner.on_shutdown)  # dumps idlenesses of destinations
     # planner.listen_navrequests()
     # planner.debug()

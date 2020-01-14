@@ -57,6 +57,7 @@ add_message_files(
   RobotTopopath.msg
   ToponavIpoint.msg
   DestinationDebug.msg
+  AfferenceDebug.msg
 )
 
 ## Generate services in the 'srv' folder
