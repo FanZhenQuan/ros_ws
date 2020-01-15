@@ -38,7 +38,7 @@
             <arg name="color" value="red" />
             <arg name="topics_yaml" value="$(arg topics_yaml)" />
 
-            <arg name="x_pos" value="1" />
+            <arg name="x_pos" value="4" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
         </include>
@@ -51,7 +51,7 @@
             <arg name="color" value="blue" />
             <arg name="topics_yaml" value="$(arg topics_yaml)" />
 
-            <arg name="x_pos" value="-1" />
+            <arg name="x_pos" value="-3" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
         </include>
@@ -69,6 +69,9 @@
     <node pkg="learning_toponav" type="destinations_debugger.py" name="destinations_debugger"
           args="--yaml $(find learning_toponav)/param/topics.yaml" if="$(arg dest_debug)"
     />
+
+    <!--afference debugger-->
+    <node pkg="learning_toponav" type="afference_debugger.py" name="afference_debugger" />
 
     <!-- RVIZ -->
     <node name="rviz" pkg="rviz" type="rviz" args="$(arg rviz_config)" />

@@ -1,4 +1,3 @@
-string robot_ns
-string mode
-string afference
-float32 dist
+geometry_msgs/Point mvbs_afference
+geometry_msgs/Point eucl_afference
+geometry_msgs/Point robot_posit

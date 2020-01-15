@@ -6,7 +6,7 @@
 
     <!-- GAZEBO -->
     <include file="$(find learning_multirobot)/launch/includes/main_gazebo.launch">
-        <arg name="world_name" value="$(find learning_multirobot)/worlds/turtlebot3_house.world"/>
+        <arg name="world_name" value="$(find learning_multirobot)/worlds/house.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="$(arg gazebo_gui)"/>
@@ -29,9 +29,6 @@
             <arg name="x_pos" value="4" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
-            <!--<arg name="x_pos" value="-4" />-->
-            <!--<arg name="y_pos" value="1" />-->
-            <!--<arg name="z_pos" value="0" />-->
         </include>
     </group>
 
@@ -44,9 +41,6 @@
             <arg name="x_pos" value="-3" />
             <arg name="y_pos" value="1" />
             <arg name="z_pos" value="0" />
-            <!--<arg name="x_pos" value="-1" />-->
-            <!--<arg name="y_pos" value="4" />-->
-            <!--<arg name="z_pos" value="0" />-->
         </include>
     </group>
 
