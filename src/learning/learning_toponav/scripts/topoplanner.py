@@ -22,8 +22,8 @@ class Planner(object):
         self.nodes = rospy.get_param(yaml['interest_points'])
         self.yaml = yaml
         self.environment = environment  # house, office ...
-        # self.logging = logging  # bool, whether to print colored logs or not
-        self.logging = False
+        self.logging = logging  # bool, whether to print colored logs or not
+        # self.logging = False
         self.available_robots = self.busy_robots = []
         
         self.destinations = []
@@ -121,11 +121,6 @@ class Planner(object):
         for n in self.nodes:
             if n['name'] == name:
                 return n
-            
-    def _get_robot_by_ns(self, ns):
-        for r in self.robots:
-            if r.ns == ns:
-                return r
 
     def build_ipoint_msg(self, node):
         position = Point(
@@ -159,25 +154,6 @@ class Planner(object):
         return RobotTopopath(toponav_ipoints)
 
     def update_available_dests(self, add=None, remove=None):
-        # for d in self.destinations:
-        #     if add:
-        #         if add[0] or add[1]:
-        #             if add[0] and d['name'] == add[0]:
-        #                 d['available'] = True
-        #                 # rospy.logwarn(add[0])
-        #             elif add[1] and d['name'] == add[1]:
-        #                 d['available'] = True
-        #                 # rospy.logwarn(add[1])
-        #     # if add and d['name'] == add:
-        #     #     d['available'] = True
-        #
-        #     if (
-        #         remove and
-        #         d['name'] == remove and
-        #         remove != add
-        #     ):
-        #         d['available'] = False
-        #         # rospy.logerr(remove)
         for d in self.destinations:
             if add and d.name == add:
                 d.available = True
@@ -247,6 +223,7 @@ class Planner(object):
                 if d.get_idleness() >= curr_idl:
                     # dest = d.name
                     selected.append(d.name)
+                    curr_idl = d.get_idleness()
 
         # return dest
         # self.log('Destinations: %s, len: %s' % (', '.join(selected), len(selected)), 'cyan')
@@ -291,7 +268,8 @@ class Planner(object):
             print colored(msg, color=color, attrs=attrs)
         
     def on_shutdown(self):
-        dest_logger = DestinationStatLogger(dest_list=self.destinations, environment=self.environment)
+        dest_logger = DestinationStatLogger(dest_list=self.destinations,
+                                            robots_num=len(self.robots), environment=self.environment)
         confirm_save = dest_logger.show_confirm_gui()
         if confirm_save:
             dest_logger.write_statfile()
