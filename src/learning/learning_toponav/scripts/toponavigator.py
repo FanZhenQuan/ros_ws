@@ -124,6 +124,7 @@ class Toponavigator(object):
                 self.goal_reached = False
     
         # -- afference calc
+        # TODO: choose one or the other
         eucl = self.eucl_afference(amcl_posit=amcl_posit)
         
         pose_stamped = PoseStamped(amcl_pose.header, amcl_pose.pose.pose)
