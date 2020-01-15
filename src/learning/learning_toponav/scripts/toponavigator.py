@@ -212,15 +212,16 @@ class Toponavigator(object):
         # pt.add_row([self.robot.ns, movebase['mode'], movebase['afference'], movebase['dist']])
         #
         # print pt
-        msg = AfferenceDebug()
-        msg.robot_posit = amcl_posit
-        msg.eucl_afference = eucl['ip_posit']
-        msg.mvbs_afference = movebase['ip_posit']
-        
-        pub = rospy.Publisher('/afference_debug', AfferenceDebug, queue_size=10)
-        while pub.get_num_connections() < 1:
-            rospy.sleep(0.1)
-        pub.publish(msg)
+        if self.robot.ns == '/robot_1':
+            msg = AfferenceDebug()
+            msg.robot_posit = amcl_posit
+            msg.eucl_afference = eucl['ip_posit']
+            msg.mvbs_afference = movebase['ip_posit']
+            
+            pub = rospy.Publisher('/afference_debug', AfferenceDebug, queue_size=10)
+            while pub.get_num_connections() < 1:
+                rospy.sleep(0.1)
+            pub.publish(msg)
         
     @staticmethod
     def get_plan_len(plan):

@@ -65,7 +65,7 @@
     />
 
     <!--destinations debugger-->
-    <arg name="dest_debug" default="false" />
+    <arg name="dest_debug" default="true" />
     <node pkg="learning_toponav" type="destinations_debugger.py" name="destinations_debugger"
           args="--yaml $(find learning_toponav)/param/topics.yaml" if="$(arg dest_debug)"
     />

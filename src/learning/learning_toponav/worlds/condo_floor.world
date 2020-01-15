@@ -990,10 +990,10 @@
       <static>1</static>
     </model>
     <state world_name='default'>
-      <sim_time>13 607000000</sim_time>
-      <real_time>13 677588809</real_time>
-      <wall_time>1579087579 813663181</wall_time>
-      <iterations>13607</iterations>
+      <!--<sim_time>13 607000000</sim_time>-->
+      <!--<real_time>13 677588809</real_time>-->
+      <!--<wall_time>1579087579 813663181</wall_time>-->
+      <!--<iterations>13607</iterations>-->
       <model name='condo_floor'>
         <pose frame=''>0.600098 0.477909 0 0 -0 0</pose>
         <scale>1 1 1</scale>
