@@ -4,18 +4,17 @@
 	<arg name="y_pos" default="0.0"/>
 	<arg name="z_pos" default="0.0"/>
 
-	<arg name="default_rviz_conf" default="true" />
-	<arg name="environment" default="house" />
+    <arg name="environment" default="condo_floor" />
+    <arg name="default_rviz_conf" default="true" />
 	<arg name="gazebo_gui" default="false" /> <!-- GAZEBO GUI -->
 
 	<arg name="teleop_output" default="" doc="change with 'gnome-terminal --command'" />
-	<arg name="map" value="$(find learning_navigation)/maps/$(arg environment).yaml" />
 	<arg name="rviz_config" default="-d $(find learning_navigation)/rviz/complete_config.rviz" if="$(arg default_rviz_conf)"/>
 	<arg name="rviz_config" default="-d $(find learning_navigation)/rviz/base_config.rviz" unless="$(arg default_rviz_conf)"/>
 
 	<!--gazebo-->
 	<include file="$(find learning_navigation)/launch/includes/main_gazebo.launch">
-		<arg name="world_name" value="(find learning_multirobot)/worlds/$(arg environment).world"/>
+		<arg name="world_name" value="$(find learning_navigation)/worlds/$(arg environment).world"/>
 		<arg name="paused" value="false"/>
 		<arg name="use_sim_time" value="true"/>
 		<arg name="gui" value="$(arg gazebo_gui)"/>
@@ -42,10 +41,8 @@
 		  output="screen" launch-prefix="$(arg teleop_output)"
 	/>
 
-	<!-- AMCL + map-->
-	<include file="$(find learning_navigation)/launch/includes/amcl_with_map.launch">
-		<arg name="map_dir" value="$(arg map)" />
-	</include>
+	<!--gmapping-->
+    <node pkg="learning_navigation" type="gmapping_nolog.sh" name="gmapping" />
 
 	<!-- move_base -->
 	<include file="$(find learning_navigation)/launch/includes/move_base.launch" />
