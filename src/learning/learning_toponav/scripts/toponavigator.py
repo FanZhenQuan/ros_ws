@@ -20,7 +20,7 @@ class Toponavigator(object):
     READY = 'ready'
     BUSY = 'busy'
     GOAL_DISTANCE_BIAS = 0.4
-    STATE_RATE = 1
+    STATE_RATE = 2
     
     def __init__(self, robot, yaml=None):
         self.yaml = yaml

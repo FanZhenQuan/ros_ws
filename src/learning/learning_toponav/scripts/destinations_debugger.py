@@ -111,18 +111,6 @@ class DestDebugger(object):
         self.robot_2_state = Entry(robot_2_sframe)
         self.robot_2_state.grid(row=0, column=0)
         
-        # -------- AFFERENCE
-        row += 1
-        robot_1_aframe = Frame(self.root, bg='blue', **SMALLER)
-        robot_1_aframe.grid(row=row, column=0)
-        self.robot_1_aff = Entry(robot_1_aframe)
-        self.robot_1_aff.grid(row=0, column=0)
-
-        robot_2_aframe = Frame(self.root, bg='blue', **SMALLER)
-        robot_2_aframe.grid(row=row, column=1)
-        self.robot_2_aff = Entry(robot_2_aframe)
-        self.robot_2_aff.grid(row=0, column=0)
-        
     def on_shutdown(self):
         self.dest_sub.unregister()
         try:
@@ -180,18 +168,6 @@ class DestDebugger(object):
             self.robot_2_cgoal.insert(0, msg.current_goal)
             self.robot_2_lgoal.insert(0, msg.latest_goal)
             self.robot_2_state.insert(0, msg.state)
-            
-    def robot_afference(self):
-        rospy.Subscriber('/robot_1' + self.yaml['afference'], RobotAfference, self.on_afference)
-        rospy.Subscriber('/robot_2' + self.yaml['afference'], RobotAfference, self.on_afference)
-        
-    def on_afference(self, msg):
-        if msg.robot_name == 'robot_1':
-            self.robot_1_aff.delete(0, 'end')
-            self.robot_1_aff.insert(0, msg.ipoint_name)
-        else:
-            self.robot_2_aff.delete(0, 'end')
-            self.robot_2_aff.insert(0, msg.ipoint_name)
 
 
 def parse_args():
@@ -217,5 +193,4 @@ if __name__ == "__main__":
     
     dest_debugger.listen_destinations()
     dest_debugger.robot_states()
-    dest_debugger.robot_afference()
     dest_debugger.mainloop()

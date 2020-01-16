@@ -41,18 +41,18 @@ class Planner(object):
 
         # ---------------
         self.start_threads()
-        self.update_robot_state()  # can be threaded, just uncomment in self.start_threads()
+        # self.update_robot_state()  # threaded in self.start_threads()
         
     def start_threads(self):
         dests_logger = Thread(target=self.destinations_log)
         dests_logger.start()
         
-        # robot_state_updater = Thread(target=self.update_robot_state)
-        # robot_state_updater.start()
+        robot_state_updater = Thread(target=self.update_robot_state)
+        robot_state_updater.start()
         
     def update_robot_state(self):
         for r in self.robots:
-            rospy.Subscriber(r.ns + yaml['robot_state'], RobotState, self.on_robot_state)
+            rospy.Subscriber(r.ns+self.yaml['robot_state'], RobotState, self.on_robot_state)
         
     def on_robot_state(self, msg):
         upd = {
@@ -76,18 +76,7 @@ class Planner(object):
                 # TODO: all'inizio, viene aggiunto un robot piu di una volta
                 self.available_robots.append(r)
                 self.log('%s is available' % r.ns, 'blue', attrs=['bold'])
-        
-        # if msg.state == 'ready':
-        #     self.update_available_dests(
-        #         _add=[msg.latest_goal, msg.current_goal]
-        #         # add=msg.latest_goal
-        #     )
-        # elif msg.state == 'busy':
-        #     self.update_available_dests(
-        #         # add=[msg.latest_goal, msg.current_goal],
-        #         _add=msg.latest_goal,
-        #         _remove=msg.current_goal
-        #     )
+
         if msg.current_goal != 'None':
             if msg.latest_goal != 'None':
                 self.update_available_dests(add=msg.latest_goal, remove=msg.current_goal)
@@ -208,12 +197,6 @@ class Planner(object):
         :param source: source of the robot (afference)
         :return: destination name (str)
         """
-        # availables = []
-        # for dest in self.destinations:
-        #     if dest.available and dest.name != source:
-        #         availables.append(dest.name)
-        #
-        # return random.choice(availables)
         dest = None
         curr_idl = -1
         selected = []
@@ -221,13 +204,13 @@ class Planner(object):
             # TODO: sometimes dests get chosen even if they're not available
             if d.available and d.name != source:
                 if d.get_idleness() >= curr_idl:
-                    # dest = d.name
+                    dest = d.name
                     selected.append(d.name)
                     curr_idl = d.get_idleness()
 
-        # return dest
         # self.log('Destinations: %s, len: %s' % (', '.join(selected), len(selected)), 'cyan')
-        return random.choice(selected)
+        return dest
+        # return random.choice(selected)
     
     def destinations_log(self):
         pub = rospy.Publisher(self.yaml['destinations_log'], DestinationDebug, queue_size=30)

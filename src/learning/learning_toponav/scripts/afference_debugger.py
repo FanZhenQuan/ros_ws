@@ -41,8 +41,11 @@ def on_afference(msg):
     eucl_posit = msg.eucl_afference
     mvbs_posit = msg.mvbs_afference
     
-    arrow_to_eucl = build_marker(robot_posit, eucl_posit, color=ColorRGBA(1, 0, 0, 1))
-    arrow_to_mvbs = build_marker(robot_posit, mvbs_posit, color=ColorRGBA(0, 1, 0, 1))
+    red = ColorRGBA(1, 0, 0, 1)
+    green = ColorRGBA(0, 1, 0, 1)
+    
+    arrow_to_eucl = build_marker(robot_posit, eucl_posit, color=red)
+    arrow_to_mvbs = build_marker(robot_posit, mvbs_posit, color=green)
     
     publish(arrow_to_eucl, '/eucl_aff')
     publish(arrow_to_mvbs, '/mvbs_aff')

@@ -11,6 +11,7 @@ sys.path.append(path)
 
 
 class Destination(object):
+    THRESHOLD = 3
     
     def __init__(self, name, available=True):
         self.name = name
@@ -49,7 +50,8 @@ class Destination(object):
             raise Exception(msg)
         
     def __append_idleness(self):
-        self.__stats.append(self.get_idleness())
+        if self.get_idleness() >= self.THRESHOLD:
+            self.__stats.append(self.get_idleness())
         
     def get_stats(self):
         return self.__stats

@@ -14,6 +14,7 @@
         <param name="base_frame_id" value="$(arg robot_name)/base_link" />
         <param name="global_frame_id" value="map" />
         <param name="first_map_only" value="true" />
+        <param name="update_min_d" value="0.1" />
         <!-- # OPTIONAL PARAMS # -->
         <!--<param name="odom_model_type" value="diff" />-->
         <!--<param name="gui_publish_rate" value="10.0" />-->
