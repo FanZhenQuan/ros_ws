@@ -19,7 +19,7 @@ from std_msgs.msg import Header
 class Planner(object):
     def __init__(self, adjlist, environment, yaml, logging):
         self.graph = nx.read_adjlist(adjlist, delimiter=', ', nodetype=str)
-        self.nodes = rospy.get_param(yaml['interest_points'])
+        self.interest_points = rospy.get_param(yaml['interest_points'])
         self.yaml = yaml
         self.environment = environment  # house, office ...
         self.logging = logging  # bool, whether to print colored logs or not
@@ -41,41 +41,60 @@ class Planner(object):
 
         # ---------------
         self.start_threads()
-        # self.update_robot_state()  # threaded in self.start_threads()
+        self.update_robot_state()  # threaded in self.start_threads()
         
     def start_threads(self):
         dests_logger = Thread(target=self.destinations_log)
         dests_logger.start()
         
-        robot_state_updater = Thread(target=self.update_robot_state)
-        robot_state_updater.start()
+        # robot_state_updater = Thread(target=self.update_robot_state)
+        # robot_state_updater.start()
         
     def update_robot_state(self):
         for r in self.robots:
             rospy.Subscriber(r.ns+self.yaml['robot_state'], RobotState, self.on_robot_state)
         
     def on_robot_state(self, msg):
-        upd = {
-            'robot_name': msg.robot_name,
-            'state': msg.state,
-            'current_goal': msg.current_goal,
-            'latest_goal': msg.latest_goal,
-            'afference': msg.afference,
-            'distance': msg.distance
-        }
+        # upd = {
+        #     'ns': msg.robot_name,
+        #     'state': msg.state,
+        #     'current_goal': msg.current_goal,
+        #     'latest_goal': msg.latest_goal,
+        #     'afference': msg.afference,
+        #     'distance': msg.distance
+        # }
         
-        for index, r in enumerate(self.robots):
-            if r.ns == upd['robot_name']:
-                self.robots[index].state = upd['state']
-                self.robots[index].current_goal = upd['current_goal']
-                self.robots[index].latest_goal = upd['latest_goal']
-                self.robots[index].afference = upd['afference']
-                self.robots[index].distance = upd['distance']
+        # for index, r in enumerate(self.robots):
+        #     if r.ns == upd['ns']:
+        #         self.robots[index].state = upd['state']
+        #         self.robots[index].current_goal = upd['current_goal']
+        #         self.robots[index].latest_goal = upd['latest_goal']
+        #         self.robots[index].afference = upd['afference']
+        #         self.robots[index].distance = upd['distance']
                 
-            if r.state == 'ready' and r not in self.available_robots:
-                # TODO: all'inizio, viene aggiunto un robot piu di una volta
-                self.available_robots.append(r)
-                self.log('%s is available' % r.ns, 'blue', attrs=['bold'])
+            # if r.state == 'ready' and r not in self.available_robots:
+            #     self.available_robots.append(r)
+            #     self.log('%s is available' % r.ns, 'blue', attrs=['bold'])
+        temp = Robot(ns=msg.robot_name,
+                     state=msg.state,
+                     c_goal=msg.current_goal,
+                     l_goal=msg.latest_goal,
+                     aff=msg.afference,
+                     dist=msg.distance
+                     )
+
+        for r in self.robots:
+            if r.ns == temp.ns:
+                r.state = temp.state
+                r.current_goal = temp.current_goal
+                r.latest_goal = temp.latest_goal
+                r.afference = temp.afference
+                r.distance = temp.distance
+                
+        if temp.state == 'ready' and temp not in self.available_robots:
+            # TODO: all'inizio, viene aggiunto un robot piu di una volta
+            self.available_robots.append(temp)
+            self.log('%s is available' % temp.ns, 'blue', attrs=['bold'])
 
         if msg.current_goal != 'None':
             if msg.latest_goal != 'None':
@@ -107,11 +126,12 @@ class Planner(object):
         rospy.spin()
 
     def _get_node_by_name(self, name):
-        for n in self.nodes:
+        for n in self.interest_points:
             if n['name'] == name:
                 return n
 
-    def build_ipoint_msg(self, node):
+    @staticmethod
+    def build_ipoint_msg(node):
         position = Point(
             float(node['pose']['position']['x']),
             float(node['pose']['position']['y']),
@@ -164,7 +184,6 @@ class Planner(object):
 
     def dispatch_goals(self):
         robots_num = len(self.robots)
-        rate = rospy.Rate(.5)
         i = 0
 
         try:
@@ -179,15 +198,12 @@ class Planner(object):
                     
                     topopath = self.build_topopath(path)
                     self.publish_path(topopath, robot.ns)
-                    # rospy.loginfo('Path from %s to %s sent to %s' % (source, dest, robot.ns))
                     self.log('%s: %s -> %s' % (robot.ns, source, dest), 'red')
                     
                     if i == robots_num - 1:
                         i = 0
                     else:
                         i += 1
-                        
-                    # rate.sleep()
         except rospy.ROSInterruptException:
             pass
 

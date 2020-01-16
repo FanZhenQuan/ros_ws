@@ -20,7 +20,7 @@ class Toponavigator(object):
     READY = 'ready'
     BUSY = 'busy'
     GOAL_DISTANCE_BIAS = 0.4
-    STATE_RATE = 2
+    STATE_RATE = 1
     
     def __init__(self, robot, yaml=None):
         self.yaml = yaml
@@ -37,7 +37,7 @@ class Toponavigator(object):
     def start_threads(self):
         # --- subscribers
         rospy.Subscriber(self.robot.ns+self.yaml['robot_topopath'], RobotTopopath, self.on_topopath)
-        rospy.Subscriber(self.robot.ns+'/amcl_pose', PoseWithCovarianceStamped, self.on_amcl)
+        rospy.Subscriber(self.robot.ns+self.yaml['pose_topic'], PoseWithCovarianceStamped, self.on_amcl)
         
         # -- publishers
         self.movebase_goal_pub = rospy.Publisher(self.robot.ns+self.yaml['goal_topic'], PoseStamped, queue_size=10)
@@ -65,10 +65,6 @@ class Toponavigator(object):
                 msg.distance = self.robot.distance
         
                 if self.robot.latest_goal is None:
-                    # if self.robot.current_goal is None:
-                    #     msg.latest_goal = 'None'
-                    # else:
-                    #     msg.latest_goal = self.robot.current_goal.name
                     msg.latest_goal = 'None'
                 else:
                     msg.latest_goal = self.robot.latest_goal
@@ -84,27 +80,22 @@ class Toponavigator(object):
             pass
     
     def on_topopath(self, path):
-        # TODO: implementare consegna random di un punto nell'area di pertinenza (metrica)
-        if self.robot.state == self.BUSY:
-            rospy.logwarn('Goal ignored: robot %s is busy' % self.robot.ns)
-        else:
-            self.robot.state = self.BUSY
-            while self.movebase_goal_pub.get_num_connections() < 1:
-                rospy.sleep(0.1)
+        self.robot.state = self.BUSY
+        while self.movebase_goal_pub.get_num_connections() < 1:
+            rospy.sleep(0.1)
+        
+        for ipoint in path.path:
+            self.robot.current_goal = ipoint
+            self.goal_reached = False
             
-            for ipoint in path.path:
-                self.robot.current_goal = ipoint
-                self.goal_reached = False
-                
-                self.movebase_goal_pub.publish(ipoint.pose)
-                while not self.goal_reached:
-                    rospy.sleep(1)
-                
-                self.robot.latest_goal = self.robot.current_goal.name
+            self.movebase_goal_pub.publish(ipoint.pose)
+            while not self.goal_reached:
+                rospy.sleep(1)
             
-            # rospy.loginfo('Toponavigator: %s end goal reached' % self.robot.ns)
-            print colored('%s: end goal reached' % self.robot.ns, 'green')
-            self.robot.state = self.READY
+            self.robot.latest_goal = self.robot.current_goal.name
+        
+        print colored('%s: end goal reached' % self.robot.ns, 'green')
+        self.robot.state = self.READY
     
     def on_amcl(self, amcl_pose):
         # -- distance-to-goal calc

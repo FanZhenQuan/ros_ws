@@ -34,8 +34,7 @@ class Robot(object):
         return s
     
     def __repr__(self):
-        return "name: %s, state: %s, c_goal: %s, l_goal: %s, aff: %s" % (
-            self.ns, self.state, self.current_goal, self.latest_goal, self.afference)
+        return self.ns
 
     def __eq__(self, other):
         if not isinstance(other, Robot):
