@@ -216,14 +216,14 @@ class Planner(object):
         curr_idl = -1
         selected = []
         for d in self.destinations:
-            if d.available and d.name != source:
-                if d.get_idleness() >= curr_idl:
-                    dest = d.name
-                    selected.append(d.name)
-                    curr_idl = d.get_idleness()
+            if d.available and d.name != source and d.get_idleness() >= curr_idl:
+                dest = d
+                selected.append(d.name)
+                curr_idl = d.get_idleness()
 
         # self.log('Destinations: %s, len: %s' % (', '.join(selected), len(selected)), 'cyan')
-        return dest
+        # dest.available = False
+        return dest.name
         # return random.choice(selected)
     
     def destinations_log(self):

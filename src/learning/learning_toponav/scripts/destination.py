@@ -36,18 +36,12 @@ class Destination(object):
             self.__append_idleness()
             self.reset()
         
-    def get_idleness(self, travel_time=None):
+    def get_idleness(self):
         """
         :return: seconds elapsed since latest usage (type: float)
         """
         now = rospy.Time.now()
-        if not travel_time:
-            return (now - self.__latest_usage).to_sec()
-        elif type(travel_time) == float or type(travel_time) == int:
-            return (now - self.__latest_usage).to_sec() + travel_time
-        else:
-            msg = 'travel_time argument is of type %s, should be either float or int' % type(travel_time)
-            raise Exception(msg)
+        return (now - self.__latest_usage).to_sec()
         
     def __append_idleness(self):
         if self.get_idleness() >= self.THRESHOLD:
@@ -61,10 +55,16 @@ class Destination(object):
         self.__latest_usage = rospy.Time.now()
         
     def __str__(self):
-        return "Name: %s, status: %s, idleness: %s" %(self.name, self.available, self.idleness)
+        return "Name: %s, status: %s, idleness: %s" %(self.name, self.available, self.get_idleness())
+    
+    def __repr__(self):
+        return "Dest %s" % self.name
     
     def __eq__(self, other):
         return self.name == other.name
+    
+    def __iter__(self):
+        yield self.get_idleness()
     
 
 class DestinationStatLogger(object):
