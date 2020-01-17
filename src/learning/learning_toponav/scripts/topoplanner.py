@@ -92,7 +92,6 @@ class Planner(object):
                 r.distance = temp.distance
                 
         if temp.state == 'ready' and temp not in self.available_robots:
-            # TODO: all'inizio, viene aggiunto un robot piu di una volta
             self.available_robots.append(temp)
             self.log('%s is available' % temp.ns, 'blue', attrs=['bold'])
 
@@ -217,7 +216,6 @@ class Planner(object):
         curr_idl = -1
         selected = []
         for d in self.destinations:
-            # TODO: sometimes dests get chosen even if they're not available
             if d.available and d.name != source:
                 if d.get_idleness() >= curr_idl:
                     dest = d.name
