@@ -12,7 +12,7 @@ import json
 
 from os.path import dirname, realpath, join
 
-from route_search import get_node
+# from route_search import get_node
 from topological_map import TopologicalMap
 from topological_node import NodeEdges
 from topological_node import TopologicalNode
@@ -88,7 +88,7 @@ class TopologicalEditor(object):
         for i in self.top_map.nodes:
             v1 = i.pose.position
             for j in i.edges:
-                v2 = get_node(self.top_map, j.node).pose.position
+                v2 = self.get_node(self.top_map, j.node).pose.position
                 self.draw_arrow(topmap_image, v1, v2, (255, 0, 0, 255), origin, thickness=2, arrow_magnitude=5, line_type=1)
             xval = int((v1.x - origin[0]) / self.props['resolution'])
             yval = int((origin[1] - v1.y) / self.props['resolution'])
@@ -97,6 +97,13 @@ class TopologicalEditor(object):
             cv2.circle(topmap_image, (int(xval), int(yval)), 10, (0, 0, 255, 255), -1)
             cv2.putText(topmap_image, i.name, (int(xval), int(yval - 5)), font, 0.3, (20, 20, 20), 1)
         return topmap_image
+
+    @staticmethod
+    def get_node(top_map, node_name):
+        for i in top_map.nodes:
+            if i.name == node_name:
+                return i
+        return None
 
     def draw_arrow(self, image, v1, v2, color, origin, arrow_magnitude=5, thickness=1, line_type=8, shift=0):
         v3 = dict()

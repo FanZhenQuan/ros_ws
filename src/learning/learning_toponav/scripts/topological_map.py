@@ -19,7 +19,6 @@ class TopologicalMap(object):
         return nodes
 
     def _load_map(self, filename):
-        # print "loading " + filename
         with open(filename, 'r') as f:
             return yaml.load(f)
         
@@ -50,14 +49,9 @@ class TopologicalMap(object):
             node['node']['edges'] = []
             for j in i.edges:
                 dd = {}
-                dd['action'] = j.action
                 dd['edge_id'] = j.edge_id
                 dd['node'] = j.node
                 node['node']['edges'].append(dd)
 
-            node['node']['verts'] = []
-            for h in i.verts:
-                vv = {'x': h.x, 'y': h.y}
-                node['node']['verts'].append(vv)
             s.append(node)
         return s

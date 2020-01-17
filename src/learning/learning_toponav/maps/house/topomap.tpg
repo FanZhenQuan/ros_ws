@@ -1,11 +1,9 @@
 - node:
     edges:
-    - action: move_base_simple/goal
-      edge_id: WayPoint1_WayPoint2
-      node: WayPoint2
-    - action: move_base_simple/goal
-      edge_id: WayPoint1_WayPoint6
+    - edge_id: WayPoint1_WayPoint6
       node: WayPoint6
+    - edge_id: WayPoint1_WayPoint2
+      node: WayPoint2
     name: WayPoint1
     pointset: NA
     pose:
@@ -15,37 +13,19 @@
         y: 0.0
         z: 0.0
       position:
-        x: -2.8
-        y: 1.1000000000000032
+        x: -2.75
+        y: 1.0500000000000025
         z: 0.0
-    verts:
-    - x: 0.689999997616
-      y: 0.287000000477
-    - x: 0.287000000477
-      y: 0.689999997616
-    - x: -0.287000000477
-      y: 0.689999997616
-    - x: -0.689999997616
-      y: 0.287000000477
-    - x: -0.689999997616
-      y: -0.287000000477
-    - x: -0.287000000477
-      y: -0.689999997616
-    - x: 0.287000000477
-      y: -0.689999997616
-    - x: 0.689999997616
-      y: -0.287000000477
 - node:
     edges:
-    - action: move_base_simple/goal
-      edge_id: WayPoint2_WayPoint1
+    - edge_id: WayPoint2_WayPoint1
       node: WayPoint1
-    - action: move_base_simple/goal
-      edge_id: WayPoint2_WayPoint3
+    - edge_id: WayPoint2_WayPoint3
       node: WayPoint3
-    - action: move_base_simple/goal
-      edge_id: WayPoint2_WayPoint5
+    - edge_id: WayPoint2_WayPoint5
       node: WayPoint5
+    - edge_id: WayPoint2_WayPoint4
+      node: WayPoint4
     name: WayPoint2
     pointset: NA
     pose:
@@ -55,33 +35,14 @@
         y: 0.0
         z: 0.0
       position:
-        x: 4.800000000000001
-        y: 0.9500000000000028
+        x: 5.15
+        y: 0.9000000000000021
         z: 0.0
-    verts:
-    - x: 0.689999997616
-      y: 0.287000000477
-    - x: 0.287000000477
-      y: 0.689999997616
-    - x: -0.287000000477
-      y: 0.689999997616
-    - x: -0.689999997616
-      y: 0.287000000477
-    - x: -0.689999997616
-      y: -0.287000000477
-    - x: -0.287000000477
-      y: -0.689999997616
-    - x: 0.287000000477
-      y: -0.689999997616
-    - x: 0.689999997616
-      y: -0.287000000477
 - node:
     edges:
-    - action: move_base_simple/goal
-      edge_id: WayPoint3_WayPoint2
+    - edge_id: WayPoint3_WayPoint2
       node: WayPoint2
-    - action: move_base_simple/goal
-      edge_id: WayPoint3_WayPoint4
+    - edge_id: WayPoint3_WayPoint4
       node: WayPoint4
     name: WayPoint3
     pointset: NA
@@ -93,30 +54,14 @@
         z: 0.0
       position:
         x: 4.850000000000001
-        y: 3.8000000000000025
+        y: 3.900000000000002
         z: 0.0
-    verts:
-    - x: 0.689999997616
-      y: 0.287000000477
-    - x: 0.287000000477
-      y: 0.689999997616
-    - x: -0.287000000477
-      y: 0.689999997616
-    - x: -0.689999997616
-      y: 0.287000000477
-    - x: -0.689999997616
-      y: -0.287000000477
-    - x: -0.287000000477
-      y: -0.689999997616
-    - x: 0.287000000477
-      y: -0.689999997616
-    - x: 0.689999997616
-      y: -0.287000000477
 - node:
     edges:
-    - action: move_base_simple/goal
-      edge_id: WayPoint4_WayPoint3
+    - edge_id: WayPoint4_WayPoint3
       node: WayPoint3
+    - edge_id: WayPoint4_WayPoint2
+      node: WayPoint2
     name: WayPoint4
     pointset: NA
     pose:
@@ -126,30 +71,12 @@
         y: 0.0
         z: 0.0
       position:
-        x: 1.1000000000000014
-        y: 3.200000000000003
+        x: 1.200000000000001
+        y: 3.1000000000000023
         z: 0.0
-    verts:
-    - x: 0.689999997616
-      y: 0.287000000477
-    - x: 0.287000000477
-      y: 0.689999997616
-    - x: -0.287000000477
-      y: 0.689999997616
-    - x: -0.689999997616
-      y: 0.287000000477
-    - x: -0.689999997616
-      y: -0.287000000477
-    - x: -0.287000000477
-      y: -0.689999997616
-    - x: 0.287000000477
-      y: -0.689999997616
-    - x: 0.689999997616
-      y: -0.287000000477
 - node:
     edges:
-    - action: move_base_simple/goal
-      edge_id: WayPoint5_WayPoint2
+    - edge_id: WayPoint5_WayPoint2
       node: WayPoint2
     name: WayPoint5
     pointset: NA
@@ -160,33 +87,14 @@
         y: 0.0
         z: 0.0
       position:
-        x: 5.65
-        y: -4.499999999999998
+        x: 5.800000000000001
+        y: -4.349999999999998
         z: 0.0
-    verts:
-    - x: 0.689999997616
-      y: 0.287000000477
-    - x: 0.287000000477
-      y: 0.689999997616
-    - x: -0.287000000477
-      y: 0.689999997616
-    - x: -0.689999997616
-      y: 0.287000000477
-    - x: -0.689999997616
-      y: -0.287000000477
-    - x: -0.287000000477
-      y: -0.689999997616
-    - x: 0.287000000477
-      y: -0.689999997616
-    - x: 0.689999997616
-      y: -0.287000000477
 - node:
     edges:
-    - action: move_base_simple/goal
-      edge_id: WayPoint6_WayPoint1
+    - edge_id: WayPoint6_WayPoint1
       node: WayPoint1
-    - action: move_base_simple/goal
-      edge_id: WayPoint6_WayPoint7
+    - edge_id: WayPoint6_WayPoint7
       node: WayPoint7
     name: WayPoint6
     pointset: NA
@@ -197,30 +105,12 @@
         y: 0.0
         z: 0.0
       position:
-        x: -6.35
+        x: -6.15
         y: 3.150000000000002
         z: 0.0
-    verts:
-    - x: 0.689999997616
-      y: 0.287000000477
-    - x: 0.287000000477
-      y: 0.689999997616
-    - x: -0.287000000477
-      y: 0.689999997616
-    - x: -0.689999997616
-      y: 0.287000000477
-    - x: -0.689999997616
-      y: -0.287000000477
-    - x: -0.287000000477
-      y: -0.689999997616
-    - x: 0.287000000477
-      y: -0.689999997616
-    - x: 0.689999997616
-      y: -0.287000000477
 - node:
     edges:
-    - action: move_base_simple/goal
-      edge_id: WayPoint7_WayPoint6
+    - edge_id: WayPoint7_WayPoint6
       node: WayPoint6
     name: WayPoint7
     pointset: NA
@@ -232,22 +122,5 @@
         z: 0.0
       position:
         x: -6.3
-        y: -1.7499999999999982
+        y: -1.8999999999999986
         z: 0.0
-    verts:
-    - x: 0.689999997616
-      y: 0.287000000477
-    - x: 0.287000000477
-      y: 0.689999997616
-    - x: -0.287000000477
-      y: 0.689999997616
-    - x: -0.689999997616
-      y: 0.287000000477
-    - x: -0.689999997616
-      y: -0.287000000477
-    - x: -0.287000000477
-      y: -0.689999997616
-    - x: 0.287000000477
-      y: -0.689999997616
-    - x: 0.689999997616
-      y: -0.287000000477

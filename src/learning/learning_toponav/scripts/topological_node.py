@@ -16,7 +16,6 @@ class Geometry(object):
 
 class NodeEdges(Geometry):
     def __init__(self, edges):
-        self.action = edges['action']
         self.edge_id = edges['edge_id']
         self.node = edges['node']
 
@@ -54,7 +53,6 @@ class TopologicalNode(Geometry):
         self.pointset = node['pointset']
         self.name = node['name']
         self.pose = NodePose(node['pose'])
-        self.verts = self._get_verts(node['verts'])
         self.edges = self._get_edges(node['edges'])
 
     def _get_verts(self, verts):
