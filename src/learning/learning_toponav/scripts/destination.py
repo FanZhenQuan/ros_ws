@@ -10,9 +10,10 @@ import json
 class Destination(object):
     THRESHOLD = 3
     
-    def __init__(self, name, available=True):
+    def __init__(self, name, pose, available=True):
         self.name = name
-        self.idleness = 0
+        self.pose = pose
+        self.idleness = None
         self.__stats = []  # stores every idleness registered
         self.__latest_available = True
         self.__available = available
@@ -64,9 +65,6 @@ class Destination(object):
     def __eq__(self, other):
         return self.name == other.name
     
-    def __iter__(self):
-        yield self.get_idleness()
-    
 
 class DestinationStatLogger(object):
     DEFAULT_PATH = '/home/davide/ros_ws/src/learning/learning_toponav/idleness/'
@@ -91,6 +89,7 @@ class DestinationStatLogger(object):
         
         lines = []
         statistics = {}
+        separator = "-----------\n"
         for d in self.dest_list:
             d.force_shutdown()
             
@@ -104,10 +103,15 @@ class DestinationStatLogger(object):
                 'max': np.max(idlenesses),
                 'min': np.min(idlenesses)
             }
+            
+        means = [d['mean'] for d in statistics.values()]
+        average_idl = np.mean(means)
+        variance_average_idl = np.var(means)
         
         lines = sorted(lines)
-        lines.append('-----------\n')
+        lines.append(separator + json.dumps(statistics, indent=2))
+        lines.append(separator + "Average idleness: %s\n" + average_idl)
+        lines.append(separator + "Variance idleness: %s\n" + variance_average_idl)
         
         file = open(self.path+filename, 'w')
         file.writelines(lines)
-        file.write(json.dumps(statistics, indent=2))

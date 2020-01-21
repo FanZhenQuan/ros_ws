@@ -19,16 +19,25 @@ from std_msgs.msg import Header
 class Planner(object):
     def __init__(self, adjlist, environment, yaml, logging):
         self.graph = nx.read_adjlist(adjlist, delimiter=', ', nodetype=str)
-        self.interest_points = rospy.get_param(yaml['interest_points'])
         self.yaml = yaml
         self.environment = environment  # house, office ...
         self.logging = logging  # bool, whether to print colored logs or not
         # self.logging = False
-        self.available_robots = self.busy_robots = []
+        self.available_robots = []
         
         self.destinations = []
-        for n in list(self.graph.nodes()):
-            d = Destination(name=n)
+        for n in rospy.get_param(yaml['interest_points']):
+            d = Destination(
+                name=n['name'],
+                pose=Pose(
+                    Point(
+                        n['pose']['position']['x'],
+                        n['pose']['position']['y'],
+                        n['pose']['position']['z']
+                    ),
+                    Quaternion(0, 0, 0, 1)
+                )
+            )
             self.destinations.append(d)
 
         self.robots = []
@@ -55,26 +64,6 @@ class Planner(object):
             rospy.Subscriber(r.ns+self.yaml['robot_state'], RobotState, self.on_robot_state)
         
     def on_robot_state(self, msg):
-        # upd = {
-        #     'ns': msg.robot_name,
-        #     'state': msg.state,
-        #     'current_goal': msg.current_goal,
-        #     'latest_goal': msg.latest_goal,
-        #     'afference': msg.afference,
-        #     'distance': msg.distance
-        # }
-        
-        # for index, r in enumerate(self.robots):
-        #     if r.ns == upd['ns']:
-        #         self.robots[index].state = upd['state']
-        #         self.robots[index].current_goal = upd['current_goal']
-        #         self.robots[index].latest_goal = upd['latest_goal']
-        #         self.robots[index].afference = upd['afference']
-        #         self.robots[index].distance = upd['distance']
-                
-            # if r.state == 'ready' and r not in self.available_robots:
-            #     self.available_robots.append(r)
-            #     self.log('%s is available' % r.ns, 'blue', attrs=['bold'])
         temp = Robot(ns=msg.robot_name,
                      state=msg.state,
                      c_goal=msg.current_goal,
@@ -95,6 +84,7 @@ class Planner(object):
             self.available_robots.append(temp)
             self.log('%s is available' % temp.ns, 'blue', attrs=['bold'])
 
+        # update destinations
         if msg.current_goal != 'None':
             if msg.latest_goal != 'None':
                 self.update_available_dests(add=msg.latest_goal, remove=msg.current_goal)
@@ -125,27 +115,21 @@ class Planner(object):
         rospy.spin()
 
     def _get_node_by_name(self, name):
-        for n in self.interest_points:
-            if n['name'] == name:
+        for n in self.destinations:  # TODO: refactor
+            if n.name == name:
                 return n
 
     @staticmethod
     def build_ipoint_msg(node):
-        position = Point(
-            float(node['pose']['position']['x']),
-            float(node['pose']['position']['y']),
-            float(node['pose']['position']['z'])
-        )
-        orientation = Quaternion(0, 0, 0, 1)
         header = Header()
         header.stamp = rospy.Time.now()
         header.frame_id = 'map'
     
         pose = PoseStamped()
         pose.header = header
-        pose.pose = Pose(position, orientation)
+        pose.pose = node.pose
     
-        return ToponavIpoint(pose, node['name'])
+        return ToponavIpoint(pose, node.name)
 
     def build_topopath(self, path):
         """
@@ -165,6 +149,7 @@ class Planner(object):
         for d in self.destinations:
             if add and d.name == add:
                 d.available = True
+                continue
                 
             if remove and d.name == remove and remove != add:
                 d.available = False
@@ -192,12 +177,12 @@ class Planner(object):
                 else:
                     robot = self.available_robots.pop(0)
                     source = robot.afference
-                    dest = self.choose_destination(robot, source)
-                    path = self.find_path(source=source, dest=dest)
+                    dest = self.choose_destination(source)
+                    path = self.find_path(source=source, dest=dest.name)
                     
                     topopath = self.build_topopath(path)
                     self.publish_path(topopath, robot.ns)
-                    self.log('%s: %s -> %s' % (robot.ns, source, dest), 'red')
+                    self.log('%s: %s -> %s' % (robot.ns, source, dest.name), 'red')
                     
                     if i == robots_num - 1:
                         i = 0
@@ -206,11 +191,10 @@ class Planner(object):
         except rospy.ROSInterruptException:
             pass
 
-    def choose_destination(self, robot, source):
+    def choose_destination(self, source):
         """
-        :param robot: the namespace of the robot (str)  <-- UNUSED
-        :param source: source of the robot (afference)
-        :return: destination name (str)
+        :param (str) source: afference of the robot
+        :return: (Destination) destination
         """
         dest = None
         curr_idl = -1
@@ -223,7 +207,7 @@ class Planner(object):
 
         # self.log('Destinations: %s, len: %s' % (', '.join(selected), len(selected)), 'cyan')
         # dest.available = False
-        return dest.name
+        return dest
         # return random.choice(selected)
     
     def destinations_log(self):
@@ -288,7 +272,6 @@ if __name__ == '__main__':
     
     planner = Planner(args.adjlist, environment=args.environment, yaml=yaml, logging=args.logging)
     rospy.on_shutdown(planner.on_shutdown)  # dumps idlenesses of destinations
-    rospy.Timer(period=rospy.Duration(60), callback=planner.on_shutdown, oneshot=True)
-    # planner.listen_navrequests()
+    rospy.Timer(period=rospy.Duration(60*3), callback=planner.on_shutdown, oneshot=True)
     # planner.debug()
     planner.dispatch_goals()
