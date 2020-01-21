@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
 import rospy
-import tkinter as tk
+import numpy as np
 import tkMessageBox
 import time
-import sys
-import os
-path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(path)
+import json
 
 
 class Destination(object):
@@ -93,12 +90,24 @@ class DestinationStatLogger(object):
         filename = "%s-%s-%sbots.txt" % (datetime, self.environment, self.robots_num)
         
         lines = []
+        statistics = {}
         for d in self.dest_list:
             d.force_shutdown()
-            idlenesses_str = [str(i) for i in d.get_stats()]
+            
+            idlenesses = d.get_stats()
+            idlenesses_str = [str(i) for i in idlenesses]
             line = d.name + ': ' + ', '.join(idlenesses_str) + '\n'
             lines.append(line)
+
+            statistics[d.name] = {
+                'mean': np.mean(idlenesses),
+                'max': np.max(idlenesses),
+                'min': np.min(idlenesses)
+            }
+        
         lines = sorted(lines)
+        lines.append('-----------\n')
         
         file = open(self.path+filename, 'w')
         file.writelines(lines)
+        file.write(json.dumps(statistics, indent=2))

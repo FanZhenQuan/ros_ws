@@ -1,7 +1,7 @@
 [v] al shutdown, salvare le idleness rimanenti
 - mantenere una stima della percorrenza di un path vs la idleness osservata (idleness/stima)
 - aumentare il numero di robot in una mappa per osservare l'aumento delle performance
-- aggiungere al file delle idleness un vettore che osserva
+[v] aggiungere al file delle idleness un vettore che osserva
     * le medie delle idlenesses
     * mediana
     * varianza sul vettore "media" dei nodi
