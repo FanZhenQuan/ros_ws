@@ -1,5 +1,4 @@
 robot_state: '/state'
-planner_requests: '/topoplanner/nav_request'  # used only if you want to let robots ask for a navgoal
 robot_topopath: '/topopath'
 interest_points: '/interest_points'
 afference: '/afference'

@@ -54,6 +54,10 @@ class Destination(object):
         self.idleness = 0
         self.__latest_usage = rospy.Time.now()
         
+    def force_shutdown(self):
+        self.__append_idleness()
+        self.reset()
+        
     def __str__(self):
         return "Name: %s, status: %s, idleness: %s" %(self.name, self.available, self.get_idleness())
     
@@ -90,6 +94,7 @@ class DestinationStatLogger(object):
         
         lines = []
         for d in self.dest_list:
+            d.force_shutdown()
             idlenesses_str = [str(i) for i in d.get_stats()]
             line = d.name + ': ' + ', '.join(idlenesses_str) + '\n'
             lines.append(line)

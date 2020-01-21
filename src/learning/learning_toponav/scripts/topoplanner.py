@@ -242,17 +242,6 @@ class Planner(object):
                     rate.sleep()
         except rospy.ROSInterruptException:
             pass
-
-    # def listen_navrequests(self):
-    #     nav_request = rospy.Subscriber(self.yaml['planner_requests'], RobotNavRequest, self._on_nav_request)
-    #
-    # def _on_nav_request(self, request):
-    #     path = self.find_path(request.source, request.dest)
-    #     topopath = self.build_topopath(path)
-    #
-    #     self.publish_path(topopath, '/'+request.robot_name)
-    #
-    #     rospy.loginfo('Topoplanner: path from %s to %s sent to %s' % (request.source, request.dest, request.robot_name))
         
     def publish_path(self, path, target_robot):
         pub = rospy.Publisher(target_robot + self.yaml['robot_topopath'], RobotTopopath, queue_size=10)
@@ -299,6 +288,7 @@ if __name__ == '__main__':
     
     planner = Planner(args.adjlist, environment=args.environment, yaml=yaml, logging=args.logging)
     rospy.on_shutdown(planner.on_shutdown)  # dumps idlenesses of destinations
+    rospy.Timer(period=rospy.Duration(60), callback=planner.on_shutdown, oneshot=True)
     # planner.listen_navrequests()
     # planner.debug()
     planner.dispatch_goals()

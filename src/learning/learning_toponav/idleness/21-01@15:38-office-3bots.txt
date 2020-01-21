@@ -1,0 +1,9 @@
+WayPoint1: 19.001, 8.001
+WayPoint2: 33.0, 21.748
+WayPoint3: 23.001, 31.747
+WayPoint4: 54.748
+WayPoint5: 54.748
+WayPoint6: 15.0, 39.748
+WayPoint7: 54.748
+WayPoint8: 54.748
+WayPoint9: 54.748

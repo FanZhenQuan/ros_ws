@@ -1,6 +1,8 @@
 <launch>
     <arg name="robot_1" value="robot_1" />
     <arg name="robot_2" value="robot_2" />
+    <arg name="robot_3" value="robot_3" />
+    <arg name="robot_4" value="robot_4" />
 
     <arg name="environment" default="house" />
     <arg name="metric_map" default="$(find learning_toponav)/maps/$(arg environment)/metric.yaml" />
@@ -56,6 +58,32 @@
             <arg name="z_pos" value="0" />
         </include>
     </group>
+
+    <!--robot 3-->
+    <!--<group ns="$(arg robot_3)">-->
+    <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
+    <!--        <arg name="robot_name" value="$(arg robot_3)" />-->
+    <!--        <arg name="color" value="yellow" />-->
+    <!--        <arg name="topics_yaml" value="$(arg topics_yaml)" />-->
+
+    <!--        <arg name="x_pos" value="4" />-->
+    <!--        <arg name="y_pos" value="4" />-->
+    <!--        <arg name="z_pos" value="0" />-->
+    <!--    </include>-->
+    <!--</group>-->
+
+    <!--robot 4-->
+    <!--<group ns="$(arg robot_4)">-->
+    <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
+    <!--        <arg name="robot_name" value="$(arg robot_4)" />-->
+    <!--        <arg name="color" value="green" />-->
+    <!--        <arg name="topics_yaml" value="$(arg topics_yaml)" />-->
+
+    <!--        <arg name="x_pos" value="-1" />-->
+    <!--        <arg name="y_pos" value="1" />-->
+    <!--        <arg name="z_pos" value="0" />-->
+    <!--    </include>-->
+    <!--</group>-->
 
     <!--topoplanner-->
     <arg name="adjlist" value="$(find learning_toponav)/maps/$(arg environment)/adjlist.txt" />
