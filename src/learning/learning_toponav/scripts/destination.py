@@ -7,13 +7,37 @@ import time
 import json
 
 
+class Idleness(object):
+    def __init__(self, prolongued, aftch_idl, est_idl):
+        self.__prolongued = prolongued
+        self.__estimated = est_idl
+        self.__afterchosen_idl = aftch_idl
+    
+    def get_prolongued(self):
+        return self.__prolongued
+    
+    def get_afterchosen(self):
+        return self.__afterchosen_idl
+
+    def get_estimated(self):
+        return self.__estimated
+    
+    def get_estimate_index(self, _type=float):  # TODO: rename
+        if _type == float:
+            return self.__afterchosen_idl / self.__estimated
+        elif _type == str:
+            return "%s/%s" % (self.__afterchosen_idl, self.__estimated)
+
+
+# TODO: needs a refactor
 class Destination(object):
-    THRESHOLD = 3
+    THRESHOLD = 1.5
     
     def __init__(self, name, pose, available=True):
         self.name = name
         self.pose = pose
-        self.idleness = None
+        self.__ac_idleness = rospy.Time.now()
+        self.est_idleness = 0
         self.__stats = []  # stores every idleness registered
         self.__latest_available = True
         self.__available = available
@@ -33,8 +57,13 @@ class Destination(object):
         ):  # destination has been freed, reset idleness
             self.__append_idleness()
             self.reset()
+        elif(
+                self.__latest_available is True and
+                self.__available is False
+        ):  # destination has been chosen, set ac_idleness
+            self.__ac_idleness = rospy.Time.now()
         
-    def get_idleness(self):
+    def get_prolongued_idleness(self):
         """
         :return: seconds elapsed since latest usage (type: float)
         """
@@ -42,14 +71,23 @@ class Destination(object):
         return (now - self.__latest_usage).to_sec()
         
     def __append_idleness(self):
-        if self.get_idleness() >= self.THRESHOLD:
-            self.__stats.append(self.get_idleness())
+        prol_idl = self.get_prolongued_idleness()
+        
+        if prol_idl >= self.THRESHOLD:
+            self.__stats.append(
+                Idleness(
+                    prolongued=prol_idl,
+                    est_idl=self.est_idleness,
+                    aftch_idl=(rospy.Time.now() - self.__ac_idleness).to_sec()
+                )
+            )
         
     def get_stats(self):
         return self.__stats
         
     def reset(self):
-        self.idleness = 0
+        self.__ac_idleness = rospy.Time.now()
+        self.est_idleness = 0
         self.__latest_usage = rospy.Time.now()
         
     def force_shutdown(self):
@@ -57,13 +95,16 @@ class Destination(object):
         self.reset()
         
     def __str__(self):
-        return "Name: %s, status: %s, idleness: %s" %(self.name, self.available, self.get_idleness())
+        return "Name: %s, status: %s, idleness: %s" %(self.name, self.available, self.get_prolongued_idleness())
     
     def __repr__(self):
         return "Dest %s" % self.name
     
     def __eq__(self, other):
-        return self.name == other.name
+        if isinstance(other, Destination):
+            return self.name == other.name
+        else:
+            raise TypeError('%s is not of type <Destination>' % other)
     
 
 class DestinationStatLogger(object):
@@ -89,19 +130,20 @@ class DestinationStatLogger(object):
         
         lines = []
         statistics = {}
-        separator = "-----------\n"
         for d in self.dest_list:
             d.force_shutdown()
             
             idlenesses = d.get_stats()
-            idlenesses_str = [str(i) for i in idlenesses]
+            
+            idlenesses_str = [i.get_estimate_index(_type=str) for i in idlenesses]
             line = d.name + ': ' + ', '.join(idlenesses_str) + '\n'
             lines.append(line)
 
+            prolongued_idl = [i.get_prolongued() for i in idlenesses]
             statistics[d.name] = {
-                'mean': np.mean(idlenesses),
-                'max': np.max(idlenesses),
-                'min': np.min(idlenesses)
+                'mean': np.mean(prolongued_idl),
+                'max': np.max(prolongued_idl),
+                'min': np.min(prolongued_idl)
             }
             
         means = [d['mean'] for d in statistics.values()]
@@ -109,9 +151,10 @@ class DestinationStatLogger(object):
         variance_average_idl = np.var(means)
         
         lines = sorted(lines)
-        lines.append(separator + json.dumps(statistics, indent=2))
-        lines.append(separator + "Average idleness: %s\n" + average_idl)
-        lines.append(separator + "Variance idleness: %s\n" + variance_average_idl)
+        separator = "-----------\n"
+        lines.append(separator + json.dumps(statistics, indent=2) + '\n')
+        lines.append(separator + "Average idleness: %s\n" % average_idl)
+        lines.append(separator + "Variance idleness: %s\n" % variance_average_idl)
         
         file = open(self.path+filename, 'w')
         file.writelines(lines)

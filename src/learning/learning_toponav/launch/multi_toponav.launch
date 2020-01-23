@@ -87,8 +87,10 @@
 
     <!--topoplanner-->
     <arg name="adjlist" value="$(find learning_toponav)/maps/$(arg environment)/adjlist.txt" />
+    <arg name="planner_logs" default="true" />
     <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"
-          args="--adjlist $(arg adjlist) --environment $(arg environment) --yaml $(arg topics_yaml)"
+          args="--adjlist $(arg adjlist) --environment $(arg environment)
+                --yaml $(arg topics_yaml) --logging $(arg planner_logs)"
           output="screen"
     />
 

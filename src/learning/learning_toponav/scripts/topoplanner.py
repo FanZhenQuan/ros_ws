@@ -5,6 +5,7 @@ import random
 import yaml
 import rospy
 import networkx as nx
+import numpy as np
 
 from pprint import pprint
 from termcolor import colored
@@ -14,6 +15,7 @@ from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from learning_toponav.msg import *
 from destination import Destination, DestinationStatLogger
 from std_msgs.msg import Header
+from nav_msgs.srv import GetPlan
 
 
 class Planner(object):
@@ -64,13 +66,14 @@ class Planner(object):
             rospy.Subscriber(r.ns+self.yaml['robot_state'], RobotState, self.on_robot_state)
         
     def on_robot_state(self, msg):
-        temp = Robot(ns=msg.robot_name,
-                     state=msg.state,
-                     c_goal=msg.current_goal,
-                     l_goal=msg.latest_goal,
-                     aff=msg.afference,
-                     dist=msg.distance
-                     )
+        temp = Robot(
+            ns=msg.robot_name,
+            state=msg.state,
+            c_goal=msg.current_goal,
+            l_goal=msg.latest_goal,
+            aff=msg.afference,
+            dist=msg.distance
+        )
 
         for r in self.robots:
             if r.ns == temp.ns:
@@ -115,7 +118,11 @@ class Planner(object):
         rospy.spin()
 
     def _get_node_by_name(self, name):
-        for n in self.destinations:  # TODO: refactor
+        """
+        :param (str) name: name of the destination
+        :return: (Destination) object matching in name
+        """
+        for n in self.destinations:
             if n.name == name:
                 return n
 
@@ -191,25 +198,57 @@ class Planner(object):
         except rospy.ROSInterruptException:
             pass
 
-    def choose_destination(self, source):
+    def choose_destination(self, src):
         """
         :param (str) source: afference of the robot
         :return: (Destination) destination
         """
+        source = self._get_node_by_name(src)
         dest = None
         curr_idl = -1
         selected = []
         for d in self.destinations:
-            if d.available and d.name != source and d.get_idleness() >= curr_idl:
+            if d.available and d.name != src and d.get_prolongued_idleness() >= curr_idl:
                 dest = d
-                selected.append(d.name)
-                curr_idl = d.get_idleness()
+                selected.append(d)
+                curr_idl = d.get_prolongued_idleness()
 
-        # self.log('Destinations: %s, len: %s' % (', '.join(selected), len(selected)), 'cyan')
-        # dest.available = False
+        dest = random.choice(selected)
+        dest.est_idleness = self.estimate_idleness(source, dest)
         return dest
-        # return random.choice(selected)
     
+    def estimate_idleness(self, source, dest):
+        make_plan_topic = self.robots[0].ns + self.yaml['make_plan']
+        
+        rospy.wait_for_service(make_plan_topic)
+        try:
+            make_plan = rospy.ServiceProxy(make_plan_topic, GetPlan)
+    
+            header = Header()
+            header.frame_id = 'map'
+            header.stamp = rospy.Time.now()
+            
+            response = make_plan(PoseStamped(header, source.pose), PoseStamped(header, dest.pose), 0.5)
+
+            plan = response.plan
+            path_length = 0
+            estimate = -1.0
+            for i in range(len(plan.poses) - 1):
+                position_a_x = plan.poses[i].pose.position.x
+                position_b_x = plan.poses[i + 1].pose.position.x
+                position_a_y = plan.poses[i].pose.position.y
+                position_b_y = plan.poses[i + 1].pose.position.y
+        
+                path_length += np.sqrt(
+                    np.power((position_b_x - position_a_x), 2) + np.power((position_b_y - position_a_y), 2)
+                )
+    
+            estimate = round(path_length / self.yaml['robot_max_speed'], 3)
+            
+            return estimate
+        except rospy.ServiceException as e:
+            print "Make_plan call failed: %s" % e
+        
     def destinations_log(self):
         pub = rospy.Publisher(self.yaml['destinations_log'], DestinationDebug, queue_size=30)
         rate = rospy.Rate(10)
@@ -220,7 +259,7 @@ class Planner(object):
                     msg = DestinationDebug()
                     msg.available = d.available
                     msg.name = d.name
-                    msg.idleness = d.get_idleness()
+                    msg.idleness = d.get_prolongued_idleness()
                     
                     pub.publish(msg)
                     rate.sleep()
@@ -258,7 +297,7 @@ def parse_args():
     parser.add_argument('--adjlist', type=str, required=True)
     parser.add_argument('--environment', type=str, required=True)
     parser.add_argument('--yaml', type=str, help='File where used topics_yaml are saved')
-    parser.add_argument('--logging', type=bool, default=True, help="Show colored debugging msgs")
+    parser.add_argument('--logging', type=bool, help="Show colored debugging msgs")
     args, unknown = parser.parse_known_args()
     
     return args

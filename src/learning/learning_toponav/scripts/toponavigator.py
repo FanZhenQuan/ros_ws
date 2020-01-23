@@ -198,11 +198,6 @@ class Toponavigator(object):
         }
         
     def debug_aff(self, amcl_posit, eucl, movebase):
-        # pt = PrettyTable(['Robot', 'Mode', 'Afference', 'Distance'])
-        # pt.add_row([self.robot.ns, eucl['mode'], eucl['afference'], eucl['dist']])
-        # pt.add_row([self.robot.ns, movebase['mode'], movebase['afference'], movebase['dist']])
-        #
-        # print pt
         if self.robot.ns == '/robot_1':
             msg = AfferenceDebug()
             msg.robot_posit = amcl_posit
