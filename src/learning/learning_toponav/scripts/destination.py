@@ -105,9 +105,9 @@ class Destination(object):
             return self.name == other.name
         else:
             raise TypeError('%s is not of type <Destination>' % other)
-    
 
-class DestinationStatLogger(object):
+
+class IdlenessLogger(object):
     DEFAULT_PATH = '/home/davide/ros_ws/src/learning/learning_toponav/idleness/'
     
     def __init__(self, dest_list, environment, robots_num, path=DEFAULT_PATH):

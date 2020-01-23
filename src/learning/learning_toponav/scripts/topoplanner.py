@@ -13,7 +13,7 @@ from robot import Robot
 from threading import Thread
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from learning_toponav.msg import *
-from destination import Destination, DestinationStatLogger
+from destination import Destination, IdlenessLogger
 from std_msgs.msg import Header
 from nav_msgs.srv import GetPlan
 
@@ -52,11 +52,14 @@ class Planner(object):
 
         # ---------------
         self.start_threads()
-        self.update_robot_state()  # threaded in self.start_threads()
+        self.update_robot_state()  # can be threaded in self.start_threads()
         
     def start_threads(self):
         dests_logger = Thread(target=self.destinations_log)
         dests_logger.start()
+        
+        dests_state_updater = Thread(target=self.update_available_dests)
+        dests_state_updater.start()
         
         # robot_state_updater = Thread(target=self.update_robot_state)
         # robot_state_updater.start()
@@ -88,11 +91,11 @@ class Planner(object):
             self.log('%s is available' % temp.ns, 'blue', attrs=['bold'])
 
         # update destinations
-        if msg.current_goal != 'None':
-            if msg.latest_goal != 'None':
-                self.update_available_dests(add=msg.latest_goal, remove=msg.current_goal)
-            else:
-                self.update_available_dests(remove=msg.current_goal)
+        # if msg.current_goal != 'None':
+        #     if msg.latest_goal != 'None':
+        #         self.update_available_dests(add=msg.latest_goal, remove=msg.current_goal)
+        #     else:
+        #         self.update_available_dests(remove=msg.current_goal)
         
     def debug(self):
         # crash test
@@ -153,13 +156,38 @@ class Planner(object):
         return RobotTopopath(toponav_ipoints)
 
     def update_available_dests(self, add=None, remove=None):
-        for d in self.destinations:
-            if add and d.name == add:
-                d.available = True
-                continue
+        # if robot_N.latest_goal = X and
+        #    robot_M.current_goal = X  --> conflict (below fixed)
+        
+        # for d in self.destinations:
+        #     if add and d.name == add:
+        #         d.available = True
+        #         continue
+        #
+        #     if remove and d.name == remove and remove != add:
+        #         d.available = False
+        
+        rate = rospy.Rate(1)
+        try:
+            while not rospy.is_shutdown():
+                current_goals = []
+                latest_goals = []
+                for r in self.robots:
+                    current_goals.append(r.current_goal)
+                    latest_goals.append(r.latest_goal)
                 
-            if remove and d.name == remove and remove != add:
-                d.available = False
+                for d in self.destinations:
+                    for c_goal in current_goals:
+                        if c_goal != 'None' and d.name == c_goal:
+                            d.available = False
+                            
+                    for l_goal in latest_goals:
+                        if l_goal != 'None' and d.name == l_goal and l_goal not in current_goals:  # <-- avoids conflict
+                            d.available = True
+                            
+                rate.sleep()
+        except rospy.ROSInterruptException:
+            pass
     
     def find_path(self, source, dest):
         """
@@ -175,7 +203,6 @@ class Planner(object):
 
     def dispatch_goals(self):
         robots_num = len(self.robots)
-        i = 0
 
         try:
             while not rospy.is_shutdown():
@@ -190,11 +217,6 @@ class Planner(object):
                     topopath = self.build_topopath(path)
                     self.publish_path(topopath, robot.ns)
                     self.log('%s: %s -> %s' % (robot.ns, source, dest.name), 'red')
-                    
-                    if i == robots_num - 1:
-                        i = 0
-                    else:
-                        i += 1
         except rospy.ROSInterruptException:
             pass
 
@@ -277,8 +299,8 @@ class Planner(object):
             print colored(msg, color=color, attrs=attrs)
         
     def on_shutdown(self):
-        dest_logger = DestinationStatLogger(dest_list=self.destinations,
-                                            robots_num=len(self.robots), environment=self.environment)
+        dest_logger = IdlenessLogger(dest_list=self.destinations,
+                                     robots_num=len(self.robots), environment=self.environment)
         confirm_save = dest_logger.show_confirm_gui()
         if confirm_save:
             dest_logger.write_statfile()
@@ -311,6 +333,6 @@ if __name__ == '__main__':
     
     planner = Planner(args.adjlist, environment=args.environment, yaml=yaml, logging=args.logging)
     rospy.on_shutdown(planner.on_shutdown)  # dumps idlenesses of destinations
-    rospy.Timer(period=rospy.Duration(60*3), callback=planner.on_shutdown, oneshot=True)
+    rospy.Timer(period=rospy.Duration(60*3), callback=planner.on_shutdown, oneshot=True)  # TODO: this doesn't work
     # planner.debug()
     planner.dispatch_goals()
