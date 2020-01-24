@@ -343,6 +343,13 @@ if __name__ == '__main__':
     
     planner = Planner(args.adjlist, environment=args.environment, yaml=yaml, logging=args.logging)
     rospy.on_shutdown(planner.on_shutdown)  # dumps idlenesses of destinations
-    rospy.Timer(period=rospy.Duration(60*3), callback=rospy.signal_shutdown, oneshot=True)
+    
+    if yaml['simulation_time_measure'] == 'minutes':
+        minutes = yaml['simulation_duration']
+        rospy.Timer(period=rospy.Duration(60*minutes), callback=rospy.signal_shutdown, oneshot=True)
+    elif yaml['simulation_time_measure'] == 'seconds':
+        seconds = yaml['simulation_duration']
+        rospy.Timer(period=rospy.Duration(seconds), callback=rospy.signal_shutdown, oneshot=True)
+
     # planner.debug()
     planner.dispatch_goals()

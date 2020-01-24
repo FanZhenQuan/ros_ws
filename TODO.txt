@@ -6,3 +6,5 @@
     * mediana
     * varianza sul vettore "media" dei nodi
     * min-max
+
+- sviluppare capitoli 2-3-4 della tesi6

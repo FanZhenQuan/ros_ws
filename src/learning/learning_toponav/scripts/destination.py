@@ -5,6 +5,9 @@ import numpy as np
 import tkMessageBox
 import time
 import json
+import subprocess
+
+from tkinter import *
 
 
 class Idleness(object):
@@ -119,10 +122,30 @@ class IdlenessLogger(object):
         self.environment = environment  # office, house ...
         self.robots_num = robots_num
         
-    @staticmethod
-    def show_confirm_gui():
-        msg = 'Do you want to save the observed idlenesses of the destinations?'
-        return tkMessageBox.askyesno('Dump destinations', msg)  # TODO: change to normal tk window
+    def show_confirm_gui(self):
+        # msg = 'Do you want to save the observed idlenesses of the destinations?'
+        # return tkMessageBox.askyesno('Dump destinations', msg)
+        root = Tk()
+        root.title("Dump destinations")
+        root.geometry("250x130")
+        root.eval('tk::PlaceWindow %s center' % root.winfo_toplevel())
+
+        pop = subprocess.Popen(["wmctrl", "-r", "Dump destinations", "-b", "add,above"])
+        pop.communicate()
+        
+        # msg = ''''''  # TODO: add bold font jm
+        label = Label(root, text="Do you want to save\n the observed idlenesses\n of the destinations?")
+        label.pack(side="top", fill="both", expand=True, padx=20, pady=20)
+
+        frame = Frame(root).pack(side="bottom", expand=True)
+
+        button = Button(frame, text="OK", command=lambda: self.write_statfile)
+        button.pack(side="left", fill="none", expand=True)
+
+        button = Button(frame, text="Cancel", command=lambda: root.quit)
+        button.pack(side="right", fill="none", expand=True)
+
+        root.mainloop()
         
     def write_statfile(self):
         datetime = time.strftime("%d-%m@%H:%M", time.localtime())
