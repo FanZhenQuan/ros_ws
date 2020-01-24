@@ -91,7 +91,7 @@
     <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"
           args="--adjlist $(arg adjlist) --environment $(arg environment)
                 --yaml $(arg topics_yaml) --logging $(arg planner_logs)"
-          output="screen"
+          output="screen" required="true"
     />
 
     <!--destinations debugger-->

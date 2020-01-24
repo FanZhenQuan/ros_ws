@@ -31,7 +31,7 @@ class Idleness(object):
 
 # TODO: needs a refactor
 class Destination(object):
-    THRESHOLD = 1.5
+    THRESHOLD = 0
     
     def __init__(self, name, pose, available=True):
         self.name = name
@@ -122,7 +122,7 @@ class IdlenessLogger(object):
     @staticmethod
     def show_confirm_gui():
         msg = 'Do you want to save the observed idlenesses of the destinations?'
-        return tkMessageBox.askyesno('Dump destinations', msg)
+        return tkMessageBox.askyesno('Dump destinations', msg)  # TODO: change to normal tk window
         
     def write_statfile(self):
         datetime = time.strftime("%d-%m@%H:%M", time.localtime())

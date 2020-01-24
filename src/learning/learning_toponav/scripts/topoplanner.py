@@ -177,13 +177,18 @@ class Planner(object):
                     latest_goals.append(r.latest_goal)
                 
                 for d in self.destinations:
+                    updated = False
                     for c_goal in current_goals:
                         if c_goal != 'None' and d.name == c_goal:
                             d.available = False
-                            
-                    for l_goal in latest_goals:
-                        if l_goal != 'None' and d.name == l_goal and l_goal not in current_goals:  # <-- avoids conflict
-                            d.available = True
+                            updated = True
+                            break
+                       
+                    if not updated:  # updated means that destination found a match in previous iteration
+                        for l_goal in latest_goals:
+                            if l_goal != 'None' and d.name == l_goal and l_goal not in current_goals:  # <-- avoids conflict
+                                d.available = True
+                                break
                             
                 rate.sleep()
         except rospy.ROSInterruptException:
@@ -211,7 +216,7 @@ class Planner(object):
                 else:
                     robot = self.available_robots.pop(0)
                     source = robot.afference
-                    dest = self.choose_destination(source)
+                    dest = self.choose_destination(robot.ns, source)
                     path = self.find_path(source=source, dest=dest.name)
                     
                     topopath = self.build_topopath(path)
@@ -220,37 +225,42 @@ class Planner(object):
         except rospy.ROSInterruptException:
             pass
 
-    def choose_destination(self, src):
+    def choose_destination(self, robot_ns, src):
         """
+        :param (str) robot_ns: ns the robot
         :param (str) source: afference of the robot
         :return: (Destination) destination
         """
         source = self._get_node_by_name(src)
-        dest = None
+        # dest = None
         curr_idl = -1
         selected = []
         for d in self.destinations:
             if d.available and d.name != src and d.get_prolongued_idleness() >= curr_idl:
-                dest = d
+                # dest = d
                 selected.append(d)
                 curr_idl = d.get_prolongued_idleness()
 
         dest = random.choice(selected)
-        dest.est_idleness = self.estimate_idleness(source, dest)
+        dest.est_idleness = self.estimate_idleness(robot_ns, source, dest)
         return dest
     
-    def estimate_idleness(self, source, dest):
-        make_plan_topic = self.robots[0].ns + self.yaml['make_plan']
+    def estimate_idleness(self, robot_ns, source, dest):
+        make_plan_topic = robot_ns + self.yaml['make_plan']
         
         rospy.wait_for_service(make_plan_topic)
         try:
             make_plan = rospy.ServiceProxy(make_plan_topic, GetPlan)
     
-            header = Header()
-            header.frame_id = 'map'
-            header.stamp = rospy.Time.now()
+            h1 = Header()
+            h1.frame_id = 'map'
+            h1.stamp = rospy.Time.now()
+
+            h2 = Header()
+            h2.frame_id = 'map'
+            h2.stamp = rospy.Time.now()
             
-            response = make_plan(PoseStamped(header, source.pose), PoseStamped(header, dest.pose), 0.5)
+            response = make_plan(PoseStamped(h1, source.pose), PoseStamped(h2, dest.pose), 0.5)
 
             plan = response.plan
             path_length = 0
@@ -333,6 +343,6 @@ if __name__ == '__main__':
     
     planner = Planner(args.adjlist, environment=args.environment, yaml=yaml, logging=args.logging)
     rospy.on_shutdown(planner.on_shutdown)  # dumps idlenesses of destinations
-    rospy.Timer(period=rospy.Duration(60*3), callback=planner.on_shutdown, oneshot=True)  # TODO: this doesn't work
+    rospy.Timer(period=rospy.Duration(60*3), callback=rospy.signal_shutdown, oneshot=True)
     # planner.debug()
     planner.dispatch_goals()
