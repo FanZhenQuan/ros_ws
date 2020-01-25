@@ -12,25 +12,29 @@ from tkinter import *
 
 
 class Idleness(object):
-    def __init__(self, prolongued, aftch_idl, est_idl):
-        self.__prolongued = prolongued
-        self.__estimated = est_idl
-        self.__afterchosen_idl = aftch_idl
+    def __init__(self, true, remaining, estim):
+        self.__true_idl = true
+        self.__estim_idl = estim
+        self.remaining_idl = remaining
     
     def get_prolongued(self):
-        return self.__prolongued
+        return self.__true_idl
     
     def get_afterchosen(self):
-        return self.__afterchosen_idl
+        return self.remaining_idl
 
     def get_estimated(self):
-        return self.__estimated
+        return self.__estim_idl
     
-    def get_estimate_index(self, _type=float):  # TODO: rename
+    def get_estimate_index(self, _type=float):
+        """
+        :param _type: type of return value
+        :return: (str or float) ratio between remaining idleness and estimated idleness
+        """
         if _type == float:
-            return self.__afterchosen_idl / self.__estimated
+            return self.remaining_idl / self.__estim_idl
         elif _type == str:
-            return "%s/%s" % (self.__afterchosen_idl, self.__estimated)
+            return "%s/%s" % (self.remaining_idl, self.__estim_idl)
 
 
 # TODO: needs a refactor
@@ -40,12 +44,11 @@ class Destination(object):
     def __init__(self, name, pose, available=True):
         self.name = name
         self.pose = pose
-        self.__ac_idleness = rospy.Time.now()
-        self.est_idleness = 0
+        self.estim_idl = 0
+        self.__latest_usage = self.__remaining_idl = rospy.Time.now()
         self.__stats = []  # stores every idleness registered
         self.__latest_available = True
         self.__available = available
-        self.__latest_usage = rospy.Time.now()
         
     @property
     def available(self):
@@ -65,9 +68,9 @@ class Destination(object):
                 self.__latest_available is True and
                 self.__available is False
         ):  # destination has been chosen, set ac_idleness
-            self.__ac_idleness = rospy.Time.now()
+            self.__remaining_idl = rospy.Time.now()
         
-    def get_prolongued_idleness(self):
+    def get_true_idleness(self):
         """
         :return: seconds elapsed since latest usage (type: float)
         """
@@ -75,14 +78,14 @@ class Destination(object):
         return (now - self.__latest_usage).to_sec()
         
     def __append_idleness(self):
-        prol_idl = self.get_prolongued_idleness()
+        true_idl = self.get_true_idleness()
         
-        if prol_idl >= self.THRESHOLD:
+        if true_idl >= self.THRESHOLD:
             self.__stats.append(
                 Idleness(
-                    prolongued=prol_idl,
-                    est_idl=self.est_idleness,
-                    aftch_idl=(rospy.Time.now() - self.__ac_idleness).to_sec()
+                    true=true_idl,
+                    estim=self.estim_idl,
+                    remaining=(rospy.Time.now() - self.__remaining_idl).to_sec()
                 )
             )
         
@@ -90,16 +93,15 @@ class Destination(object):
         return self.__stats
         
     def reset(self):
-        self.__ac_idleness = rospy.Time.now()
-        self.est_idleness = 0
-        self.__latest_usage = rospy.Time.now()
+        self.estim_idl = 0
+        self.__latest_usage = self.__remaining_idl = rospy.Time.now()
         
     def force_shutdown(self):
         self.__append_idleness()
         self.reset()
         
     def __str__(self):
-        return "Name: %s, status: %s, idleness: %s" %(self.name, self.available, self.get_prolongued_idleness())
+        return "Name: %s, status: %s, idleness: %s" %(self.name, self.available, self.get_true_idleness())
     
     def __repr__(self):
         return "Dest %s" % self.name
@@ -135,7 +137,6 @@ class IdlenessLogger(object):
         pop = subprocess.Popen(["wmctrl", "-r", "Dump destinations", "-b", "add,above"])
         pop.communicate()
 
-        # TODO: add bold font jm
         msg = "Do you want to save\n the observed idlenesses\n of the destinations?"
         font = tkfont.Font(family="Helvetica", size=14)
         

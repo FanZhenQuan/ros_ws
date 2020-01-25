@@ -236,10 +236,10 @@ class Planner(object):
         curr_idl = -1
         selected = []
         for d in self.destinations:
-            if d.available and d.name != src and d.get_prolongued_idleness() >= curr_idl:
+            if d.available and d.name != src and d.get_true_idleness() >= curr_idl:
                 # dest = d
                 selected.append(d)
-                curr_idl = d.get_prolongued_idleness()
+                curr_idl = d.get_true_idleness()
 
         dest = random.choice(selected)
         dest.est_idleness = self.estimate_idleness(robot_ns, source, dest)
@@ -291,7 +291,7 @@ class Planner(object):
                     msg = DestinationDebug()
                     msg.available = d.available
                     msg.name = d.name
-                    msg.idleness = d.get_prolongued_idleness()
+                    msg.idleness = d.get_true_idleness()
                     
                     pub.publish(msg)
                     rate.sleep()
