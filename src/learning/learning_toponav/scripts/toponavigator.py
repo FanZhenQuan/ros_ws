@@ -115,53 +115,51 @@ class Toponavigator(object):
                 self.goal_reached = False
     
         # -- afference calc
-        # TODO: choose one or the other
-        eucl = self.eucl_afference(amcl_posit=amcl_posit)
-        
         pose_stamped = PoseStamped(amcl_pose.header, amcl_pose.pose.pose)
-        movebase = self.movebase_afference(amcl_pose=pose_stamped)
+        # movebase = self.movebase_afference(amcl_pose=pose_stamped)
+        # eucl = self.eucl_afference(amcl_posit=amcl_posit)
+        # self.debug_aff(amcl_posit, eucl, movebase)
+        self.movebase_afference(amcl_pose=pose_stamped)
         
-        self.debug_aff(amcl_posit, eucl, movebase)
-        
-    def eucl_afference(self, amcl_posit):
-        while not rospy.has_param(self.yaml['interest_points']):
-            rospy.sleep(0.1)
-        int_points = rospy.get_param(self.yaml['interest_points'])
-        
-        afference = None
-        afference_dist = float('inf')
-        ip_pos_debug = None  # TODO: debug
-        for ipoint in int_points:
-            ipoint_posit = {
-                'x': ipoint['pose']['position']['x'],
-                'y': ipoint['pose']['position']['y'],
-                'z': ipoint['pose']['position']['z'],
-            }
-            rbt_posit = {
-                'x': amcl_posit.x,
-                'y': amcl_posit.y,
-                'z': amcl_posit.z
-            }
-            e_dist = math.hypot(
-                ipoint_posit['x'] - rbt_posit['x'],
-                ipoint_posit['y'] - rbt_posit['y']
-            )
-        
-            # assign minimum distance
-            if e_dist < afference_dist:
-                afference_dist = e_dist
-                afference = ipoint['name']
-                ip_pos_debug = Point(ipoint_posit['x'], ipoint_posit['y'], ipoint_posit['z'])
-                
-        # self.robot.afference = afference
-        # self.robot.distance = afference_dist
-        
-        return {
-            'mode': 'euclidean',
-            'afference': afference,
-            'ip_posit': ip_pos_debug,
-            'dist': afference_dist
-        }
+    # def eucl_afference(self, amcl_posit):
+    #     while not rospy.has_param(self.yaml['interest_points']):
+    #         rospy.sleep(0.1)
+    #     int_points = rospy.get_param(self.yaml['interest_points'])
+    #
+    #     afference = None
+    #     afference_dist = float('inf')
+    #     ip_pos_debug = None  # debug
+    #     for ipoint in int_points:
+    #         ipoint_posit = {
+    #             'x': ipoint['pose']['position']['x'],
+    #             'y': ipoint['pose']['position']['y'],
+    #             'z': ipoint['pose']['position']['z'],
+    #         }
+    #         rbt_posit = {
+    #             'x': amcl_posit.x,
+    #             'y': amcl_posit.y,
+    #             'z': amcl_posit.z
+    #         }
+    #         e_dist = math.hypot(
+    #             ipoint_posit['x'] - rbt_posit['x'],
+    #             ipoint_posit['y'] - rbt_posit['y']
+    #         )
+    #
+    #         # assign minimum distance
+    #         if e_dist < afference_dist:
+    #             afference_dist = e_dist
+    #             afference = ipoint['name']
+    #             ip_pos_debug = Point(ipoint_posit['x'], ipoint_posit['y'], ipoint_posit['z'])
+    #
+    #     # self.robot.afference = afference
+    #     # self.robot.distance = afference_dist
+    #
+    #     return {
+    #         'mode': 'euclidean',
+    #         'afference': afference,
+    #         'ip_posit': ip_pos_debug,
+    #         'dist': afference_dist
+    #     }
 
     def movebase_afference(self, amcl_pose):
         while not rospy.has_param(self.yaml['interest_points']):
@@ -170,7 +168,7 @@ class Toponavigator(object):
     
         afference_dist = float('inf')
         afference = None
-        ip_pos_debug = None  # TODO: debug
+        # ip_pos_debug = None  # debug
         for ip in ipoints:
             ip_pose = self.get_ip_posestamp(ip)
             
@@ -183,32 +181,32 @@ class Toponavigator(object):
                 if path_length <= afference_dist:
                     afference_dist = path_length
                     afference = ip['name']
-                    ip_pos_debug = ip_pose.pose.position
+                    # ip_pos_debug = ip_pose.pose.position
             except rospy.ServiceException as e:
                 print "Make_plan call failed: %s" % e
     
         self.robot.distance = afference_dist
         self.robot.afference = afference
 
-        return {
-            'mode': 'movebase',
-            'afference': afference,
-            'ip_posit': ip_pos_debug,
-            'dist': afference_dist
-        }
+        # return {
+        #     'mode': 'movebase',
+        #     'afference': afference,
+        #     'ip_posit': ip_pos_debug,
+        #     'dist': afference_dist
+        # }
         
-    def debug_aff(self, amcl_posit, eucl, movebase):
-        if self.robot.ns == '/robot_1':
-            msg = AfferenceDebug()
-            msg.robot_posit = amcl_posit
-            msg.eucl_afference = eucl['ip_posit']
-            msg.mvbs_afference = movebase['ip_posit']
-            
-            pub = rospy.Publisher('/afference_debug', AfferenceDebug, queue_size=10)
-            while pub.get_num_connections() < 1:
-                rospy.sleep(0.1)
-            pub.publish(msg)
-        
+    # def debug_aff(self, amcl_posit, eucl, movebase):
+    #     if self.robot.ns == '/robot_1':
+    #         msg = AfferenceDebug()
+    #         msg.robot_posit = amcl_posit
+    #         msg.eucl_afference = eucl['ip_posit']
+    #         msg.mvbs_afference = movebase['ip_posit']
+    #
+    #         pub = rospy.Publisher('/afference_debug', AfferenceDebug, queue_size=10)
+    #         while pub.get_num_connections() < 1:
+    #             rospy.sleep(0.1)
+    #         pub.publish(msg)
+    
     @staticmethod
     def get_plan_len(plan):
         path_length = 0

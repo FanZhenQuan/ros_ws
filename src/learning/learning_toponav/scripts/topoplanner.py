@@ -25,7 +25,6 @@ class Planner(object):
         self.environment = environment  # house, office ...
         self.logging = logging  # bool, whether to print colored logs or not
         # self.logging = False
-        self.available_robots = []
         
         self.destinations = []
         for n in rospy.get_param(yaml['interest_points']):
@@ -42,9 +41,9 @@ class Planner(object):
             )
             self.destinations.append(d)
 
-        self.robots = []
-        colors = rospy.get_param('/colors/')
-        for color, ns in colors.items():
+        self.robots = self.available_robots = []
+        robot_namespaces = rospy.get_param(yaml['namespaces_topic'])
+        for color, ns in robot_namespaces.items():
             if ns.startswith('/'):
                 self.robots.append(Robot(ns=ns, color=color))
             else:
@@ -89,13 +88,6 @@ class Planner(object):
         if temp.state == 'ready' and temp not in self.available_robots:
             self.available_robots.append(temp)
             self.log('%s is available' % temp.ns, 'blue', attrs=['bold'])
-
-        # update destinations
-        # if msg.current_goal != 'None':
-        #     if msg.latest_goal != 'None':
-        #         self.update_available_dests(add=msg.latest_goal, remove=msg.current_goal)
-        #     else:
-        #         self.update_available_dests(remove=msg.current_goal)
         
     def debug(self):
         # crash test

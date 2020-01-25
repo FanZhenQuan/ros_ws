@@ -6,6 +6,7 @@ destinations_log: '/destinations_log'
 pose_topic: '/amcl_pose'
 goal_topic: '/move_base_simple/goal'
 make_plan: '/move_base/NavfnROS/make_plan'
+namespaces_topic: '/colors/'
 
 robot_max_speed: 0.26
 
