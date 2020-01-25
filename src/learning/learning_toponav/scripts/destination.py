@@ -7,6 +7,7 @@ import time
 import json
 import subprocess
 
+import tkFont as tkfont
 from tkinter import *
 
 
@@ -121,31 +122,35 @@ class IdlenessLogger(object):
         self.path = path
         self.environment = environment  # office, house ...
         self.robots_num = robots_num
+        self.tk_root = None
         
     def show_confirm_gui(self):
         # msg = 'Do you want to save the observed idlenesses of the destinations?'
         # return tkMessageBox.askyesno('Dump destinations', msg)
-        root = Tk()
-        root.title("Dump destinations")
-        root.geometry("250x130")
-        root.eval('tk::PlaceWindow %s center' % root.winfo_toplevel())
+        self.tk_root = Tk()
+        self.tk_root.title("Dump destinations")
+        self.tk_root.geometry("320x200")
+        self.tk_root.eval('tk::PlaceWindow %s center' % self.tk_root.winfo_toplevel())
 
         pop = subprocess.Popen(["wmctrl", "-r", "Dump destinations", "-b", "add,above"])
         pop.communicate()
+
+        # TODO: add bold font jm
+        msg = "Do you want to save\n the observed idlenesses\n of the destinations?"
+        font = tkfont.Font(family="Helvetica", size=14)
         
-        # msg = ''''''  # TODO: add bold font jm
-        label = Label(root, text="Do you want to save\n the observed idlenesses\n of the destinations?")
+        label = Label(self.tk_root, text=msg, font=font)
         label.pack(side="top", fill="both", expand=True, padx=20, pady=20)
 
-        frame = Frame(root).pack(side="bottom", expand=True)
+        frame = Frame(self.tk_root).pack(side="bottom", expand=True)
 
-        button = Button(frame, text="OK", command=lambda: self.write_statfile)
-        button.pack(side="left", fill="none", expand=True)
+        button = Button(frame, text="OK", command=lambda: self.write_statfile())
+        button.pack(side="left", fill="none", expand=True, padx=5, pady=5)
 
-        button = Button(frame, text="Cancel", command=lambda: root.quit)
-        button.pack(side="right", fill="none", expand=True)
+        button = Button(frame, text="Cancel", command=lambda: self.tk_root.destroy())
+        button.pack(side="right", fill="none", expand=True, padx=5, pady=5)
 
-        root.mainloop()
+        self.tk_root.mainloop()
         
     def write_statfile(self):
         datetime = time.strftime("%d-%m@%H:%M", time.localtime())
@@ -181,3 +186,6 @@ class IdlenessLogger(object):
         
         file = open(self.path+filename, 'w')
         file.writelines(lines)
+
+        rospy.loginfo('Destination idlenesses have been wrote to %s' % self.path)
+        self.tk_root.destroy()

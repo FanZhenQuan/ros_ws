@@ -311,12 +311,13 @@ class Planner(object):
     def on_shutdown(self):
         dest_logger = IdlenessLogger(dest_list=self.destinations,
                                      robots_num=len(self.robots), environment=self.environment)
-        confirm_save = dest_logger.show_confirm_gui()
-        if confirm_save:
-            dest_logger.write_statfile()
-            rospy.loginfo('Destination idlenesses have been wrote to %s' % dest_logger.path)
-        else:
-            rospy.logwarn('Destination idlenesses have NOT been saved')
+        dest_logger.show_confirm_gui()
+        # confirm_save = dest_logger.show_confirm_gui()
+        # if confirm_save:
+        #     dest_logger.write_statfile()
+        #     rospy.loginfo('Destination idlenesses have been wrote to %s' % dest_logger.path)
+        # else:
+        #     rospy.logwarn('Destination idlenesses have NOT been saved')
     
     
 def parse_yaml(dir):
