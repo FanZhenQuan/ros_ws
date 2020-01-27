@@ -12,4 +12,4 @@ robot_max_speed: 0.26
 
 simulation_time_measure: 'minutes'  # can be 'minutes' or 'seconds'
 #simulation_time_measure: 'seconds'
-simulation_duration: 2  # time duration of the simulation, based on the time measure above
+simulation_duration: 5  # time duration of the simulation, based on the time measure above

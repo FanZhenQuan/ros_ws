@@ -7,7 +7,7 @@ import time
 import json
 import subprocess
 
-import tkFont as tkfont
+import tkFont
 from tkinter import *
 
 
@@ -15,13 +15,13 @@ class Idleness(object):
     def __init__(self, true, remaining, estim):
         self.__true_idl = true
         self.__estim_idl = estim
-        self.remaining_idl = remaining
+        self.__remaining_idl = remaining
     
-    def get_prolongued(self):
+    def get_true(self):
         return self.__true_idl
     
-    def get_afterchosen(self):
-        return self.remaining_idl
+    def get_remaining(self):
+        return self.__remaining_idl
 
     def get_estimated(self):
         return self.__estim_idl
@@ -32,12 +32,11 @@ class Idleness(object):
         :return: (str or float) ratio between remaining idleness and estimated idleness
         """
         if _type == float:
-            return self.remaining_idl / self.__estim_idl
+            return self.__remaining_idl / self.__estim_idl
         elif _type == str:
-            return "%s/%s" % (self.remaining_idl, self.__estim_idl)
+            return "%s/%s" % (self.__remaining_idl, self.__estim_idl)
 
 
-# TODO: needs a refactor
 class Destination(object):
     THRESHOLD = 0
     
@@ -138,7 +137,7 @@ class IdlenessLogger(object):
         pop.communicate()
 
         msg = "Do you want to save\n the observed idlenesses\n of the destinations?"
-        font = tkfont.Font(family="Helvetica", size=14)
+        font = tkFont.Font(family="Helvetica", size=14)
         
         label = Label(self.tk_root, text=msg, font=font)
         label.pack(side="top", fill="both", expand=True, padx=20, pady=20)
@@ -168,7 +167,7 @@ class IdlenessLogger(object):
             line = d.name + ': ' + ', '.join(idlenesses_str) + '\n'
             lines.append(line)
 
-            prolongued_idl = [i.get_prolongued() for i in idlenesses]
+            prolongued_idl = [i.get_true() for i in idlenesses]
             statistics[d.name] = {
                 'mean': np.mean(prolongued_idl),
                 'max': np.max(prolongued_idl),

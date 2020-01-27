@@ -79,8 +79,8 @@
     <!--        <arg name="color" value="green" />-->
     <!--        <arg name="topics_yaml" value="$(arg topics_yaml)" />-->
 
-    <!--        <arg name="x_pos" value="-1" />-->
-    <!--        <arg name="y_pos" value="1" />-->
+    <!--        <arg name="x_pos" value="-3" />-->
+    <!--        <arg name="y_pos" value="4" />-->
     <!--        <arg name="z_pos" value="0" />-->
     <!--    </include>-->
     <!--</group>-->
@@ -93,11 +93,11 @@
     <!--topoplanner-->
     <arg name="adjlist" value="$(find learning_toponav)/maps/$(arg environment)/adjlist.txt" />
     <arg name="planner_logs" default="true" />
-    <!--<node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"-->
-    <!--      args="&#45;&#45;adjlist $(arg adjlist) &#45;&#45;environment $(arg environment)-->
-    <!--            &#45;&#45;yaml $(arg topics_yaml) &#45;&#45;logging $(arg planner_logs)"-->
-    <!--      output="screen" required="true"-->
-    <!--/>-->
+    <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"
+          args="--adjlist $(arg adjlist) --environment $(arg environment)
+                --yaml $(arg topics_yaml) --logging $(arg planner_logs)"
+          output="screen" required="true"
+    />
 
     <!--destinations debugger-->
     <arg name="dest_debug" default="true" />

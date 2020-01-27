@@ -41,7 +41,13 @@ class Planner(object):
             )
             self.destinations.append(d)
 
-        self.robots = self.available_robots = []
+        self.robots = []
+        self.available_robots = []
+        
+        while not rospy.has_param(yaml['namespaces_topic']):
+            rospy.logwarn("Waiting for robot namespaces to be published as param under %s" % yaml['namespaces_topic'])
+            rospy.sleep(5)
+            
         robot_namespaces = rospy.get_param(yaml['namespaces_topic'])
         for color, ns in robot_namespaces.items():
             if ns.startswith('/'):
@@ -234,7 +240,7 @@ class Planner(object):
                 curr_idl = d.get_true_idleness()
 
         dest = random.choice(selected)
-        dest.est_idleness = self.estimate_idleness(robot_ns, source, dest)
+        dest.estim_idl = self.estimate_idleness(robot_ns, source, dest)
         return dest
     
     def estimate_idleness(self, robot_ns, source, dest):
@@ -267,7 +273,7 @@ class Planner(object):
                     np.power((position_b_x - position_a_x), 2) + np.power((position_b_y - position_a_y), 2)
                 )
     
-            estimate = round(path_length / self.yaml['robot_max_speed'], 3)
+            estimate = round(path_length / self.yaml['robot_max_speed'], 2)
             
             return estimate
         except rospy.ServiceException as e:
