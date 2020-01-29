@@ -1,0 +1,68 @@
+<launch>
+    <arg name="config_yaml" />
+
+    <!--robot 1-->
+    <group ns="robot_1">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_1" />
+            <arg name="color" value="red" />
+            <arg name="config_yaml" value="$(arg config_yaml)" />
+
+            <arg name="x_pos" value="1" />
+            <arg name="y_pos" value="1" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
+
+    <!--robot 2-->
+    <group ns="robot_2">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_2" />
+            <arg name="color" value="blue" />
+            <arg name="config_yaml" value="$(arg config_yaml)" />
+
+            <arg name="x_pos" value="-1" />
+            <arg name="y_pos" value="1" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
+
+    <!--robot 3-->
+    <group ns="robot_3">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_3" />
+            <arg name="color" value="yellow" />
+            <arg name="config_yaml" value="$(arg config_yaml)" />
+
+            <arg name="x_pos" value="4" />
+            <arg name="y_pos" value="4" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
+
+    <!--robot 4-->
+    <group ns="robot_4">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_4" />
+            <arg name="color" value="green" />
+            <arg name="config_yaml" value="$(arg config_yaml)" />
+
+            <arg name="x_pos" value="-3" />
+            <arg name="y_pos" value="4" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
+
+    <!--robot 5-->
+    <group ns="robot_5">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_5" />
+            <arg name="color" value="green" />
+            <arg name="config_yaml" value="$(arg config_yaml)" />
+
+            <arg name="x_pos" value="7" />
+            <arg name="y_pos" value="-1" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
+</launch>

@@ -258,7 +258,8 @@ class Planner(object):
             h2.frame_id = 'map'
             h2.stamp = rospy.Time.now()
             
-            response = make_plan(PoseStamped(h1, source.pose), PoseStamped(h2, dest.pose), 0.5)
+            response = make_plan(PoseStamped(h1, source.pose),
+                                 PoseStamped(h2, dest.pose), self.yaml['ipoint_radius'])
 
             plan = response.plan
             path_length = 0

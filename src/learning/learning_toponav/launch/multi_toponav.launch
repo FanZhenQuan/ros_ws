@@ -7,7 +7,7 @@
     <arg name="environment" default="house" />
     <arg name="metric_map" default="$(find learning_toponav)/maps/$(arg environment)/metric.yaml" />
     <arg name="topomap" default="$(find learning_toponav)/maps/$(arg environment)/topomap.tpg" />
-    <arg name="topics_yaml" default="$(find learning_toponav)/param/topics.yaml" />
+    <arg name="config_yaml" default="$(find learning_toponav)/param/config.yaml" />
     <arg name="rviz_config" default="-d $(find learning_toponav)/rviz/multi_toponav.rviz" />
     <arg name="gazebo_gui" default="false" /> <!-- ACTIVATE GAZEBO GUI -->
     <arg name="rqt_console" default="false" /> <!-- LAUNCH RQT CONSOLE -->
@@ -30,7 +30,7 @@
 
     <!--toponodes publisher-->
     <node pkg="learning_toponav" type="toponodes_publisher.py" name="toponodes_publisher"
-          args="--topomap $(arg topomap) --yaml $(arg topics_yaml)"
+          args="--topomap $(arg topomap) --yaml $(arg config_yaml)"
     />
 
     <!--robot 1-->
@@ -38,7 +38,7 @@
         <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
             <arg name="robot_name" value="$(arg robot_1)" />
             <arg name="color" value="red" />
-            <arg name="topics_yaml" value="$(arg topics_yaml)" />
+            <arg name="config_yaml" value="$(arg config_yaml)" />
 
             <arg name="x_pos" value="1" />
             <arg name="y_pos" value="1" />
@@ -51,7 +51,7 @@
         <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
             <arg name="robot_name" value="$(arg robot_2)" />
             <arg name="color" value="blue" />
-            <arg name="topics_yaml" value="$(arg topics_yaml)" />
+            <arg name="config_yaml" value="$(arg config_yaml)" />
 
             <arg name="x_pos" value="-1" />
             <arg name="y_pos" value="1" />
@@ -64,7 +64,7 @@
     <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
     <!--        <arg name="robot_name" value="$(arg robot_3)" />-->
     <!--        <arg name="color" value="yellow" />-->
-    <!--        <arg name="topics_yaml" value="$(arg topics_yaml)" />-->
+    <!--        <arg name="config_yaml" value="$(arg config_yaml)" />-->
 
     <!--        <arg name="x_pos" value="4" />-->
     <!--        <arg name="y_pos" value="4" />-->
@@ -77,7 +77,7 @@
     <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
     <!--        <arg name="robot_name" value="$(arg robot_4)" />-->
     <!--        <arg name="color" value="green" />-->
-    <!--        <arg name="topics_yaml" value="$(arg topics_yaml)" />-->
+    <!--        <arg name="config_yaml" value="$(arg config_yaml)" />-->
 
     <!--        <arg name="x_pos" value="-3" />-->
     <!--        <arg name="y_pos" value="4" />-->
@@ -87,7 +87,7 @@
 
     <!--robot spawner-->
     <!--<node pkg="learning_toponav" type="robot_spawner.py" name="robot_spawner"-->
-    <!--      args="&#45;&#45;yaml $(arg topics_yaml)" output="screen"-->
+    <!--      args="&#45;&#45;yaml $(arg config_yaml)" output="screen"-->
     <!--/>-->
 
     <!--topoplanner-->
@@ -95,7 +95,7 @@
     <arg name="planner_logs" default="true" />
     <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"
           args="--adjlist $(arg adjlist) --environment $(arg environment)
-                --yaml $(arg topics_yaml) --logging $(arg planner_logs)"
+                --yaml $(arg config_yaml) --logging $(arg planner_logs)"
           output="screen" required="true"
     />
 

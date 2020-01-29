@@ -1,12 +1,12 @@
 <launch>
     <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
     <!-- @ REQUIRED @ robot name (same as namespace), color and spawn position -->
-    <arg name="robot_name" default=""/>
-    <arg name="color" default=""/>
-    <arg name="x_pos" default=""/>
-    <arg name="y_pos" default=""/>
-    <arg name="z_pos" default=""/>
-    <arg name="topics_yaml" default=""/>
+    <arg name="robot_name" />
+    <arg name="color" />
+    <arg name="x_pos" />
+    <arg name="y_pos" />
+    <arg name="z_pos" />
+    <arg name="config_yaml" />
 
     <param name="tf_prefix" value="$(arg robot_name)" />
 
@@ -47,7 +47,7 @@
 
     <!--toponavigator-->
     <node pkg="learning_toponav" type="toponavigator.py" name="toponavigator"
-          args="--robot $(arg robot_name) --yaml $(arg topics_yaml)"
+          args="--robot $(arg robot_name) --yaml $(arg config_yaml)"
           output="screen"
     />
 </launch>

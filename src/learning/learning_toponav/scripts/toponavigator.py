@@ -19,7 +19,6 @@ from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Pose, Poin
 class Toponavigator(object):
     READY = 'ready'
     BUSY = 'busy'
-    GOAL_DISTANCE_BIAS = 0.4
     STATE_RATE = 1
     
     def __init__(self, robot, yaml=None):
@@ -109,7 +108,7 @@ class Toponavigator(object):
                 amcl_posit.x - goal_posit.x,
                 amcl_posit.y - goal_posit.y
             )
-            if distance <= self.GOAL_DISTANCE_BIAS:
+            if distance <= self.yaml['ipoint_radius']:
                 self.goal_reached = True
             else:
                 self.goal_reached = False
@@ -175,7 +174,7 @@ class Toponavigator(object):
             rospy.wait_for_service(self.robot.ns+self.yaml['make_plan'])
             try:
                 make_plan = rospy.ServiceProxy(self.robot.ns+self.yaml['make_plan'], GetPlan)
-                response = make_plan(amcl_pose, ip_pose, self.GOAL_DISTANCE_BIAS)
+                response = make_plan(amcl_pose, ip_pose, self.yaml['ipoint_radius'])
             
                 path_length = self.get_plan_len(response.plan)
                 if path_length <= afference_dist:
