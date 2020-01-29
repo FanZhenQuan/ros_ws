@@ -6,6 +6,7 @@ import yaml
 import rospy
 import networkx as nx
 import numpy as np
+import webcolors
 
 from pprint import pprint
 from termcolor import colored
@@ -50,10 +51,15 @@ class Planner(object):
             
         robot_namespaces = rospy.get_param(yaml['namespaces_topic'])
         for color, ns in robot_namespaces.items():
+            rgba = color.strip("'").split(' ')
+            rgba = [int(float(i)) * 255 for i in rgba]
+            _color = webcolors.rgb_to_name(
+                (rgba[0], rgba[1], rgba[2])
+            )
             if ns.startswith('/'):
-                self.robots.append(Robot(ns=ns, color=color))
+                self.robots.append(Robot(ns=ns, color=_color))
             else:
-                self.robots.append(Robot(ns='/' + ns, color=color))
+                self.robots.append(Robot(ns='/' + ns, color=_color))
 
         # ---------------
         self.start_threads()
