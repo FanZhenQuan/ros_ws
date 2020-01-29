@@ -16,7 +16,7 @@
     </rosparam>
 
     <!-- tbot bringup -->
-    <include file="$(find learning_multirobot)/launch/includes/turtlebot3_remote.launch">
+    <include file="$(find learning_toponav)/launch/includes/turtlebot3_remote.launch">
 		<arg name="model" value="$(arg model)"/>
         <arg name="color" value="$(arg color)" />
         <arg name="multi_robot_name" value="$(arg robot_name)" />

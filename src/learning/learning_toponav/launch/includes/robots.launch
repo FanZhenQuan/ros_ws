@@ -5,7 +5,7 @@
     <group ns="robot_1">
         <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
             <arg name="robot_name" value="robot_1" />
-            <arg name="color" value="red" />
+            <arg name="color" value="'1.0 0 0 1.0'" />
             <arg name="config_yaml" value="$(arg config_yaml)" />
 
             <arg name="x_pos" value="1" />
@@ -18,7 +18,7 @@
     <group ns="robot_2">
         <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
             <arg name="robot_name" value="robot_2" />
-            <arg name="color" value="blue" />
+            <arg name="color" value="'0 0 1.0 1.0'" />
             <arg name="config_yaml" value="$(arg config_yaml)" />
 
             <arg name="x_pos" value="-1" />
@@ -31,7 +31,7 @@
     <group ns="robot_3">
         <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
             <arg name="robot_name" value="robot_3" />
-            <arg name="color" value="yellow" />
+            <arg name="color" value="'0.9 0.9 0 1.0'" />
             <arg name="config_yaml" value="$(arg config_yaml)" />
 
             <arg name="x_pos" value="4" />
@@ -44,7 +44,7 @@
     <group ns="robot_4">
         <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
             <arg name="robot_name" value="robot_4" />
-            <arg name="color" value="green" />
+            <arg name="color" value="'0 1.0 0 1.0'" />
             <arg name="config_yaml" value="$(arg config_yaml)" />
 
             <arg name="x_pos" value="-3" />
@@ -57,7 +57,7 @@
     <group ns="robot_5">
         <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
             <arg name="robot_name" value="robot_5" />
-            <arg name="color" value="green" />
+            <arg name="color" value="'1.0 0 1.0 1.0'" />
             <arg name="config_yaml" value="$(arg config_yaml)" />
 
             <arg name="x_pos" value="7" />
