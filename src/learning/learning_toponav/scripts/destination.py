@@ -38,15 +38,13 @@ class Idleness(object):
 
 
 class Destination(object):
-    THRESHOLD = 0
-    
     def __init__(self, name, pose, available=True):
         self.name = name
         self.pose = pose
         self.estim_idl = 0
-        self.__latest_usage = self.__remaining_idl = rospy.Time.now()
+        self.__latest_usage = rospy.Time.now()
+        self.__remaining_idl = rospy.Time.now()
         self.__stats = []  # stores every idleness registered
-        self.__latest_available = True
         self.__available = available
         
     @property
@@ -55,17 +53,17 @@ class Destination(object):
     
     @available.setter
     def available(self, value):
-        self.__latest_available = self.__available
+        latest_available = self.__available
         self.__available = value
         if(
-            self.__latest_available is False and
+            latest_available is False and
             self.__available is True
         ):  # destination has been freed, reset idleness
             self.__append_idleness()
             self.reset()
         elif(
-                self.__latest_available is True and
-                self.__available is False
+            latest_available is True and
+            self.__available is False
         ):  # destination has been chosen, set ac_idleness
             self.__remaining_idl = rospy.Time.now()
         
@@ -79,7 +77,7 @@ class Destination(object):
     def __append_idleness(self):
         true_idl = self.get_true_idleness()
         
-        if true_idl >= self.THRESHOLD:
+        if true_idl >= 0:
             self.__stats.append(
                 Idleness(
                     true=true_idl,
@@ -93,7 +91,8 @@ class Destination(object):
         
     def reset(self):
         self.estim_idl = 0
-        self.__latest_usage = self.__remaining_idl = rospy.Time.now()
+        self.__latest_usage = rospy.Time.now()
+        self.__remaining_idl = rospy.Time.now()
         
     def force_shutdown(self):
         self.__append_idleness()
@@ -169,14 +168,14 @@ class IdlenessLogger(object):
 
             prolongued_idl = [i.get_true() for i in idlenesses]
             statistics[d.name] = {
-                'mean': np.mean(prolongued_idl),
+                'mean': round(np.mean(prolongued_idl), 3),
                 'max': np.max(prolongued_idl),
                 'min': np.min(prolongued_idl)
             }
             
         means = [d['mean'] for d in statistics.values()]
-        average_idl = np.mean(means)
-        variance_average_idl = np.var(means)
+        average_idl = round(np.mean(means), 3)
+        variance_average_idl = round(np.var(means), 3)
         
         lines = sorted(lines)
         separator = "-----------\n"

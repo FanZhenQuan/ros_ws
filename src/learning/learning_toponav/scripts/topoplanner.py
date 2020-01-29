@@ -11,7 +11,7 @@ import webcolors
 from pprint import pprint
 from termcolor import colored
 from robot import Robot
-from threading import Thread
+from threading import Thread, Lock
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from learning_toponav.msg import *
 from destination import Destination, IdlenessLogger
@@ -26,6 +26,7 @@ class Planner(object):
         self.environment = environment  # house, office ...
         self.logging = logging  # bool, whether to print colored logs or not
         # self.logging = False
+        self.lock = Lock()
         
         self.destinations = []
         for n in rospy.get_param(yaml['interest_points']):
@@ -66,7 +67,7 @@ class Planner(object):
         self.update_robot_state()  # can be threaded in self.start_threads()
         
     def start_threads(self):
-        dests_logger = Thread(target=self.destinations_log)
+        dests_logger = Thread(target=self.destinations_log)  # TODO: remove comment for dest debugging
         dests_logger.start()
         
         dests_state_updater = Thread(target=self.update_available_dests)
@@ -159,7 +160,7 @@ class Planner(object):
     
         return RobotTopopath(toponav_ipoints)
 
-    def update_available_dests(self, add=None, remove=None):
+    def update_available_dests(self):
         # if robot_N.latest_goal = X and
         #    robot_M.current_goal = X  --> conflict (below fixed)
         
@@ -180,6 +181,10 @@ class Planner(object):
                     current_goals.append(r.current_goal)
                     latest_goals.append(r.latest_goal)
                 
+                while self.lock.locked():
+                    rospy.sleep(0.01)
+                    
+                self.lock.acquire()
                 for d in self.destinations:
                     updated = False
                     for c_goal in current_goals:
@@ -193,7 +198,8 @@ class Planner(object):
                             if l_goal != 'None' and d.name == l_goal and l_goal not in current_goals:  # <-- avoids conflict
                                 d.available = True
                                 break
-                            
+                self.lock.release()
+                    
                 rate.sleep()
         except rospy.ROSInterruptException:
             pass
@@ -229,21 +235,26 @@ class Planner(object):
         except rospy.ROSInterruptException:
             pass
 
+    # TODO: synchronize destinations
     def choose_destination(self, robot_ns, src):
         """
         :param (str) robot_ns: ns the robot
-        :param (str) source: afference of the robot
+        :param (str) src: afference of the robot
         :return: (Destination) destination
         """
         source = self._get_node_by_name(src)
-        # dest = None
         curr_idl = -1
         selected = []
+        
+        while self.lock.locked():
+            rospy.sleep(0.01)
+        
+        self.lock.acquire()
         for d in self.destinations:
             if d.available and d.name != src and d.get_true_idleness() >= curr_idl:
-                # dest = d
                 selected.append(d)
                 curr_idl = d.get_true_idleness()
+        self.lock.release()
 
         dest = random.choice(selected)
         dest.estim_idl = self.estimate_idleness(robot_ns, source, dest)
