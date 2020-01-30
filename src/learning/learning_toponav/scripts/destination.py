@@ -102,7 +102,7 @@ class Destination(object):
         return "Name: %s, status: %s, idleness: %s" %(self.name, self.available, self.get_true_idleness())
     
     def __repr__(self):
-        return "Dest %s" % self.name
+        return self.name
     
     def __eq__(self, other):
         if isinstance(other, Destination):

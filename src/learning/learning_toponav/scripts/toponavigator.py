@@ -19,9 +19,8 @@ from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Pose, Poin
 class Toponavigator(object):
     READY = 'ready'
     BUSY = 'busy'
-    STATE_RATE = 1
     
-    def __init__(self, robot, yaml=None):
+    def __init__(self, robot, yaml):
         self.yaml = yaml
         
         if robot.startswith('/'):
@@ -41,7 +40,7 @@ class Toponavigator(object):
         # -- publishers
         self.movebase_goal_pub = rospy.Publisher(self.robot.ns+self.yaml['goal_topic'], PoseStamped, queue_size=10)
         self.state_publisher = rospy.Publisher(self.robot.ns+self.yaml['robot_state'],
-                                               RobotState, queue_size=self.STATE_RATE*2)
+                                               RobotState, queue_size=self.yaml['robot_state_rate']*2)
         t = Thread(target=self.publish_state)
         t.start()
         # for some reason, doesn't need to be .join()-ed
@@ -49,7 +48,7 @@ class Toponavigator(object):
     
     def publish_state(self):
         try:
-            rate = rospy.Rate(self.STATE_RATE)
+            rate = rospy.Rate(self.yaml['robot_state_rate'])
             while not rospy.is_shutdown():
                 while(
                     not self.robot.state or
