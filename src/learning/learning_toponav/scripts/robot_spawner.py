@@ -6,6 +6,7 @@ import tkFont
 import subprocess
 import tkMessageBox as messagebox
 import argparse
+import webcolors
 
 from geometry_msgs.msg import PointStamped
 from robot import Robot
@@ -100,12 +101,14 @@ class RobotSpawner(object):
             self.y_ent.get() != '' and
             self.ns_ent.get() != ''
         ):
+            color = webcolors.name_to_rgb(self.color_ent.get())
+            color_str = "%s %s %s 1" % (float(color[0])/255, float(color[1])/255, float(color[2])/255)
             params = {
                 'x': round(float(self.x_ent.get()), 3),
                 'y': round(float(self.y_ent.get()), 3),
                 'z': 0,
                 'ns': self.ns_ent.get(),
-                'color': self.color_ent.get(),
+                'color': color_str,
                 'yaml': self.yaml_dir
             }
             

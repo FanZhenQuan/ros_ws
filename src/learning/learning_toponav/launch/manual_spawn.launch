@@ -1,9 +1,4 @@
 <launch>
-    <arg name="robot_1" value="robot_1" />
-    <arg name="robot_2" value="robot_2" />
-    <arg name="robot_3" value="robot_3" />
-    <arg name="robot_4" value="robot_4" />
-
     <arg name="environment" default="house" />
     <arg name="metric_map" default="$(find learning_toponav)/maps/$(arg environment)/metric.yaml" />
     <arg name="topomap" default="$(find learning_toponav)/maps/$(arg environment)/topomap.tpg" />
@@ -33,31 +28,10 @@
           args="--topomap $(arg topomap) --yaml $(arg config_yaml)"
     />
 
-    <!--robot 1-->
-    <group ns="$(arg robot_1)">
-        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
-            <arg name="robot_name" value="$(arg robot_1)" />
-            <arg name="color" value="'1 0 0 1'" /> <!-- red -->
-            <arg name="config_yaml" value="$(arg config_yaml)" />
-
-            <arg name="x_pos" value="1" />
-            <arg name="y_pos" value="1" />
-            <arg name="z_pos" value="0" />
-        </include>
-    </group>
-
-    <!--robot 2-->
-    <group ns="$(arg robot_2)">
-        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
-            <arg name="robot_name" value="$(arg robot_2)" />
-            <arg name="color" value="'0 0 1 1'" /> <!-- blue -->
-            <arg name="config_yaml" value="$(arg config_yaml)" />
-
-            <arg name="x_pos" value="-1" />
-            <arg name="y_pos" value="1" />
-            <arg name="z_pos" value="0" />
-        </include>
-    </group>
+    <!--robot spawner-->
+    <node pkg="learning_toponav" type="robot_spawner.py" name="robot_spawner"
+          args="--yaml $(arg config_yaml)" output="screen"
+    />
 
     <!--topoplanner-->
     <arg name="adjlist" value="$(find learning_toponav)/maps/$(arg environment)/adjlist.txt" />
