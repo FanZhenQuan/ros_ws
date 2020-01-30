@@ -71,8 +71,8 @@ class Planner(object):
         dests_logger = Thread(target=self.destinations_log)  # TODO: remove comment for dest debugging
         dests_logger.start()
         
-        # dests_state_updater = Thread(target=self.update_available_dests)
-        # dests_state_updater.start()
+        dests_state_updater = Thread(target=self.update_available_dests)
+        dests_state_updater.start()
         
         # robot_state_updater = Thread(target=self.update_robot_state)
         # robot_state_updater.start()
@@ -161,32 +161,6 @@ class Planner(object):
         toponav_ipoints.pop(0)  # removes the start point (source)
     
         return RobotTopopath(toponav_ipoints)
-    
-    def updest(self):
-        current_goals = []
-        latest_goals = []
-        for r in self.robots:
-            current_goals.append(r.current_goal)
-            latest_goals.append(r.latest_goal)
-    
-        # while self.lock.locked():
-        #     rospy.sleep(0.01)
-    
-        self.lock.acquire()
-        for d in self.destinations:
-            updated = False
-            for c_goal in current_goals:
-                if c_goal != 'None' and d.name == c_goal:
-                    d.available = False
-                    updated = True
-                    break
-        
-            if not updated:  # updated means that destination found a match in previous iteration
-                for l_goal in latest_goals:
-                    if l_goal != 'None' and d.name == l_goal and l_goal not in current_goals:  # <-- avoids conflict
-                        d.available = True
-                        break
-        self.lock.release()
 
     def update_available_dests(self):
         # if robot_N.latest_goal = X and
@@ -246,7 +220,6 @@ class Planner(object):
 
     def dispatch_goals(self):
         robots_num = len(self.robots)
-        # rate = rospy.Rate(10)
 
         try:
             while not rospy.is_shutdown():
@@ -263,8 +236,6 @@ class Planner(object):
                     self.publish_path(topopath, robot.ns)
                     self.log('%s: %s -> %s' % (robot.ns, source, dest.name), 'red')
                     self.transit.remove(robot)
-                    
-                # rate.sleep()
         except rospy.ROSInterruptException:
             pass
 
@@ -289,10 +260,8 @@ class Planner(object):
                 curr_idl = d.get_true_idleness()
         self.lock.release()
         
-        self.updest()
-
-        self.log("For %s dests: %s" % (robot_ns, selected), 'green')
         dest = random.choice(selected)
+        dest.available = False
         dest.estim_idl = self.estimate_idleness(robot_ns, source, dest)
         return dest
     
