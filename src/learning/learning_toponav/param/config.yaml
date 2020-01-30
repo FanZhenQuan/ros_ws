@@ -9,7 +9,7 @@ make_plan: '/move_base/NavfnROS/make_plan'
 namespaces_topic: '/colors/'
 
 robot_max_speed: 0.26
-robot_state_rate: 5
+robot_state_rate: 2
 
 ipoint_radius: 0.4
 

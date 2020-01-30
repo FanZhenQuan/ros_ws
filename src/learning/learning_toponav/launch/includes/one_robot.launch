@@ -11,15 +11,18 @@
     <param name="tf_prefix" value="$(arg robot_name)" />
 
     <!--setta l'associazione (colore, ns) del robot-->
-    <rosparam ns="/colors" param="$(arg color)" subst_value="true" >
-        $(arg robot_name)
+    <!--<rosparam ns="/colors" param="$(arg color)" subst_value="true" >-->
+    <!--    $(arg robot_name)-->
+    <!--</rosparam>-->
+    <rosparam ns="/colors" param="$(arg robot_name)" subst_value="true" >
+        $(arg color)
     </rosparam>
 
     <!-- tbot bringup -->
     <include file="$(find learning_toponav)/launch/includes/turtlebot3_remote.launch">
 		<arg name="model" value="$(arg model)"/>
         <arg name="color" value="$(arg color)" />
-        <arg name="multi_robot_name" value="$(arg robot_name)" />
+        <arg name="robot_name" value="$(arg robot_name)" />
 	</include>
 
     <!-- spawner -->

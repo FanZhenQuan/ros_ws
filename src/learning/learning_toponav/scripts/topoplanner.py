@@ -52,7 +52,8 @@ class Planner(object):
             rospy.sleep(5)
             
         robot_namespaces = rospy.get_param(yaml['namespaces_topic'])
-        for color, ns in robot_namespaces.items():
+        # for color, ns in robot_namespaces.items():
+        for ns, color in robot_namespaces.items():
             rgba = color.strip("'").split(' ')
             rgba = [int(float(i)) * 255 for i in rgba]
             _color = webcolors.rgb_to_name(
@@ -374,4 +375,5 @@ if __name__ == '__main__':
         rospy.Timer(period=rospy.Duration(seconds), callback=rospy.signal_shutdown, oneshot=True)
 
     # planner.debug()
+    rospy.loginfo('Simulation started')
     planner.dispatch_goals()

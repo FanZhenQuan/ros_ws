@@ -157,10 +157,12 @@ class IdlenessLogger(object):
         
         lines = []
         statistics = {}
+        total_visits = 0
         for d in self.dest_list:
             d.force_shutdown()
             
             idlenesses = d.get_stats()
+            total_visits += len(idlenesses)
             
             idlenesses_str = [i.get_estimate_index(_type=str) for i in idlenesses]
             line = d.name + ': ' + ', '.join(idlenesses_str) + '\n'
@@ -182,6 +184,7 @@ class IdlenessLogger(object):
         lines.append(separator + json.dumps(statistics, indent=2) + '\n')
         lines.append(separator + "Average idleness: %s\n" % average_idl)
         lines.append(separator + "Variance idleness: %s\n" % variance_average_idl)
+        lines.append(separator + "Total visits: %s\n" % total_visits)
         
         file = open(self.path+filename, 'w')
         file.writelines(lines)

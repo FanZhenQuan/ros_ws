@@ -1,7 +1,7 @@
 <launch>
   <arg name="model" />
   <arg name="color" />
-  <arg name="multi_robot_name" default=""/>
+  <arg name="robot_name" />
   <!--prefix:=$(arg multi_robot_name)-->
 
   <!-- DEFAULT URDF -->
@@ -19,7 +19,7 @@
 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
-    <param name="tf_prefix" value="$(arg multi_robot_name)" />
+    <param name="tf_prefix" value="$(arg robot_name)" />
     <!--<param name="ignore_timestamp" value="true" />-->
     <!--<param name="use_tf_static" value="false" />-->
 

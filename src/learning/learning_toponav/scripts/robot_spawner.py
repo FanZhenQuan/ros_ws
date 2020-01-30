@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import rospy
-import roslaunch
 import tkFont
 import subprocess
 import tkMessageBox as messagebox
 import argparse
+import yaml
 import webcolors
 
 from geometry_msgs.msg import PointStamped
@@ -14,7 +14,7 @@ from ttk import Separator
 from tkinter import *
 
 
-PADDING= {
+PADDING = {
     'padx': 5,
     'pady': 5
 }
@@ -26,7 +26,9 @@ ENTRY_W = {
 class RobotSpawner(object):
     def __init__(self, yaml_dir):
         self.robot_list = []
+        self.some_colors = ['blue', 'yellow', 'green', 'purple', 'orange', 'cyan', 'gray']
         self.yaml_dir = yaml_dir
+        self.yaml = yaml.load(open(yaml_dir))
         
         self.root = Tk()
         self.root.title("Robot spawner")
@@ -80,7 +82,7 @@ class RobotSpawner(object):
         # ----------- sesta riga
         row += 1
         robot_list_lab = Label(self.root, text="robots").grid(row=row, column=0, **PADDING)
-        self.robot_list_text = Text(self.root, width=30, height=1)
+        self.robot_list_text = Text(self.root, width=30, height=4)
         self.robot_list_text.grid(row=row, column=1)
 
         # ----------- settima riga
@@ -101,21 +103,25 @@ class RobotSpawner(object):
             self.y_ent.get() != '' and
             self.ns_ent.get() != ''
         ):
-            color = webcolors.name_to_rgb(self.color_ent.get())
-            color_str = "%s %s %s 1" % (float(color[0])/255, float(color[1])/255, float(color[2])/255)
-            params = {
-                'x': round(float(self.x_ent.get()), 3),
-                'y': round(float(self.y_ent.get()), 3),
-                'z': 0,
-                'ns': self.ns_ent.get(),
-                'color': color_str,
-                'yaml': self.yaml_dir
-            }
-            
-            self.robot_list.append(params)
-            self.update_robot_list()
-            self.clear_entries()
-            self.ns_ent.insert(0, "robot_%s" % (len(self.robot_list)+1))
+            try:
+                color = webcolors.name_to_rgb(self.color_ent.get())
+                color_str = "'%s %s %s 1'" % (float(color[0])/255, float(color[1])/255, float(color[2])/255)
+                params = {
+                    'x': round(float(self.x_ent.get()), 3),
+                    'y': round(float(self.y_ent.get()), 3),
+                    'z': 0,
+                    'ns': self.ns_ent.get(),
+                    'color': color_str,
+                    'yaml': self.yaml_dir
+                }
+                
+                self.robot_list.append(params)
+                self.update_robot_list()
+                self.clear_entries()
+                self.insert_default()
+            except ValueError as e:
+                if e.message == "'' is not defined as a named color in css3":
+                    messagebox.showerror('Error', "You didn't provide a color")
         else:
             messagebox.showerror('Error', 'Position or namespace invalid')
         
@@ -132,6 +138,10 @@ class RobotSpawner(object):
         self.color_ent.delete(0, 'end')
         self.ns_ent.delete(0, 'end')
         
+    def insert_default(self):
+        self.ns_ent.insert(0, "robot_%s" % (len(self.robot_list) + 1))
+        if len(self.some_colors) > 0:
+            self.color_ent.insert(0, self.some_colors.pop(0))
         
     def set_clicked_point_listener(self):
         rospy.Subscriber('/clicked_point', PointStamped, self.clicked_point_received)
@@ -147,25 +157,27 @@ class RobotSpawner(object):
         
     def launch_robots(self):
         calls = []
-        call = ['roslaunch', 'learning_toponav', 'one_robot.launch']
-
+        call = ['roslaunch', 'learning_toponav', 'one_robot_manual.launch']
+        
+        colors_param = {}
         for r in self.robot_list:
             call.append("robot_name:=%s" % r['ns'])
             call.append("color:=%s" % r['color'])
             call.append("x_pos:=%s" % r['x'])
             call.append("y_pos:=%s" % r['y'])
             call.append("z_pos:=%s" % r['z'])
-            call.append("topics_yaml:='%s'" % r['yaml'])
+            call.append("config_yaml:='%s'" % r['yaml'])
             
             calls.append(call)
             
-            call = ['roslaunch', 'learning_toponav', 'one_robot.launch']
+            call = ['roslaunch', 'learning_toponav', 'one_robot_manual.launch']
+            colors_param[r['ns']] = r['color']
+            
+        for ns, color in colors_param.items():
+            rospy.set_param(self.yaml['namespaces_topic']+ns, color)
         
         for c in calls:
-            print c
-            # pop = subprocess.Popen(c)
-            # pop.communicate()
-            
+            pop = subprocess.Popen(c)
             
         self.close_window()
         
