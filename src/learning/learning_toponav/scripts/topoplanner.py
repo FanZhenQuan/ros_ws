@@ -333,7 +333,10 @@ class Planner(object):
     def on_shutdown(self):
         dest_logger = IdlenessLogger(dest_list=self.destinations,
                                      robots_num=len(self.robots), environment=self.environment)
-        dest_logger.show_confirm_gui()
+        if self.yaml['simulation_confirm_gui']:
+            dest_logger.show_confirm_gui()
+        else:
+            dest_logger.write_statfile()
         # confirm_save = dest_logger.show_confirm_gui()
         # if confirm_save:
         #     dest_logger.write_statfile()

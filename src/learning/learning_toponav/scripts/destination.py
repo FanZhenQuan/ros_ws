@@ -122,12 +122,9 @@ class IdlenessLogger(object):
         self.path = path
         self.environment = environment  # office, house ...
         self.robots_num = robots_num
-        self.tk_root = None
+        self.tk_root = Tk()
         
     def show_confirm_gui(self):
-        # msg = 'Do you want to save the observed idlenesses of the destinations?'
-        # return tkMessageBox.askyesno('Dump destinations', msg)
-        self.tk_root = Tk()
         self.tk_root.title("Dump destinations")
         self.tk_root.geometry("320x200")
         self.tk_root.eval('tk::PlaceWindow %s center' % self.tk_root.winfo_toplevel())
