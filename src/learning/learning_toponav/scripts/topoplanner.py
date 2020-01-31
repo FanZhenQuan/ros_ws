@@ -26,7 +26,7 @@ class Planner(object):
         self.environment = environment  # house, office ...
         self.logging = logging  # bool, whether to print colored logs or not
         # self.logging = False
-        self.lock = Lock()
+        self.lock = Lock()  # TODO: remove
         
         self.destinations = []
         for n in rospy.get_param(yaml['interest_points']):
@@ -52,7 +52,6 @@ class Planner(object):
             rospy.sleep(5)
             
         robot_namespaces = rospy.get_param(yaml['namespaces_topic'])
-        # for color, ns in robot_namespaces.items():
         for ns, color in robot_namespaces.items():
             rgba = color.strip("'").split(' ')
             rgba = [int(float(i)) * 255 for i in rgba]
@@ -69,7 +68,7 @@ class Planner(object):
         self.update_robot_state()  # can be threaded in self.start_threads()
         
     def start_threads(self):
-        dests_logger = Thread(target=self.destinations_log)  # TODO: remove comment for dest debugging
+        dests_logger = Thread(target=self.destinations_log)
         dests_logger.start()
         
         dests_state_updater = Thread(target=self.update_available_dests)
@@ -107,25 +106,39 @@ class Planner(object):
         
     def debug(self):
         # crash test
-        # start_1 = 'WayPoint2'; goal_1 = 'WayPoint1'
-        # start_2 = 'WayPoint1'; goal_2 = 'WayPoint2'
-        start_1 = 'WayPoint2'; goal_1 = 'WayPoint4'
-        start_2 = 'WayPoint1'; goal_2 = 'WayPoint7'
+        # # start_1 = 'WayPoint2'; goal_1 = 'WayPoint1'
+        # # start_2 = 'WayPoint1'; goal_2 = 'WayPoint2'
+        # start_1 = 'WayPoint2'; goal_1 = 'WayPoint4'
+        # start_2 = 'WayPoint1'; goal_2 = 'WayPoint7'
+        #
+        # path_rbt1 = self.find_path(start_1, goal_1)
+        # path_rbt2 = self.find_path(start_2, goal_2)
+        #
+        # tp_rbt1 = self.build_topopath(path_rbt1)
+        # tp_rbt2 = self.build_topopath(path_rbt2)
+        #
+        # while not self.available_robots:
+        #     rospy.sleep(1)
+        #
+        # self.publish_path(tp_rbt1, '/robot_1')
+        # self.publish_path(tp_rbt2, '/robot_2')
+        #
+        # rospy.loginfo('Goal debug consegnati')
+        #
+        # rospy.spin()
+        start = "WayPoint2"
+        goal = "WayPoint8"
         
-        path_rbt1 = self.find_path(start_1, goal_1)
-        path_rbt2 = self.find_path(start_2, goal_2)
-        
-        tp_rbt1 = self.build_topopath(path_rbt1)
-        tp_rbt2 = self.build_topopath(path_rbt2)
+        path = self.find_path(start, goal)
+        self.set_estim_idlenesses('/robot_1', path)
+        tppath = self.build_topopath(path)
         
         while not self.available_robots:
             rospy.sleep(1)
+            
+        self.publish_path(tppath, '/robot_1')
         
-        self.publish_path(tp_rbt1, '/robot_1')
-        self.publish_path(tp_rbt2, '/robot_2')
-        
-        rospy.loginfo('Goal debug consegnati')
-        
+        rospy.loginfo('Goal debug consegnato')
         rospy.spin()
 
     def _get_node_by_name(self, name):
@@ -159,7 +172,7 @@ class Planner(object):
             node = self._get_node_by_name(p)
             ipoint = self.build_ipoint_msg(node)
             toponav_ipoints.append(ipoint)
-        toponav_ipoints.pop(0)  # removes the start point (source)
+        toponav_ipoints.pop(0)  # removes source
     
         return RobotTopopath(toponav_ipoints)
 
@@ -217,7 +230,6 @@ class Planner(object):
             return nx.dijkstra_path(self.graph, source, dest)
         except nx.NetworkXNoPath as e:
             rospy.logerr(str(e))
-            return None
 
     def dispatch_goals(self):
         robots_num = len(self.robots)
@@ -232,8 +244,9 @@ class Planner(object):
                     source = robot.afference
                     dest = self.choose_destination(robot.ns, source)
                     path = self.find_path(source=source, dest=dest.name)
-                    
                     topopath = self.build_topopath(path)
+                    
+                    self.set_estim_idlenesses(robot_ns=robot.ns, path=path)
                     self.publish_path(topopath, robot.ns)
                     self.log('%s: %s -> %s' % (robot.ns, source, dest.name), 'red')
                     self.transit.remove(robot)
@@ -263,8 +276,16 @@ class Planner(object):
         
         dest = random.choice(selected)
         dest.available = False
-        dest.estim_idl = self.estimate_idleness(robot_ns, source, dest)
+        # dest.estim_idl = self.estimate_idleness(robot_ns, source, dest)
         return dest
+    
+    def set_estim_idlenesses(self, robot_ns, path):
+        for i in range(1, len(path)):
+            A = self._get_node_by_name(path[i-1])
+            B = self._get_node_by_name(path[i])
+            
+            B.estim_idl = self.estimate_idleness(robot_ns, source=A, dest=B)
+            # self.log("From %s to %s estim: %s" % (A.name, B.name, B.estim_idl), 'blue')
     
     def estimate_idleness(self, robot_ns, source, dest):
         make_plan_topic = robot_ns + self.yaml['make_plan']
@@ -377,6 +398,6 @@ if __name__ == '__main__':
         seconds = yaml['simulation_duration']
         rospy.Timer(period=rospy.Duration(seconds), callback=rospy.signal_shutdown, oneshot=True)
 
-    # planner.debug()
     rospy.loginfo('Simulation started')
+    # planner.debug()
     planner.dispatch_goals()

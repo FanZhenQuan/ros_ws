@@ -6,6 +6,7 @@ import tkMessageBox
 import time
 import json
 import subprocess
+from prettytable import PrettyTable
 
 import tkFont
 from tkinter import *
@@ -149,41 +150,83 @@ class IdlenessLogger(object):
         self.tk_root.mainloop()
         
     def write_statfile(self):
+        # datetime = time.strftime("%d-%m@%H:%M", time.localtime())
+        # filename = "%s-%s-%sbots.txt" % (datetime, self.environment, self.robots_num)
+        #
+        # lines = []
+        # statistics = {}
+        # total_visits = 0
+        # for d in self.dest_list:
+        #     d.force_shutdown()
+        #
+        #     idlenesses = d.get_stats()
+        #     total_visits += len(idlenesses)
+        #
+        #     idlenesses_str = [i.get_estimate_index(_type=str) for i in idlenesses]
+        #     line = d.name + ': ' + ', '.join(idlenesses_str) + '\n'
+        #     lines.append(line)
+        #
+        #     prolongued_idl = [i.get_true() for i in idlenesses]
+        #     statistics[d.name] = {
+        #         'mean': round(np.mean(prolongued_idl), 3),
+        #         'max': np.max(prolongued_idl),
+        #         'min': np.min(prolongued_idl)
+        #     }
+        #
+        # means = [d['mean'] for d in statistics.values()]
+        # average_idl = round(np.mean(means), 3)
+        # variance_average_idl = round(np.var(means), 3)
+        #
+        # separator = "-----------\n"
+        # lines = sorted(lines)
+        # lines.append(separator + json.dumps(statistics, indent=2) + '\n')
+        # lines.append(separator + "Average idleness: %s\n" % average_idl)
+        # lines.append(separator + "Variance idleness: %s\n" % variance_average_idl)
+        # lines.append(separator + "Total visits: %s\n" % total_visits)
+        #
+        # file = open(self.path+filename, 'w')
+        # file.writelines(lines)
         datetime = time.strftime("%d-%m@%H:%M", time.localtime())
         filename = "%s-%s-%sbots.txt" % (datetime, self.environment, self.robots_num)
         
         lines = []
-        statistics = {}
+        pt = PrettyTable()
+        pt.field_names = ['Dest name', 'true', 'remaining', 'estimated', 'mean', 'max', 'min']
+        
         total_visits = 0
-        for d in self.dest_list:
+        means = []
+        for d in sorted(self.dest_list, key=lambda dest: dest.name):
             d.force_shutdown()
-            
+    
             idlenesses = d.get_stats()
+            true_idl = [i.get_true() for i in idlenesses]
+            
             total_visits += len(idlenesses)
             
-            idlenesses_str = [i.get_estimate_index(_type=str) for i in idlenesses]
-            line = d.name + ': ' + ', '.join(idlenesses_str) + '\n'
-            lines.append(line)
-
-            prolongued_idl = [i.get_true() for i in idlenesses]
-            statistics[d.name] = {
-                'mean': round(np.mean(prolongued_idl), 3),
-                'max': np.max(prolongued_idl),
-                'min': np.min(prolongued_idl)
-            }
+            mean = round(np.mean(true_idl), 3)
+            min = round(np.min(true_idl), 3)
+            max = round(np.max(true_idl), 3)
             
-        means = [d['mean'] for d in statistics.values()]
-        average_idl = round(np.mean(means), 3)
-        variance_average_idl = round(np.var(means), 3)
-        
-        lines = sorted(lines)
+            means.append(mean)
+            
+            pt.add_row([
+                d.name, idlenesses[0].get_true(),
+                idlenesses[0].get_remaining(), idlenesses[0].get_estimated(), mean, max, min
+            ])
+            if len(idlenesses) > 1:
+                for i in range(1, len(idlenesses)):
+                    pt.add_row([
+                        '', idlenesses[i].get_true(),
+                        idlenesses[i].get_remaining(), idlenesses[i].get_estimated(), '', '', ''
+                    ])
+                    
         separator = "-----------\n"
-        lines.append(separator + json.dumps(statistics, indent=2) + '\n')
-        lines.append(separator + "Average idleness: %s\n" % average_idl)
-        lines.append(separator + "Variance idleness: %s\n" % variance_average_idl)
+        lines.append(pt.__str__())
+        lines.append("\nAverage idleness: %s\n" % round(np.mean(means), 3))
+        lines.append(separator + "Variance idleness: %s\n" % round(np.var(means), 3))
         lines.append(separator + "Total visits: %s\n" % total_visits)
-        
-        file = open(self.path+filename, 'w')
+
+        file = open(self.path + filename, 'w')
         file.writelines(lines)
 
         rospy.loginfo('Destination idlenesses have been wrote to %s' % self.path)
