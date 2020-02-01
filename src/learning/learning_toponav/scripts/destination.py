@@ -201,8 +201,6 @@ class IdlenessLogger(object):
             idlenesses = d.get_stats()
             true_idl = [i.get_true() for i in idlenesses]
             
-            total_visits += len(idlenesses)
-            
             mean = round(np.mean(true_idl), 3)
             min = round(np.min(true_idl), 3)
             max = round(np.max(true_idl), 3)
@@ -214,6 +212,11 @@ class IdlenessLogger(object):
                 idlenesses[0].get_remaining(), idlenesses[0].get_estimated(), mean, max, min
             ])
             if len(idlenesses) > 1:
+                # se len(idlenesses) == 1, vuol dire che l'unica idleness
+                # registrata e' quella che si protrae dall'inizio, cioe'
+                # la dest non e' mai stata visitata
+                total_visits += len(idlenesses)
+                
                 for i in range(1, len(idlenesses)):
                     pt.add_row([
                         '', idlenesses[i].get_true(),
