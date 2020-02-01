@@ -8,7 +8,6 @@ import networkx as nx
 import numpy as np
 import webcolors
 
-from pprint import pprint
 from termcolor import colored
 from robot import Robot
 from threading import Thread
@@ -65,7 +64,7 @@ class Planner(object):
 
         # ---------------
         self.start_threads()
-        self.update_robot_state()  # can be threaded in self.start_threads()
+        # self.update_robot_state()  # can be threaded in self.start_threads()
         
     def start_threads(self):
         dests_logger = Thread(target=self.destinations_log)
@@ -74,8 +73,8 @@ class Planner(object):
         dests_state_updater = Thread(target=self.update_available_dests)
         dests_state_updater.start()
         
-        # robot_state_updater = Thread(target=self.update_robot_state)
-        # robot_state_updater.start()
+        robot_state_updater = Thread(target=self.update_robot_state)
+        robot_state_updater.start()
         
     def update_robot_state(self):
         for r in self.robots:
@@ -197,6 +196,7 @@ class Planner(object):
                     current_goals.append(r.current_goal)
                     latest_goals.append(r.latest_goal)
                     
+                # TODO: fix
                 for d in self.destinations:
                     updated = False
                     for c_goal in current_goals:
@@ -251,7 +251,6 @@ class Planner(object):
         except rospy.ROSInterruptException:
             pass
 
-    # TODO: synchronize destinations
     def choose_destination(self, robot_ns, src):
         """
         :param (str) robot_ns: ns the robot
@@ -263,7 +262,12 @@ class Planner(object):
         selected = []
         
         for d in self.destinations:
-            if d.available and d.name != src and d.get_true_idleness() >= curr_idl and d not in self.occupied_dests:
+            if (
+                d.available and
+                d.name != src and
+                d.get_true_idleness() >= curr_idl and
+                d not in self.occupied_dests
+            ):
                 selected.append(d)
                 curr_idl = d.get_true_idleness()
         
@@ -318,7 +322,7 @@ class Planner(object):
         
     def destinations_log(self):
         pub = rospy.Publisher(self.yaml['destinations_log'], DestinationDebug, queue_size=30)
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(1)
         
         try:
             while not rospy.is_shutdown():
@@ -329,7 +333,7 @@ class Planner(object):
                     msg.idleness = d.get_true_idleness()
                     
                     pub.publish(msg)
-                    rate.sleep()
+                rate.sleep()
         except rospy.ROSInterruptException:
             pass
         
