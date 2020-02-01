@@ -48,9 +48,6 @@
           args="--yaml $(arg config_yaml)" if="$(arg dest_debug)"
     />
 
-    <!--goal dispatcher-->
-    <!--<node pkg="learning_multirobot" type="simple_goal_publisher.py" name="simple_goal_publisher" />-->
-
     <!-- RVIZ -->
     <node name="rviz" pkg="rviz" type="rviz" args="$(arg rviz_config)" />
 

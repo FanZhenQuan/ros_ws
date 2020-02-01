@@ -100,7 +100,7 @@ class Destination(object):
         self.reset()
         
     def __str__(self):
-        return "Name: %s, status: %s, idleness: %s" %(self.name, self.available, self.get_true_idleness())
+        return self.name
     
     def __repr__(self):
         return self.name

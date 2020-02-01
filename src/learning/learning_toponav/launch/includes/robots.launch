@@ -61,7 +61,7 @@
             <arg name="config_yaml" value="$(arg config_yaml)" />
 
             <arg name="x_pos" value="3" />
-            <arg name="y_pos" value="1" />
+            <arg name="y_pos" value="2" />
             <arg name="z_pos" value="0" />
         </include>
     </group>

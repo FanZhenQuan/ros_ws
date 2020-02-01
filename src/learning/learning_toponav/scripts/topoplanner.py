@@ -11,7 +11,7 @@ import webcolors
 from pprint import pprint
 from termcolor import colored
 from robot import Robot
-from threading import Thread, Lock
+from threading import Thread
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from learning_toponav.msg import *
 from destination import Destination, IdlenessLogger
@@ -26,8 +26,8 @@ class Planner(object):
         self.environment = environment  # house, office ...
         self.logging = logging  # bool, whether to print colored logs or not
         # self.logging = False
-        self.lock = Lock()  # TODO: remove
         
+        self.occupied_dests = []
         self.destinations = []
         for n in rospy.get_param(yaml['interest_points']):
             d = Destination(
@@ -45,7 +45,7 @@ class Planner(object):
 
         self.robots = []
         self.available_robots = []
-        self.transit = []
+        self.temp_busy = []
         
         while not rospy.has_param(yaml['namespaces_topic']):
             rospy.logwarn("Waiting for robot namespaces to be published as param under %s" % yaml['namespaces_topic'])
@@ -99,7 +99,7 @@ class Planner(object):
                 r.afference = temp.afference
                 r.distance = temp.distance
 
-                if r.state == 'ready' and r not in self.available_robots and r not in self.transit:
+                if r.state == 'ready' and r not in self.available_robots and r not in self.temp_busy:
                     self.available_robots.append(r)
                     self.log('%s is available' % r.ns, 'blue', attrs=['bold'])
                 break
@@ -188,7 +188,7 @@ class Planner(object):
         #     if remove and d.name == remove and remove != add:
         #         d.available = False
         
-        rate = rospy.Rate(1)
+        rate = rospy.Rate(5)
         try:
             while not rospy.is_shutdown():
                 current_goals = []
@@ -196,11 +196,7 @@ class Planner(object):
                 for r in self.robots:
                     current_goals.append(r.current_goal)
                     latest_goals.append(r.latest_goal)
-                
-                # while self.lock.locked():
-                #     rospy.sleep(0.01)
                     
-                self.lock.acquire()
                 for d in self.destinations:
                     updated = False
                     for c_goal in current_goals:
@@ -213,8 +209,10 @@ class Planner(object):
                         for l_goal in latest_goals:
                             if l_goal != 'None' and d.name == l_goal and l_goal not in current_goals:  # <-- avoids conflict
                                 d.available = True
+                                
+                                if d in self.occupied_dests:
+                                    self.occupied_dests.remove(d)
                                 break
-                self.lock.release()
                     
                 rate.sleep()
         except rospy.ROSInterruptException:
@@ -240,7 +238,7 @@ class Planner(object):
                     rospy.sleep(1)
                 else:
                     robot = self.available_robots.pop(0)
-                    self.transit.append(robot)
+                    self.temp_busy.append(robot)
                     source = robot.afference
                     dest = self.choose_destination(robot.ns, source)
                     path = self.find_path(source=source, dest=dest.name)
@@ -249,7 +247,7 @@ class Planner(object):
                     self.set_estim_idlenesses(robot_ns=robot.ns, path=path)
                     self.publish_path(topopath, robot.ns)
                     self.log('%s: %s -> %s' % (robot.ns, source, dest.name), 'red')
-                    self.transit.remove(robot)
+                    self.temp_busy.remove(robot)
         except rospy.ROSInterruptException:
             pass
 
@@ -264,19 +262,14 @@ class Planner(object):
         curr_idl = -1
         selected = []
         
-        # while self.lock.locked():
-        #     rospy.sleep(0.01)
-        
-        self.lock.acquire()
         for d in self.destinations:
-            if d.available and d.name != src and d.get_true_idleness() >= curr_idl:
+            if d.available and d.name != src and d.get_true_idleness() >= curr_idl and d not in self.occupied_dests:
                 selected.append(d)
                 curr_idl = d.get_true_idleness()
-        self.lock.release()
         
         dest = random.choice(selected)
-        dest.available = False
-        # dest.estim_idl = self.estimate_idleness(robot_ns, source, dest)
+        # dest.available = False
+        self.occupied_dests.append(dest)
         return dest
     
     def set_estim_idlenesses(self, robot_ns, path):
@@ -285,7 +278,6 @@ class Planner(object):
             B = self._get_node_by_name(path[i])
             
             B.estim_idl = self.estimate_idleness(robot_ns, source=A, dest=B)
-            # self.log("From %s to %s estim: %s" % (A.name, B.name, B.estim_idl), 'blue')
     
     def estimate_idleness(self, robot_ns, source, dest):
         make_plan_topic = robot_ns + self.yaml['make_plan']
