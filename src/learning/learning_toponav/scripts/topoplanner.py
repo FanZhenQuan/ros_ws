@@ -178,11 +178,9 @@ class Planner(object):
         rate = rospy.Rate(5)
         try:
             while not rospy.is_shutdown():
-                current_goals = []
                 latest_goals = []
                 final_goals = []
                 for r in self.robots:
-                    current_goals.append(r.current_goal)
                     latest_goals.append(r.latest_goal)
                     final_goals.append(r.final_goal)
                     
@@ -232,7 +230,6 @@ class Planner(object):
                     source = self._get_node_by_name(robot.afference)
                     dest = self.choose_destination(robot.ns, source)
                     dest.estim_idl = self.estimate_idleness(robot.ns, source, dest)
-                    self.log("%s -> %s estim: %s" % (source.name, dest.name, dest.estim_idl), 'blue')
                     
                     path = self.find_path(source=source.name, dest=dest.name)
                     topopath = self.build_topopath(path)
