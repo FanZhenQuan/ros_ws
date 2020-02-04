@@ -195,7 +195,7 @@ class IdlenessLogger(object):
         
         total_visits = 0
         means = []
-        for d in sorted(self.dest_list, key=lambda dest: dest.name):
+        for d in sorted(self.dest_list, key=lambda dest: dest.name):  # TODO: viene sortato male (1, 10, 2...)
             d.force_shutdown()
     
             idlenesses = d.get_stats()

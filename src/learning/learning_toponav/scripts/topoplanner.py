@@ -86,6 +86,7 @@ class Planner(object):
             state=msg.state,
             c_goal=msg.current_goal,
             l_goal=msg.latest_goal,
+            final_goal=msg.final_goal,
             aff=msg.afference,
             dist=msg.distance
         )
@@ -95,6 +96,7 @@ class Planner(object):
                 r.state = temp.state
                 r.current_goal = temp.current_goal
                 r.latest_goal = temp.latest_goal
+                r.final_goal = temp.final_goal
                 r.afference = temp.afference
                 r.distance = temp.distance
 
@@ -105,39 +107,25 @@ class Planner(object):
         
     def debug(self):
         # crash test
-        # # start_1 = 'WayPoint2'; goal_1 = 'WayPoint1'
-        # # start_2 = 'WayPoint1'; goal_2 = 'WayPoint2'
-        # start_1 = 'WayPoint2'; goal_1 = 'WayPoint4'
-        # start_2 = 'WayPoint1'; goal_2 = 'WayPoint7'
-        #
-        # path_rbt1 = self.find_path(start_1, goal_1)
-        # path_rbt2 = self.find_path(start_2, goal_2)
-        #
-        # tp_rbt1 = self.build_topopath(path_rbt1)
-        # tp_rbt2 = self.build_topopath(path_rbt2)
-        #
-        # while not self.available_robots:
-        #     rospy.sleep(1)
-        #
-        # self.publish_path(tp_rbt1, '/robot_1')
-        # self.publish_path(tp_rbt2, '/robot_2')
-        #
-        # rospy.loginfo('Goal debug consegnati')
-        #
-        # rospy.spin()
-        start = "WayPoint2"
-        goal = "WayPoint8"
-        
-        path = self.find_path(start, goal)
-        self.set_estim_idlenesses('/robot_1', path)
-        tppath = self.build_topopath(path)
-        
+        # start_1 = 'WayPoint2'; goal_1 = 'WayPoint1'
+        # start_2 = 'WayPoint1'; goal_2 = 'WayPoint2'
+        start_1 = 'WayPoint2'; goal_1 = 'WayPoint4'
+        start_2 = 'WayPoint1'; goal_2 = 'WayPoint7'
+
+        path_rbt1 = self.find_path(start_1, goal_1)
+        path_rbt2 = self.find_path(start_2, goal_2)
+
+        tp_rbt1 = self.build_topopath(path_rbt1)
+        tp_rbt2 = self.build_topopath(path_rbt2)
+
         while not self.available_robots:
             rospy.sleep(1)
-            
-        self.publish_path(tppath, '/robot_1')
-        
-        rospy.loginfo('Goal debug consegnato')
+
+        self.publish_path(tp_rbt1, '/robot_1')
+        self.publish_path(tp_rbt2, '/robot_2')
+
+        rospy.loginfo('Goal debug consegnati')
+
         rospy.spin()
 
     def _get_node_by_name(self, name):
@@ -192,22 +180,23 @@ class Planner(object):
             while not rospy.is_shutdown():
                 current_goals = []
                 latest_goals = []
+                final_goals = []
                 for r in self.robots:
                     current_goals.append(r.current_goal)
                     latest_goals.append(r.latest_goal)
+                    final_goals.append(r.final_goal)
                     
-                # TODO: fix
                 for d in self.destinations:
                     updated = False
-                    for c_goal in current_goals:
-                        if c_goal != 'None' and d.name == c_goal:
+                    for f_goal in final_goals:
+                        if f_goal != 'None' and d.name == f_goal:
                             d.available = False
                             updated = True
                             break
                        
                     if not updated:  # updated means that destination found a match in previous iteration
                         for l_goal in latest_goals:
-                            if l_goal != 'None' and d.name == l_goal and l_goal not in current_goals:  # <-- avoids conflict
+                            if l_goal != 'None' and d.name == l_goal and l_goal not in final_goals:  # <-- avoids conflict
                                 d.available = True
                                 
                                 if d in self.occupied_dests:
@@ -239,12 +228,15 @@ class Planner(object):
                 else:
                     robot = self.available_robots.pop(0)
                     self.temp_busy.append(robot)
-                    source = robot.afference
+                    
+                    source = self._get_node_by_name(robot.afference)
                     dest = self.choose_destination(robot.ns, source)
-                    path = self.find_path(source=source, dest=dest.name)
+                    dest.estim_idl = self.estimate_idleness(robot.ns, source, dest)
+                    self.log("%s -> %s estim: %s" % (source.name, dest.name, dest.estim_idl), 'blue')
+                    
+                    path = self.find_path(source=source.name, dest=dest.name)
                     topopath = self.build_topopath(path)
                     
-                    self.set_estim_idlenesses(robot_ns=robot.ns, path=path)
                     self.publish_path(topopath, robot.ns)
                     self.log('%s: %s -> %s' % (robot.ns, source, dest.name), 'red')
                     self.temp_busy.remove(robot)
@@ -254,17 +246,16 @@ class Planner(object):
     def choose_destination(self, robot_ns, src):
         """
         :param (str) robot_ns: ns the robot
-        :param (str) src: afference of the robot
+        :param (Destination) src: afference of the robot
         :return: (Destination) destination
         """
-        source = self._get_node_by_name(src)
         curr_idl = -1
         selected = []
         
         for d in self.destinations:
             if (
                 d.available and
-                d.name != src and
+                d.name != src.name and
                 d.get_true_idleness() >= curr_idl and
                 d not in self.occupied_dests
             ):
@@ -272,16 +263,9 @@ class Planner(object):
                 curr_idl = d.get_true_idleness()
         
         dest = random.choice(selected)
-        # dest.available = False
         self.occupied_dests.append(dest)
+        
         return dest
-    
-    def set_estim_idlenesses(self, robot_ns, path):
-        for i in range(1, len(path)):
-            A = self._get_node_by_name(path[i-1])
-            B = self._get_node_by_name(path[i])
-            
-            B.estim_idl = self.estimate_idleness(robot_ns, source=A, dest=B)
     
     def estimate_idleness(self, robot_ns, source, dest):
         make_plan_topic = robot_ns + self.yaml['make_plan']

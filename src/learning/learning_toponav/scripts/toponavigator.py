@@ -71,6 +71,11 @@ class Toponavigator(object):
                     msg.current_goal = 'None'
                 else:
                     msg.current_goal = self.robot.current_goal.name
+                    
+                if self.robot.final_goal is None:
+                    msg.final_goal = 'None'
+                else:
+                    msg.final_goal = self.robot.final_goal.name
 
                 self.state_publisher.publish(msg)
                 rate.sleep()
@@ -79,6 +84,7 @@ class Toponavigator(object):
     
     def on_topopath(self, path):
         self.robot.state = self.BUSY
+        self.robot.final_goal = path.path[-1]
         while self.movebase_goal_pub.get_num_connections() < 1:
             rospy.sleep(0.1)
         
@@ -94,7 +100,8 @@ class Toponavigator(object):
         
         print colored('%s: end goal reached' % self.robot.ns, 'green')
         self.robot.state = self.READY
-    
+        self.robot.final_goal = None
+
     def on_amcl(self, amcl_pose):
         # -- distance-to-goal calc
         amcl_posit = amcl_pose.pose.pose.position

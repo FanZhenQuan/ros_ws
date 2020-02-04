@@ -8,6 +8,8 @@
       node: WayPoint4
     - edge_id: WayPoint1_WayPoint6
       node: WayPoint6
+    - edge_id: WayPoint1_WayPoint10
+      node: WayPoint10
     name: WayPoint1
     pointset: NA
     pose:
@@ -60,6 +62,8 @@
       node: WayPoint1
     - edge_id: WayPoint4_WayPoint5
       node: WayPoint5
+    - edge_id: WayPoint4_WayPoint10
+      node: WayPoint10
     name: WayPoint4
     pointset: NA
     pose:
@@ -100,6 +104,8 @@
       node: WayPoint9
     - edge_id: WayPoint6_WayPoint3
       node: WayPoint3
+    - edge_id: WayPoint6_WayPoint10
+      node: WayPoint10
     name: WayPoint6
     pointset: NA
     pose:
@@ -109,13 +115,15 @@
         y: 0.0
         z: 0.0
       position:
-        x: 3.3000000000000007
-        y: 1.5500000000000025
+        x: 4.350000000000001
+        y: 1.6500000000000021
         z: 0.0
 - node:
     edges:
     - edge_id: WayPoint7_WayPoint6
       node: WayPoint6
+    - edge_id: WayPoint7_WayPoint10
+      node: WayPoint10
     name: WayPoint7
     pointset: NA
     pose:
@@ -132,6 +140,8 @@
     edges:
     - edge_id: WayPoint8_WayPoint6
       node: WayPoint6
+    - edge_id: WayPoint8_WayPoint10
+      node: WayPoint10
     name: WayPoint8
     pointset: NA
     pose:
@@ -148,6 +158,8 @@
     edges:
     - edge_id: WayPoint9_WayPoint6
       node: WayPoint6
+    - edge_id: WayPoint9_WayPoint10
+      node: WayPoint10
     name: WayPoint9
     pointset: NA
     pose:
@@ -159,4 +171,30 @@
       position:
         x: -2.8999999999999995
         y: 4.400000000000002
+        z: 0.0
+- node:
+    edges:
+    - edge_id: WayPoint10_WayPoint9
+      node: WayPoint9
+    - edge_id: WayPoint10_WayPoint8
+      node: WayPoint8
+    - edge_id: WayPoint10_WayPoint1
+      node: WayPoint1
+    - edge_id: WayPoint10_WayPoint6
+      node: WayPoint6
+    - edge_id: WayPoint10_WayPoint7
+      node: WayPoint7
+    - edge_id: WayPoint10_WayPoint4
+      node: WayPoint4
+    name: WayPoint10
+    pointset: NA
+    pose:
+      orientation:
+        w: 1.0
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      position:
+        x: 1.0
+        y: 1.7500000000000027
         z: 0.0

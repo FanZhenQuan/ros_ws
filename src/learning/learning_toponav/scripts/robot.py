@@ -6,7 +6,7 @@ sys.path.append(path)
 
 
 class Robot(object):
-    def __init__(self, ns=None, color=None, state=None, c_goal=None, l_goal=None, aff=None, dist=None):
+    def __init__(self, ns=None, color=None, state=None, c_goal=None, l_goal=None, final_goal=None, aff=None, dist=None):
         if not ns or ns == '':
             raise Exception('Robot is being created without a valid namespace')
         else:
@@ -15,6 +15,7 @@ class Robot(object):
             self.state = state
             self.current_goal = c_goal
             self.latest_goal = l_goal
+            self.final_goal = final_goal
             self.afference = aff
             self.distance = dist
         
@@ -25,12 +26,13 @@ class Robot(object):
     State = %s
     Current goal = %s
     Latest goal = %s
+    Final goal = %s
     Ipoint afference = %s
     Distance to afference = %s
     -------------------''' % (
         self.ns, self.color, self.state,
         self.current_goal, self.latest_goal,
-        self.afference, self.distance
+        self.final_goal, self.afference, self.distance
     )
         return s
     

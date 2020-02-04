@@ -52,7 +52,6 @@ find_package(catkin REQUIRED
 add_message_files(
   FILES
   RobotState.msg
-  RobotNavRequest.msg
   RobotTopopath.msg
   ToponavIpoint.msg
   DestinationDebug.msg
