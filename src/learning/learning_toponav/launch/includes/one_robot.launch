@@ -36,14 +36,14 @@
     </node>
 
     <!-- AMCL -->
-    <include file="$(find learning_multirobot)/launch/includes/amcl_multirobot.launch" >
+    <include file="$(find learning_toponav)/launch/includes/amcl_multirobot.launch" >
         <arg name="robot_name" value="$(arg robot_name)" />
         <arg name="x_pos" value="$(arg x_pos)" />
         <arg name="y_pos" value="$(arg y_pos)" />
     </include>
 
     <!-- move base -->
-    <include file="$(find learning_multirobot)/launch/includes/move_base_multirobot.launch">
+    <include file="$(find learning_toponav)/launch/includes/move_base_multirobot.launch">
         <arg name="robot_name" value="$(arg robot_name)" />
         <arg name="model" value="$(arg model)" />
     </include>

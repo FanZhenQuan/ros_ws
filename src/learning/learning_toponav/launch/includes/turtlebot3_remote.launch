@@ -8,10 +8,6 @@
   <!--<param name="robot_description" command="$(find xacro)/xacro
     '$(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro' " />-->
 
-  <!-- USING MULTIPLE URDFS (each with its defined color) -->
-  <!--<param name="robot_description" command="$(find xacro)/xacro
-    '$(find learning_multirobot)/urdf/turtlebot3_$(arg model)_$(arg color).urdf.xacro' " />-->
-
   <!-- USING A SINGLE URDF, PASSING THE COLOR AS AN ARGUMENT -->
   <param name="robot_description" command="$(find xacro)/xacro
     '$(find learning_toponav)/urdf/turtlebot3_$(arg model)_colored.urdf.xacro'

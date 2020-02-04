@@ -1,0 +1,29 @@
+<launch>
+    <!-- @ REQUIRED: x e y coordinate di spawn per init del modello MC; nome del robot -->
+    <arg name="robot_name" />
+    <arg name="x_pos" />
+    <arg name="y_pos" />
+
+    <!--TODO: parametri da migliorare se si vuole una localizzazione più accurata-->
+
+    <!--AMCL -->
+    <node pkg="amcl" type="amcl" name="amcl" args="scan:=scan">
+        <param name="initial_pose_x" value="$(arg x_pos)" />
+        <param name="initial_pose_y" value="$(arg y_pos)" />
+        <param name="odom_frame_id" value="$(arg robot_name)/odom" />
+        <param name="base_frame_id" value="$(arg robot_name)/base_link" />
+        <param name="global_frame_id" value="map" />
+        <param name="first_map_only" value="true" />
+        <param name="update_min_d" value="0.1" />
+        <!-- # OPTIONAL PARAMS # -->
+        <!--<param name="odom_model_type" value="diff" />-->
+        <!--<param name="gui_publish_rate" value="10.0" />-->
+
+        <!-- REMAPS -->
+        <remap from="static_map"        to="/static_map" />
+        <remap from="scan"              to="/$(arg robot_name)/scan" />
+        <remap from="initialpose"       to="/$(arg robot_name)/initialpose" />
+        <remap from="amcl_pose"         to="/$(arg robot_name)/amcl_pose" />
+        <remap from="particlecloud"     to="/$(arg robot_name)/particlecloud" />
+    </node>
+</launch>

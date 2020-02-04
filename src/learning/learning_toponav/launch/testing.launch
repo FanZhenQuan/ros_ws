@@ -8,7 +8,7 @@
     <arg name="rqt_console" default="false" /> <!-- LAUNCH RQT CONSOLE -->
 
     <!-- GAZEBO -->
-    <include file="$(find learning_multirobot)/launch/includes/main_gazebo.launch">
+    <include file="$(find learning_toponav)/launch/includes/main_gazebo.launch">
         <arg name="world_name" value="$(find learning_toponav)/worlds/$(arg environment).world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
