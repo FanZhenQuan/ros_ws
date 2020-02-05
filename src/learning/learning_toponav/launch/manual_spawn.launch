@@ -38,7 +38,7 @@
     <arg name="planner_logs" default="true" />
     <node pkg="learning_toponav" type="topoplanner.py" name="topoplanner"
           args="--adjlist $(arg adjlist) --environment $(arg environment)
-                --yaml $(arg config_yaml) --logging $(arg planner_logs)"
+                --yaml $(arg config_yaml)"
           output="screen" required="true"
     />
 

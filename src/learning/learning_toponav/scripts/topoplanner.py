@@ -13,18 +13,18 @@ from robot import Robot
 from threading import Thread
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from learning_toponav.msg import *
-from destination import Destination, IdlenessLogger
+from destination import Destination
+from idleness_analysis import IdlenessLogger
 from std_msgs.msg import Header
 from nav_msgs.srv import GetPlan
 
 
 class Planner(object):
-    def __init__(self, adjlist, environment, yaml, logging):
+    def __init__(self, adjlist, environment, yaml):
         self.graph = nx.read_adjlist(adjlist, delimiter=', ', nodetype=str)
         self.yaml = yaml
         self.environment = environment  # house, office ...
-        self.logging = logging  # bool, whether to print colored logs or not
-        # self.logging = False
+        self.logging = yaml['logging']  # bool, whether to print colored logs or not
         
         self.occupied_dests = []
         self.destinations = []
@@ -353,7 +353,6 @@ def parse_args():
     parser.add_argument('--adjlist', type=str, required=True)
     parser.add_argument('--environment', type=str, required=True)
     parser.add_argument('--yaml', type=str, help='File where used topics_yaml are saved')
-    parser.add_argument('--logging', type=bool, help="Show colored debugging msgs")
     args, unknown = parser.parse_known_args()
     
     return args
@@ -365,7 +364,7 @@ if __name__ == '__main__':
     args = parse_args()
     yaml = parse_yaml(args.yaml)
     
-    planner = Planner(args.adjlist, environment=args.environment, yaml=yaml, logging=args.logging)
+    planner = Planner(args.adjlist, environment=args.environment, yaml=yaml)
     rospy.on_shutdown(planner.on_shutdown)  # dumps idlenesses of destinations
     
     if yaml['simulation_time_measure'] == 'minutes':

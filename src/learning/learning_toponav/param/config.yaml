@@ -13,6 +13,7 @@ robot_state_rate: 2
 
 ipoint_radius: 0.4
 
+logging: true  # prints useful colored logs to stdout
 simulation_confirm_gui: false
 simulation_time_measure: 'minutes'  # can be 'minutes' or 'seconds'
 #simulation_time_measure: 'seconds'
