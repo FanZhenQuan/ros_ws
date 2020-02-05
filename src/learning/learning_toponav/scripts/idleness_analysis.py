@@ -99,31 +99,40 @@ class IdlenessLogger(object):
         total_visits = 0
         means = []
         for d in sorted(self.dest_list, key=lambda dest: dest.name):
+            # if len(d.get_stats()) == 0:
+            #     d.force_shutdown()
+            #     idlenesses = d.get_stats()
+            # else:
+            d.force_shutdown()
+            idlenesses = d.get_stats()
             idlenesses = d.get_stats()
             true_idls = [i.get_true() for i in idlenesses]
             
-            try:
-                mean = round(np.mean(true_idls), 3)
-                min = round(np.min(true_idls), 3)
-                max = round(np.max(true_idls), 3)
+            # try:
+            # if len(idlenesses) > 0:
+            mean = round(np.mean(true_idls), 3)
+            min = round(np.min(true_idls), 3)
+            max = round(np.max(true_idls), 3)
+        
+            means.append(mean)
+            total_visits += d.get_visits_num()
             
-                means.append(mean)
-                total_visits += d.get_visits_num()
-                
-                for i in range(len(idlenesses)):
-                    if i == 0:
-                        pt.add_row([
-                            d.name, idlenesses[i].get_true(),
-                            idlenesses[i].get_remaining(), idlenesses[i].get_estimated(), mean, max, min
-                        ])
-                    else:
-                        pt.add_row([
-                            '', idlenesses[i].get_true(),
-                            idlenesses[i].get_remaining(), idlenesses[i].get_estimated(), '', '', ''
-                        ])
-            except ValueError:
-                rospy.logwarn("Something wrong while calculating idlenesses stats")
-                print true_idls
+            for i in range(len(idlenesses)):
+                if i == 0:
+                    pt.add_row([
+                        d.name, idlenesses[i].get_true(),
+                        idlenesses[i].get_remaining(), idlenesses[i].get_estimated(), mean, max, min
+                    ])
+                else:
+                    pt.add_row([
+                        '', idlenesses[i].get_true(),
+                        idlenesses[i].get_remaining(), idlenesses[i].get_estimated(), '', '', ''
+                    ])
+            # else:
+            #     rospy.logerr("%s idlenesses empty" % d.name)
+            # except ValueError:
+            #     rospy.logwarn("Something wrong while calculating idlenesses stats")
+            #     print true_idls
         
         separator = "-----------\n"
         lines.append(pt.__str__())
