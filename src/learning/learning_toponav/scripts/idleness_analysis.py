@@ -88,9 +88,10 @@ class IdlenessLogger(object):
         # file = open(self.path+filename, 'w')
         # file.writelines(lines)
         datetime = time.strftime("%d-%m@%H:%M", time.localtime())
+        subdir = "%s/" % self.robots_num
         filename = "%s-%s-%sbots.txt" % (datetime, self.environment, self.robots_num)
         
-        self.write_dumpfile(filename)
+        self.write_dumpfile(subdir, filename)
         
         lines = []
         pt = PrettyTable()
@@ -140,13 +141,13 @@ class IdlenessLogger(object):
         lines.append(separator + "Variance idleness: %s\n" % round(np.var(means), 3))
         lines.append(separator + "Total visits: %s\n" % total_visits)
         
-        file = open(self.path + filename, 'w')
+        file = open(self.path + subdir + filename, 'w')
         file.writelines(lines)
         
         rospy.loginfo('Destination idlenesses have been wrote to %s' % self.path)
         self.tk_root.destroy()
     
-    def write_dumpfile(self, filename):
+    def write_dumpfile(self, subdir, filename):
         name = filename.split('.')
         name.insert(1, '_DUMP.')
         _filename = ''.join(name)
@@ -155,7 +156,7 @@ class IdlenessLogger(object):
         for d in sorted(self.dest_list, key=lambda dest: dest.name):
             dests.append(d)
         
-        f = open(self.path + "dumps/" + _filename, 'w')
+        f = open(self.path + "dumps/" + subdir + _filename, 'w')
         pickle.dump(dests, f)
         f.close()
 
