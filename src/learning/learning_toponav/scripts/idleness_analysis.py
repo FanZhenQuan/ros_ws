@@ -2,6 +2,7 @@
 
 import rospy
 import numpy as np
+import matplotlib.pyplot as plt
 import tkinter as tk
 import tkMessageBox
 import time
@@ -13,9 +14,10 @@ from destination import Destination
 from prettytable import PrettyTable
 
 
+DEFAULT_PATH = '/home/davide/ros_ws/src/learning/learning_toponav/idleness/'
+
+
 class IdlenessLogger(object):
-    DEFAULT_PATH = '/home/davide/ros_ws/src/learning/learning_toponav/idleness/'
-    
     def __init__(self, dest_list, environment, robots_num, path=DEFAULT_PATH):
         if all(isinstance(d, Destination) for d in dest_list):
             self.dest_list = dest_list
@@ -162,8 +164,40 @@ class IdlenessLogger(object):
 
 
 class IdlenessAnalizer(object):
-    DEFAULT_PATH = IdlenessLogger.DEFAULT_PATH+"dumps/"
-    
-    def __init__(self, filename, path_to_pickled=DEFAULT_PATH):
-        self.destinations = pickle.load(open(path_to_pickled+filename, 'rb'))
+    def __init__(self, filename, path_to_pickled=DEFAULT_PATH+"dumps/"):
+        if not type(filename) == str:
+            raise Exception("Filename not of type str")
+        try:
+            self.destinations = pickle.load(open(path_to_pickled+filename, 'rb'))
+        except IOError as e:
+            dump_suffix = "_DUMP.txt"
+            
+            if not filename.endswith(dump_suffix):
+                name = filename.split(".")
+                self.destinations = pickle.load(open(path_to_pickled + name[0]+dump_suffix, 'rb'))
 
+    def plot_interference_index(self):
+        # d = self.destinations[0]
+        idls = []
+        
+        for d in self.destinations:
+            for i in d.get_stats():
+                if not i.is_null():
+                    idls.append(i)
+        
+        rems = [i.get_remaining() for i in idls]
+        ests = [i.get_estimated() for i in idls]
+
+        plt.plot(rems, ests, 'ro')
+        plt.axis([0, 60, 0, 60])
+        plt.xlabel("Remaining idleness")
+        plt.ylabel("Estimated idleness")
+        
+        plt.show()
+        
+
+if __name__ == '__main__':
+    subdir = "3/"
+    filename = "05-02@11:32-office-3bots_DUMP.txt"
+    ia = IdlenessAnalizer(filename=subdir+filename)
+    ia.plot_interference_index()

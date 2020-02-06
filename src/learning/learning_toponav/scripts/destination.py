@@ -37,6 +37,9 @@ class Idleness(object):
         
     def __str__(self):
         return "true: %s, rem: %s, est: %s" % (self.__true_idl, self.__remaining_idl, self.__estim_idl)
+    
+    def __repr__(self):
+        return "T: %s, R: %s, E: %s" % (self.__true_idl, self.__remaining_idl, self.__estim_idl)
 
 
 class Destination(object):
