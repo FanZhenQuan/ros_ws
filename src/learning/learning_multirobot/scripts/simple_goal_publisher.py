@@ -7,6 +7,7 @@ import argparse
 import random
 import subprocess
 import tkMessageBox as messagebox
+import webcolors
 
 from Tkinter import *
 from ttk import Separator
@@ -147,44 +148,45 @@ class Gui(object):
         pop.communicate()
     
     def check_metric_input(self):
-        try:
-            x_pos = self.to_float(self.x_pos.get())
-            y_pos = self.to_float(self.y_pos.get())
-            z_pos = self.to_float(self.z_pos.get())
-            x_orient = self.to_float(self.x_orient.get())
-            y_orient = self.to_float(self.y_orient.get())
-            z_orient = self.to_float(self.z_orient.get())
-            w_orient = self.to_float(self.w_orient.get())
-            
-            target_robot_ent = str(self.target_robot.get())
-            
-            target_robot = None
-            
-            # se non inizia con robot_, vuol dire che e'
-            # stato passato un colore -> cerca tra i robot
-            # salvati il ns del robot a partire dal suo colore
-            if not target_robot_ent.startswith('robot_'):
-                for r in self.robots:
-                    if r[0] == target_robot_ent:
-                        target_robot = r[1]
-            else:
-                target_robot = str(target_robot_ent).strip('/ ')
-            
-            goal = {
-                'x_pos': x_pos,
-                'y_pos': y_pos,
-                'z_pos': z_pos,
-                'x_orient': x_orient,
-                'y_orient': y_orient,
-                'z_orient': z_orient,
-                'w_orient': w_orient,
-                'target_robot': target_robot
-            }
-            
-            self.send_goal(goal)
-        except Exception as e:
-            messagebox.showerror('Check input error', e)
-            rospy.logerr('Error type: ' + str(e.__class__))
+        x_pos = self.to_float(self.x_pos.get())
+        y_pos = self.to_float(self.y_pos.get())
+        z_pos = self.to_float(self.z_pos.get())
+        x_orient = self.to_float(self.x_orient.get())
+        y_orient = self.to_float(self.y_orient.get())
+        z_orient = self.to_float(self.z_orient.get())
+        w_orient = self.to_float(self.w_orient.get())
+        
+        target_robot_ent = str(self.target_robot.get())
+        
+        target_robot = None
+        
+        # se non inizia con robot_, vuol dire che e'
+        # stato passato un colore -> cerca tra i robot
+        # salvati il ns del robot a partire dal suo colore
+        if not target_robot_ent.startswith('robot_'):
+            for r in self.robots:
+                rgba = r[1].strip("'").split(' ')
+                rgba = [int(float(i)) * 255 for i in rgba]
+                _color = webcolors.rgb_to_name(
+                    (rgba[0], rgba[1], rgba[2])
+                )
+                if _color == target_robot_ent:
+                    target_robot = r[0]
+        else:
+            target_robot = str(target_robot_ent).strip('/ ')
+        
+        goal = {
+            'x_pos': x_pos,
+            'y_pos': y_pos,
+            'z_pos': z_pos,
+            'x_orient': x_orient,
+            'y_orient': y_orient,
+            'z_orient': z_orient,
+            'w_orient': w_orient,
+            'target_robot': target_robot
+        }
+        
+        self.send_goal(goal)
             
     def check_topo_input(self):
         target_robot_ent = self.target_topo_robot_ent.get()
@@ -302,25 +304,10 @@ class Gui(object):
 
 
 def get_robots():
-    """
-    ottiene dal parameter service tutti i parametri, filtra secondo
-    il ns /colors/ e aggiunge alla lista robots una tupla contenente
-        [0]: colore del robot (param name)
-        [1]: ns del robot (param value)
-    
-    :return: robots, la lista delle tuple
-    """
-    parameters = rospy.get_param_names()
-    
     robots = []
-    
-    for p in parameters:
-        if str(p).startswith('/colors'):
-            color = str(p).replace('/colors/', '')
-            robot_name = str(rospy.get_param(p))
-            
-            robots.append((color, robot_name))
-            
+    robot_namespaces = rospy.get_param('/colors')
+    for ns, color in robot_namespaces.items():
+        robots.append((ns, color))
     return robots
 
 

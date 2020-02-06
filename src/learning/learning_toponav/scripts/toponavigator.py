@@ -160,12 +160,12 @@ class Toponavigator(object):
     #     # self.robot.afference = afference
     #     # self.robot.distance = afference_dist
     #
-    #     return {
-    #         'mode': 'euclidean',
-    #         'afference': afference,
-    #         'ip_posit': ip_pos_debug,
-    #         'dist': afference_dist
-    #     }
+    #     # return {
+    #     #     'mode': 'euclidean',
+    #     #     'afference': afference,
+    #     #     'ip_posit': ip_pos_debug,
+    #     #     'dist': afference_dist
+    #     # }
 
     def movebase_afference(self, amcl_pose):
         while not rospy.has_param(self.yaml['interest_points']):
@@ -174,7 +174,7 @@ class Toponavigator(object):
     
         afference_dist = float('inf')
         afference = None
-
+        # ip_pos_debug = None
         for ip in ipoints:
             ip_pose = self.get_ip_posestamp(ip)
             
@@ -187,6 +187,7 @@ class Toponavigator(object):
                 if path_length <= afference_dist:
                     afference_dist = path_length
                     afference = ip['name']
+                    # ip_pos_debug = Point(ip['pose']['position']['x'], ip['pose']['position']['y'], 0)
             except rospy.ServiceException as e:
                 print "Make_plan call failed: %s" % e
     
