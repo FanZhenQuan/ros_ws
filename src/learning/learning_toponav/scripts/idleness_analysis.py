@@ -10,6 +10,7 @@ import time
 import subprocess
 import pickle
 import tkFont
+from pprint import pprint
 
 from destination import Destination
 from prettytable import PrettyTable
@@ -94,7 +95,7 @@ class IdlenessLogger(object):
         subdir = "%s/%s/" % (self.environment, self.robots_num)
         filename = "%s-%s-%sbots.txt" % (datetime, self.environment, self.robots_num)
         
-        self.write_dumpfile(subdir, filename)
+        self.write_dumpfile(filename=filename, env=self.environment, robots=str(self.robots_num))
         
         lines = []
         pt = PrettyTable()
@@ -115,7 +116,7 @@ class IdlenessLogger(object):
             max = round(np.max(true_idls), 3)
         
             means.append(mean)
-            total_visits += d.get_visits_num()
+            total_visits += len(d.get_visits())
             
             for i in range(len(observations)):
                 idl = observations[i].idleness
@@ -147,7 +148,7 @@ class IdlenessLogger(object):
         rospy.loginfo('Destination idlenesses have been wrote to %s' % self.path)
         self.tk_root.destroy()
     
-    def write_dumpfile(self, subdir, filename):
+    def write_dumpfile(self, filename, env, robots):
         name = filename.split('.')
         name.insert(1, '_DUMP.')
         _filename = ''.join(name)
@@ -156,31 +157,27 @@ class IdlenessLogger(object):
         for d in sorted(self.dest_list, key=lambda dest: dest.name):
             dests.append(d)
         
-        f = open(self.path + "dumps/" + subdir + _filename, 'w')
+        f = open(self.path+env+"/dumps/"+robots+'/'+_filename, 'w')
         pickle.dump(dests, f)
         f.close()
 
 
 class IdlenessAnalizer(object):
-    def __init__(self, path_to_pickled=DEFAULT_PATH+"dumps/"):
-        self.maindir = path_to_pickled
-        
-    def load(self, filename):
+    def __init__(self, path_to_pickled=DEFAULT_PATH):
+        self.maindir = path_to_pickled  # TODO: needed?
+    
+    @staticmethod
+    def load(filename):
         """
         loads the serialized destinations from the path+filename provided
         :param filename: (str) name of the file
         :return: list of the deserialized destinations
         """
-        if not type(filename) == str:
-            raise Exception("Filename not of type str")
-        try:
-            return pickle.load(open(self.maindir+filename, 'rb'))
-        except IOError as e:
-            dump_suffix = "_DUMP.txt"
-            
-            if not filename.endswith(dump_suffix):
-                name = filename.split(".")
-                return pickle.load(open(self.maindir + name[0]+dump_suffix, 'rb'))
+        if not filename.endswith("_DUMP.txt"):
+            name = filename.split(".")
+            return pickle.load(open(name[0]+"_DUMP.txt", 'rb'))
+        
+        return pickle.load(open(filename, 'rb'))
 
     def plot_average_interference(self):
         # d = self.destinations[0]
@@ -202,9 +199,35 @@ class IdlenessAnalizer(object):
         plt.show()
         
 
-if __name__ == '__main__':
-    subdir = "3/"
-    filename = "05-02@11:32-office-3bots_DUMP.txt"
+def main():
     ia = IdlenessAnalizer()
-    ia.load(filename=subdir+filename)
-    ia.plot_average_interference()
+    environments = os.listdir(DEFAULT_PATH)
+    environment_averages = []
+    
+    for env in sorted(environments):
+        robots_num = os.listdir(DEFAULT_PATH + env)
+        robots_num.remove('dumps')
+        robots_averages = []
+        
+        for robot in sorted(robots_num):
+            runs = os.listdir(DEFAULT_PATH + env + '/dumps/' + robot)
+            runs_averages = []
+            
+            for run in runs:
+                dests = ia.load(DEFAULT_PATH + env + '/dumps/' + robot + '/' + run)
+                observs = []
+                
+                for d in dests:
+                    observs.extend(d.get_visits())
+                
+                runs_averages.append(np.mean([o.get_interference() for o in observs]))
+            
+            robots_averages.append({'robot_num': int(robot), 'value': np.mean(runs_averages)})
+        
+        environment_averages.append({'environment': env, 'averages': robots_averages})
+    
+    pprint(environment_averages)
+        
+
+if __name__ == '__main__':
+    main()

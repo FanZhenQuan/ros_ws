@@ -121,22 +121,30 @@ class Destination(object):
     def get_stats(self):
         return self.__stats
     
-    def get_visits_num(self):
+    def get_visits(self):
         """
-        if length of stats is 1, means that the only idleness
-        appended is the one that counts from the beginning of
-        the simulation, thus the destination hasn't been visited
-        :return: (int) number of non-null visits
+        a visit is an idleness which is not null, meaning that
+        true_idl != remaining_idl and estim_idl != 0
+        :return: (list) visits
         """
+        # if len(self.__stats) == 1:
+        #     return 0
+        # else:
+        #     count = 0
+        #     for observ in self.__stats:
+        #         if not observ.idleness.is_null():
+        #             count += 1
+        #
+        #     return count
         if len(self.__stats) == 1:
-            return 0
+            return []
         else:
-            count = 0
+            visits = []
             for observ in self.__stats:
-                if not observ.idleness.is_null():
-                    count += 1
-            
-            return count
+                if not observ.is_null():
+                    visits.append(observ)
+                    
+            return visits
         
     def reset(self):
         self.estim_idl = 0

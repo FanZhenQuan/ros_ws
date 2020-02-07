@@ -54,17 +54,17 @@
     </group>
 
     <!--robot 5-->
-    <!--<group ns="robot_5">-->
-    <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
-    <!--        <arg name="robot_name" value="robot_5" />-->
-    <!--        <arg name="color" value="'1 0 1 1'" /> &lt;!&ndash;purple&ndash;&gt;-->
-    <!--        <arg name="config_yaml" value="$(arg config_yaml)" />-->
+    <group ns="robot_5">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_5" />
+            <arg name="color" value="'1 0 1 1'" /> <!--purple-->
+            <arg name="config_yaml" value="$(arg config_yaml)" />
 
-    <!--        &lt;!&ndash;<arg name="x_pos" value="3" /><arg name="y_pos" value="2" />&ndash;&gt;-->
-    <!--        <arg name="x_pos" value="5" /><arg name="y_pos" value="-3" />-->
-    <!--        <arg name="z_pos" value="0" />-->
-    <!--    </include>-->
-    <!--</group>-->
+            <!--<arg name="x_pos" value="3" /><arg name="y_pos" value="2" />-->
+            <arg name="x_pos" value="5" /><arg name="y_pos" value="-3" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
 
     <!--robot 6-->
     <!--<group ns="robot_6">-->
