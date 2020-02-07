@@ -61,33 +61,36 @@
             <arg name="config_yaml" value="$(arg config_yaml)" />
 
             <!--<arg name="x_pos" value="3" /><arg name="y_pos" value="2" />-->
+            <arg name="x_pos" value="5" /><arg name="y_pos" value="-3" />
             <arg name="z_pos" value="0" />
         </include>
     </group>
 
-    <!--&lt;!&ndash;robot 6&ndash;&gt;-->
-    <!--<group ns="robot_6">-->
-    <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
-    <!--        <arg name="robot_name" value="robot_6" />-->
-    <!--        <arg name="color" value="'1 0.6 0 1'" /> &lt;!&ndash;orange&ndash;&gt;-->
-    <!--        <arg name="config_yaml" value="$(arg config_yaml)" />-->
+    <!--robot 6-->
+    <group ns="robot_6">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_6" />
+            <arg name="color" value="'1 0.6 0 1'" /> <!--orange-->
+            <arg name="config_yaml" value="$(arg config_yaml)" />
 
-    <!--        &lt;!&ndash;<arg name="x_pos" value="0" /><arg name="y_pos" value="4" />&ndash;&gt;-->
-    <!--        <arg name="z_pos" value="0" />-->
-    <!--    </include>-->
-    <!--</group>-->
+            <!--<arg name="x_pos" value="0" /><arg name="y_pos" value="4" />-->
+            <arg name="x_pos" value="1" /><arg name="y_pos" value="3" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
 
-    <!--&lt;!&ndash;robot 7&ndash;&gt;-->
-    <!--<group ns="robot_7">-->
-    <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
-    <!--        <arg name="robot_name" value="robot_7" />-->
-    <!--        <arg name="color" value="'0 0.8 1 1'" /> &lt;!&ndash;cyan&ndash;&gt;-->
-    <!--        <arg name="config_yaml" value="$(arg config_yaml)" />-->
+    <!--robot 7-->
+    <group ns="robot_7">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_7" />
+            <arg name="color" value="'0 0.8 1 1'" /> <!--cyan-->
+            <arg name="config_yaml" value="$(arg config_yaml)" />
 
-    <!--        &lt;!&ndash;<arg name="x_pos" value="-5" /><arg name="y_pos" value="0" />&ndash;&gt;-->
-    <!--        <arg name="z_pos" value="0" />-->
-    <!--    </include>-->
-    <!--</group>-->
+            <!--<arg name="x_pos" value="-5" /><arg name="y_pos" value="0" />-->
+            <arg name="x_pos" value="-1" /><arg name="y_pos" value="3" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
 
 
     <!--&lt;!&ndash;robot 8&ndash;&gt;-->
