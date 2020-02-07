@@ -59,6 +59,9 @@ class Observation(object):
         interf = self.idleness.get_remaining() - self.idleness.get_estimated()
         
         return interf / self.path_len
+    
+    def is_null(self):
+        return self.idleness.is_null()
 
 
 class Destination(object):

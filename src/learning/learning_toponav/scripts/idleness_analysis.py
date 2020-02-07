@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import tkinter as tk
@@ -90,7 +91,7 @@ class IdlenessLogger(object):
         # file = open(self.path+filename, 'w')
         # file.writelines(lines)
         datetime = time.strftime("%d-%m@%H:%M", time.localtime())
-        subdir = "%s/" % self.robots_num
+        subdir = "%s/%s/" % (self.environment, self.robots_num)
         filename = "%s-%s-%sbots.txt" % (datetime, self.environment, self.robots_num)
         
         self.write_dumpfile(subdir, filename)
@@ -161,19 +162,27 @@ class IdlenessLogger(object):
 
 
 class IdlenessAnalizer(object):
-    def __init__(self, filename, path_to_pickled=DEFAULT_PATH+"dumps/"):
+    def __init__(self, path_to_pickled=DEFAULT_PATH+"dumps/"):
+        self.maindir = path_to_pickled
+        
+    def load(self, filename):
+        """
+        loads the serialized destinations from the path+filename provided
+        :param filename: (str) name of the file
+        :return: list of the deserialized destinations
+        """
         if not type(filename) == str:
             raise Exception("Filename not of type str")
         try:
-            self.destinations = pickle.load(open(path_to_pickled+filename, 'rb'))
+            return pickle.load(open(self.maindir+filename, 'rb'))
         except IOError as e:
             dump_suffix = "_DUMP.txt"
             
             if not filename.endswith(dump_suffix):
                 name = filename.split(".")
-                self.destinations = pickle.load(open(path_to_pickled + name[0]+dump_suffix, 'rb'))
+                return pickle.load(open(self.maindir + name[0]+dump_suffix, 'rb'))
 
-    def plot_interference_index(self):
+    def plot_average_interference(self):
         # d = self.destinations[0]
         idls = []
         
@@ -196,5 +205,6 @@ class IdlenessAnalizer(object):
 if __name__ == '__main__':
     subdir = "3/"
     filename = "05-02@11:32-office-3bots_DUMP.txt"
-    ia = IdlenessAnalizer(filename=subdir+filename)
-    ia.plot_interference_index()
+    ia = IdlenessAnalizer()
+    ia.load(filename=subdir+filename)
+    ia.plot_average_interference()
