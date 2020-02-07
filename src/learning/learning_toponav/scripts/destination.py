@@ -40,6 +40,25 @@ class Idleness(object):
     
     def __repr__(self):
         return "T: %s, R: %s, E: %s" % (self.__true_idl, self.__remaining_idl, self.__estim_idl)
+    
+
+class Observation(object):
+    def __init__(self, idleness, path_len):
+        if not isinstance(idleness, Idleness):
+            raise TypeError("Observation could not be created: %s not of type Idleness" % idleness)
+        if not isinstance(path_len, float):
+            try:
+                float(path_len)
+            except:
+                raise TypeError("Observation could not be created: %s not of type float" % path_len)
+        
+        self.idleness = idleness
+        self.path_len = path_len
+        
+    def get_interference(self):
+        interf = self.idleness.get_remaining() - self.idleness.get_estimated()
+        
+        return interf / self.path_len
 
 
 class Destination(object):
@@ -51,6 +70,8 @@ class Destination(object):
         self.__remaining_idl = rospy.Time.now()
         self.__stats = []  # stores every idleness registered
         self.__available = available
+        
+        self.path_len = 0.0  # path len from robot pos to this dest
         
     @property
     def available(self):
@@ -84,10 +105,13 @@ class Destination(object):
         
         if true_idl >= 0:
             self.__stats.append(
-                Idleness(
-                    true=true_idl,
-                    estim=self.estim_idl,
-                    remaining=(rospy.Time.now() - self.__remaining_idl).to_sec()
+                Observation(
+                    Idleness(
+                        true=true_idl,
+                        estim=self.estim_idl,
+                        remaining=(rospy.Time.now() - self.__remaining_idl).to_sec()
+                    ),
+                    self.path_len
                 )
             )
         
@@ -105,14 +129,15 @@ class Destination(object):
             return 0
         else:
             count = 0
-            for idl in self.__stats:
-                if not idl.is_null():
+            for observ in self.__stats:
+                if not observ.idleness.is_null():
                     count += 1
             
             return count
         
     def reset(self):
         self.estim_idl = 0
+        self.path_len = 0.0
         self.__latest_usage = rospy.Time.now()
         self.__remaining_idl = rospy.Time.now()
         

@@ -229,7 +229,9 @@ class Planner(object):
                     
                     source = self._get_node_by_name(robot.afference)
                     dest = self.choose_destination(robot.ns, source)
-                    dest.estim_idl = self.estimate_idleness(robot.ns, source, dest)
+                    estim_idl, path_len = self.estimate_idleness(robot.ns, source, dest)
+                    dest.estim_idl = estim_idl
+                    dest.path_len = float(path_len)
                     
                     path = self.find_path(source=source.name, dest=dest.name)
                     topopath = self.build_topopath(path)
@@ -297,7 +299,7 @@ class Planner(object):
     
             estimate = round(path_length / self.yaml['robot_max_speed'], 2)
             
-            return estimate
+            return estimate, round(path_length, 3)
         except rospy.ServiceException as e:
             print "Make_plan call failed: %s" % e
         

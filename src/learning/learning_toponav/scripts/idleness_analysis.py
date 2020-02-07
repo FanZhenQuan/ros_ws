@@ -97,19 +97,15 @@ class IdlenessLogger(object):
         
         lines = []
         pt = PrettyTable()
-        pt.field_names = ['Dest name', 'true', 'remaining', 'estimated', 'mean', 'max', 'min']
+        pt.field_names = ['Dest name', 'true', 'remaining', 'estimated', 'path_len', 'mean', 'max', 'min']
         
         total_visits = 0
         means = []
         for d in sorted(self.dest_list, key=lambda dest: dest.name):
-            # if len(d.get_stats()) == 0:
-            #     d.force_shutdown()
-            #     idlenesses = d.get_stats()
-            # else:
             d.force_shutdown()
-            idlenesses = d.get_stats()
-            idlenesses = d.get_stats()
-            true_idls = [i.get_true() for i in idlenesses]
+            
+            observations = d.get_stats()
+            true_idls = [o.idleness.get_true() for o in observations]
             
             # try:
             # if len(idlenesses) > 0:
@@ -120,16 +116,17 @@ class IdlenessLogger(object):
             means.append(mean)
             total_visits += d.get_visits_num()
             
-            for i in range(len(idlenesses)):
+            for i in range(len(observations)):
+                idl = observations[i].idleness
                 if i == 0:
                     pt.add_row([
-                        d.name, idlenesses[i].get_true(),
-                        idlenesses[i].get_remaining(), idlenesses[i].get_estimated(), mean, max, min
+                        d.name, idl.get_true(),
+                        idl.get_remaining(), idl.get_estimated(), observations[i].path_len, mean, max, min
                     ])
                 else:
                     pt.add_row([
-                        '', idlenesses[i].get_true(),
-                        idlenesses[i].get_remaining(), idlenesses[i].get_estimated(), '', '', ''
+                        '', idl.get_true(),
+                        idl.get_remaining(), idl.get_estimated(),observations[i].path_len, '', '', ''
                     ])
             # else:
             #     rospy.logerr("%s idlenesses empty" % d.name)
