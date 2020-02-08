@@ -55,42 +55,6 @@ class IdlenessLogger(object):
         self.tk_root.mainloop()
     
     def write_statfile(self):
-        # datetime = time.strftime("%d-%m@%H:%M", time.localtime())
-        # filename = "%s-%s-%sbots.txt" % (datetime, self.environment, self.robots_num)
-        #
-        # lines = []
-        # statistics = {}
-        # total_visits = 0
-        # for d in self.dest_list:
-        #     d.force_shutdown()
-        #
-        #     idlenesses = d.get_stats()
-        #     total_visits += len(idlenesses)
-        #
-        #     idlenesses_str = [i.get_estimate_index(_type=str) for i in idlenesses]
-        #     line = d.name + ': ' + ', '.join(idlenesses_str) + '\n'
-        #     lines.append(line)
-        #
-        #     prolongued_idl = [i.get_true() for i in idlenesses]
-        #     statistics[d.name] = {
-        #         'mean': round(np.mean(prolongued_idl), 3),
-        #         'max': np.max(prolongued_idl),
-        #         'min': np.min(prolongued_idl)
-        #     }
-        #
-        # means = [d['mean'] for d in statistics.values()]
-        # average_idl = round(np.mean(means), 3)
-        # variance_average_idl = round(np.var(means), 3)
-        #
-        # separator = "-----------\n"
-        # lines = sorted(lines)
-        # lines.append(separator + json.dumps(statistics, indent=2) + '\n')
-        # lines.append(separator + "Average idleness: %s\n" % average_idl)
-        # lines.append(separator + "Variance idleness: %s\n" % variance_average_idl)
-        # lines.append(separator + "Total visits: %s\n" % total_visits)
-        #
-        # file = open(self.path+filename, 'w')
-        # file.writelines(lines)
         datetime = time.strftime("%d-%m@%H:%M", time.localtime())
         subdir = "%s/%s/" % (self.environment, self.robots_num)
         filename = "%s-%s-%sbots.txt" % (datetime, self.environment, self.robots_num)
@@ -163,8 +127,8 @@ class IdlenessLogger(object):
 
 
 class IdlenessAnalizer(object):
-    def __init__(self, path_to_pickled=DEFAULT_PATH):
-        self.maindir = path_to_pickled  # TODO: needed?
+    def __init__(self, maindir=DEFAULT_PATH):
+        self.maindir = maindir
     
     @staticmethod
     def load(filename):
@@ -178,55 +142,53 @@ class IdlenessAnalizer(object):
             return pickle.load(open(name[0]+"_DUMP.txt", 'rb'))
         
         return pickle.load(open(filename, 'rb'))
+    
+    def interferences(self):
+        environments = os.listdir(self.maindir)
+        environment_averages = []
+    
+        for env in sorted(environments):
+            robots_num = os.listdir(self.maindir + env)
+            robots_num.remove('dumps')
+            robots_averages = []
+        
+            for robot in sorted(robots_num):
+                runs = os.listdir(self.maindir + env + '/dumps/' + robot)
+                runs_averages = []
+            
+                for run in runs:
+                    dests = self.load(self.maindir + env + '/dumps/' + robot + '/' + run)
+                    observs = []
+                
+                    for d in dests:
+                        if d.get_visits():  # != []
+                            observs.extend(d.get_visits())
+                
+                    if observs:  # != []
+                        runs_averages.append(np.mean([o.get_interference() for o in observs]))
+            
+                if runs_averages:  # != []
+                    runs_mean = round(np.mean(runs_averages), 4)
+                    robots_averages.append({'robot_num': int(robot), 'value': runs_mean})
+        
+            if robots_averages:  # != []
+                environment_averages.append({'environment': env, 'interferences': robots_averages})
+    
+        return environment_averages
 
-    def plot_average_interference(self):
-        # d = self.destinations[0]
-        idls = []
-        
-        for d in self.destinations:
-            for i in d.get_stats():
-                if not i.is_null():
-                    idls.append(i)
-        
-        rems = [i.get_remaining() for i in idls]
-        ests = [i.get_estimated() for i in idls]
-
-        plt.plot(rems, ests, 'ro')
-        plt.axis([0, 60, 0, 60])
-        plt.xlabel("Remaining idleness")
-        plt.ylabel("Estimated idleness")
-        
-        plt.show()
+    # def plot_average_interference(self):
+        # plt.plot(x, y, 'ro')
+        # plt.axis([0, 60, 0, 60])
+        # plt.xlabel("Remaining idleness")
+        # plt.ylabel("Estimated idleness")
+        #
+        # plt.show()
         
 
 def main():
     ia = IdlenessAnalizer()
-    environments = os.listdir(DEFAULT_PATH)
-    environment_averages = []
-    
-    for env in sorted(environments):
-        robots_num = os.listdir(DEFAULT_PATH + env)
-        robots_num.remove('dumps')
-        robots_averages = []
-        
-        for robot in sorted(robots_num):
-            runs = os.listdir(DEFAULT_PATH + env + '/dumps/' + robot)
-            runs_averages = []
-            
-            for run in runs:
-                dests = ia.load(DEFAULT_PATH + env + '/dumps/' + robot + '/' + run)
-                observs = []
-                
-                for d in dests:
-                    observs.extend(d.get_visits())
-                
-                runs_averages.append(np.mean([o.get_interference() for o in observs]))
-            
-            robots_averages.append({'robot_num': int(robot), 'value': np.mean(runs_averages)})
-        
-        environment_averages.append({'environment': env, 'averages': robots_averages})
-    
-    pprint(environment_averages)
+    environmental_interferences = ia.interferences()
+    pprint(environmental_interferences)
         
 
 if __name__ == '__main__':

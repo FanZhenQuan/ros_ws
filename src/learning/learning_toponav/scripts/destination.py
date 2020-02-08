@@ -25,6 +25,9 @@ class Idleness(object):
         """
         return self.__remaining_idl == self.__true_idl and self.__estim_idl == 0
     
+    def is_first(self):
+        return self.__true_idl >= 60.00
+    
     def get_estimate_index(self, _type=float):
         """
         :param _type: type of return value
@@ -62,6 +65,12 @@ class Observation(object):
     
     def is_null(self):
         return self.idleness.is_null()
+    
+    def is_first(self):
+        return self.idleness.is_first()
+    
+    def __repr__(self):
+        return "(%s), %s" % (self.idleness.__repr__(), self.path_len)
 
 
 class Destination(object):
@@ -136,15 +145,12 @@ class Destination(object):
         #             count += 1
         #
         #     return count
-        if len(self.__stats) == 1:
-            return []
-        else:
-            visits = []
-            for observ in self.__stats:
-                if not observ.is_null():
-                    visits.append(observ)
-                    
-            return visits
+        visits = []
+        for observ in self.__stats:
+            if not observ.is_null() and not observ.is_first():
+                visits.append(observ)
+                
+        return visits
         
     def reset(self):
         self.estim_idl = 0
