@@ -168,23 +168,28 @@ class IdlenessAnalizer(object):
                     if observs:  # != []
                         observs_num += len(observs)
                         runs_averages.append(np.mean([o.get_interference() for o in observs]))
+                    # else:
+                    #     print "No observs for %s" % env + '/dumps/' + robot + '/' + run
             
                 if runs_averages:  # != []
                     runs_mean = round(np.mean(runs_averages), 4)
                     robots_averages.append({'robot_num': int(robot), 'value': runs_mean, 'observs': observs_num})
         
-            if robots_averages:  # != []
-                environment_averages.append({'environment': env, 'interferences': robots_averages})
+            environment_averages.append({'environment': env, 'interferences': robots_averages})
     
         return environment_averages
 
-    # def plot_average_interference(self):
-        # plt.plot(x, y, 'ro')
-        # plt.axis([0, 60, 0, 60])
-        # plt.xlabel("Remaining idleness")
-        # plt.ylabel("Estimated idleness")
-        #
-        # plt.show()
+    @staticmethod
+    def plot_interference(robot_range, env_averages):
+        plt.plot(robot_range, [e['value'] for e in env_averages[0]['interferences']], 'ro', label="condo_floor")
+        plt.plot(robot_range, [e['value'] for e in env_averages[1]['interferences']], 'b^', label="house")
+        plt.plot(robot_range, [e['value'] for e in env_averages[2]['interferences']], 'gP', label="office")
+        # plt.axis([0, 1, 0, 1])
+        plt.legend()
+        plt.xlabel("Robot number", fontsize="xx-large")
+        plt.ylabel("Interference", fontsize="xx-large")
+
+        plt.show()
 
  
 def debug():
@@ -195,7 +200,11 @@ def debug():
 
 
 if __name__ == '__main__':
+    robot_range = [3, 4, 5, 6]
+    
     ia = IdlenessAnalizer()
     environmental_interferences = ia.interferences()
-    pprint(environmental_interferences)
+    # pprint(environmental_interferences)
+    ia.plot_interference(robot_range, environmental_interferences)
+    
     # debug()
