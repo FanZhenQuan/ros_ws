@@ -10,6 +10,7 @@
 
             <!--<arg name="x_pos" value="4" /><arg name="y_pos" value="4" />-->
             <arg name="x_pos" value="-3" /><arg name="y_pos" value="1" />
+            <!--<arg name="x_pos" value="-1" /><arg name="y_pos" value="3" />-->
             <arg name="z_pos" value="0" />
         </include>
     </group>
@@ -22,7 +23,8 @@
             <arg name="config_yaml" value="$(arg config_yaml)" />
 
             <!--<arg name="x_pos" value="-2" /><arg name="y_pos" value="4" />-->
-            <arg name="x_pos" value="-6" /><arg name="y_pos" value="2" />
+            <arg name="x_pos" value="-6" /><arg name="y_pos" value="3" />
+            <!--<arg name="x_pos" value="1" /><arg name="y_pos" value="3" />-->
             <arg name="z_pos" value="0" />
         </include>
     </group>
@@ -36,48 +38,52 @@
 
             <!--<arg name="x_pos" value="-2" /><arg name="y_pos" value="-1" />-->
             <arg name="x_pos" value="4" /><arg name="y_pos" value="1" />
+            <!--<arg name="x_pos" value="6" /><arg name="y_pos" value="3" />-->
             <arg name="z_pos" value="0" />
         </include>
     </group>
 
     <!--robot 4-->
-    <!--<group ns="robot_4">-->
-    <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
-    <!--        <arg name="robot_name" value="robot_4" />-->
-    <!--        <arg name="color" value="'0 1 0 1'" /> &lt;!&ndash;green&ndash;&gt;-->
-    <!--        <arg name="config_yaml" value="$(arg config_yaml)" />-->
+    <group ns="robot_4">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_4" />
+            <arg name="color" value="'0 1 0 1'" /> <!--green-->
+            <arg name="config_yaml" value="$(arg config_yaml)" />
 
-    <!--        &lt;!&ndash;<arg name="x_pos" value="3" /><arg name="y_pos" value="-1" />&ndash;&gt;-->
-    <!--        <arg name="x_pos" value="-6" /><arg name="y_pos" value="-1" />-->
-    <!--        <arg name="z_pos" value="0" />-->
-    <!--    </include>-->
-    <!--</group>-->
+            <!--<arg name="x_pos" value="3" /><arg name="y_pos" value="-1" />-->
+            <arg name="x_pos" value="-6" /><arg name="y_pos" value="-1" />
+            <!--<arg name="x_pos" value="4" /><arg name="y_pos" value="-3" />-->
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
 
     <!--robot 5-->
-    <!--<group ns="robot_5">-->
-    <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
-    <!--        <arg name="robot_name" value="robot_5" />-->
-    <!--        <arg name="color" value="'1 0 1 1'" /> &lt;!&ndash;purple&ndash;&gt;-->
-    <!--        <arg name="config_yaml" value="$(arg config_yaml)" />-->
+    <group ns="robot_5">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_5" />
+            <arg name="color" value="'1 0 1 1'" /> <!--purple-->
+            <arg name="config_yaml" value="$(arg config_yaml)" />
 
-    <!--        &lt;!&ndash;<arg name="x_pos" value="3" /><arg name="y_pos" value="2" />&ndash;&gt;-->
-    <!--        <arg name="x_pos" value="5" /><arg name="y_pos" value="-3" />-->
-    <!--        <arg name="z_pos" value="0" />-->
-    <!--    </include>-->
-    <!--</group>-->
+            <!--<arg name="x_pos" value="3" /><arg name="y_pos" value="2" />-->
+            <arg name="x_pos" value="5" /><arg name="y_pos" value="-3" />
+            <!--<arg name="x_pos" value="0" /><arg name="y_pos" value="-3" />-->
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
 
     <!--robot 6-->
-    <!--<group ns="robot_6">-->
-    <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
-    <!--        <arg name="robot_name" value="robot_6" />-->
-    <!--        <arg name="color" value="'1 0.6 0 1'" /> &lt;!&ndash;orange&ndash;&gt;-->
-    <!--        <arg name="config_yaml" value="$(arg config_yaml)" />-->
+    <group ns="robot_6">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_6" />
+            <arg name="color" value="'1 0.6 0 1'" /> <!--orange-->
+            <arg name="config_yaml" value="$(arg config_yaml)" />
 
-    <!--        <arg name="x_pos" value="0" /><arg name="y_pos" value="4" />-->
-    <!--        &lt;!&ndash;<arg name="x_pos" value="1" /><arg name="y_pos" value="3" />&ndash;&gt;-->
-    <!--        <arg name="z_pos" value="0" />-->
-    <!--    </include>-->
-    <!--</group>-->
+            <!--<arg name="x_pos" value="0" /><arg name="y_pos" value="4" />-->
+            <arg name="x_pos" value="1" /><arg name="y_pos" value="3" />
+            <!--<arg name="x_pos" value="-3" /><arg name="y_pos" value="-3" />-->
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
 
     <!--robot 7-->
     <!--<group ns="robot_7">-->
@@ -86,14 +92,15 @@
     <!--        <arg name="color" value="'0 0.8 1 1'" /> &lt;!&ndash;cyan&ndash;&gt;-->
     <!--        <arg name="config_yaml" value="$(arg config_yaml)" />-->
 
-    <!--        <arg name="x_pos" value="-5" /><arg name="y_pos" value="0" />-->
+    <!--        &lt;!&ndash;<arg name="x_pos" value="-5" /><arg name="y_pos" value="0" />&ndash;&gt;-->
     <!--        &lt;!&ndash;<arg name="x_pos" value="-1" /><arg name="y_pos" value="3" />&ndash;&gt;-->
+    <!--        <arg name="x_pos" value="-7" /><arg name="y_pos" value="-2" />-->
     <!--        <arg name="z_pos" value="0" />-->
     <!--    </include>-->
     <!--</group>-->
 
 
-    <!--&lt;!&ndash;robot 8&ndash;&gt;-->
+    <!--robot 8-->
     <!--<group ns="robot_8">-->
     <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
     <!--        <arg name="robot_name" value="robot_8" />-->
@@ -101,6 +108,8 @@
     <!--        <arg name="config_yaml" value="$(arg config_yaml)" />-->
 
     <!--        &lt;!&ndash;<arg name="x_pos" value="7" /><arg name="y_pos" value="-1" />&ndash;&gt;-->
+    <!--        &lt;!&ndash;<arg name="x_pos" value="-3" /><arg name="y_pos" value="1" />&ndash;&gt; &lt;!&ndash;CHANGE ! &ndash;&gt;-->
+    <!--        <arg name="x_pos" value="5" /><arg name="y_pos" value="0" />-->
     <!--        <arg name="z_pos" value="0" />-->
     <!--    </include>-->
     <!--</group>-->
