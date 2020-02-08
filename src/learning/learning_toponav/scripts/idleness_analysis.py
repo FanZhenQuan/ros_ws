@@ -155,6 +155,7 @@ class IdlenessAnalizer(object):
             for robot in sorted(robots_num):
                 runs = os.listdir(self.maindir + env + '/dumps/' + robot)
                 runs_averages = []
+                observs_num = 0
             
                 for run in runs:
                     dests = self.load(self.maindir + env + '/dumps/' + robot + '/' + run)
@@ -165,11 +166,12 @@ class IdlenessAnalizer(object):
                             observs.extend(d.get_visits())
                 
                     if observs:  # != []
+                        observs_num += len(observs)
                         runs_averages.append(np.mean([o.get_interference() for o in observs]))
             
                 if runs_averages:  # != []
                     runs_mean = round(np.mean(runs_averages), 4)
-                    robots_averages.append({'robot_num': int(robot), 'value': runs_mean})
+                    robots_averages.append({'robot_num': int(robot), 'value': runs_mean, 'observs': observs_num})
         
             if robots_averages:  # != []
                 environment_averages.append({'environment': env, 'interferences': robots_averages})
@@ -183,13 +185,17 @@ class IdlenessAnalizer(object):
         # plt.ylabel("Estimated idleness")
         #
         # plt.show()
-        
 
-def main():
+ 
+def debug():
+    ia = IdlenessAnalizer()
+    path = DEFAULT_PATH+"house/dumps/4/08-02@16:55-house-4bots_DUMP.txt"
+    dests = ia.load(path)
+    pprint([d.get_visits() for d in dests])
+
+
+if __name__ == '__main__':
     ia = IdlenessAnalizer()
     environmental_interferences = ia.interferences()
     pprint(environmental_interferences)
-        
-
-if __name__ == '__main__':
-    main()
+    # debug()
