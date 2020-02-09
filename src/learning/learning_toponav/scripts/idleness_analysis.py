@@ -150,10 +150,6 @@ class IdlenessAnalizer(object):
         for env in sorted(environments):
             robots_num = os.listdir(self.maindir + env)
             robots_num.remove('dumps')
-            try:  # TODO: remove later
-                robots_num.remove('bkp')
-            except ValueError:
-                pass
             robots_averages = []
         
             for robot in sorted(robots_num):
