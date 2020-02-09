@@ -1,6 +1,12 @@
 <launch>
     <arg name="config_yaml" />
 
+    <!--
+    FIRST POS: office
+    SECOND: house
+    THIRD: condo_floor
+    -->
+
     <!--robot 1-->
     <group ns="robot_1">
         <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
