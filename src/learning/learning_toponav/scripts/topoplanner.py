@@ -228,6 +228,9 @@ class Planner(object):
                     self.temp_busy.append(robot)
                     
                     source = self._get_node_by_name(robot.afference)
+                    
+                    while not self.has_destination(source):
+                        rospy.sleep(0.1)
                     dest = self.choose_destination(robot.ns, source)
                     estim_idl, path_len = self.estimate_idleness(robot.ns, source, dest)
                     dest.estim_idl = estim_idl
@@ -241,6 +244,17 @@ class Planner(object):
                     self.temp_busy.remove(robot)
         except rospy.ROSInterruptException:
             pass
+        
+    def has_destination(self, src):
+        for d in self.destinations:
+            if (
+                d.available and
+                d.name != src.name and
+                d not in self.occupied_dests
+            ):
+                return True
+        
+        return False
 
     def choose_destination(self, robot_ns, src):
         """
@@ -261,10 +275,11 @@ class Planner(object):
                 selected.append(d)
                 curr_idl = d.get_true_idleness()
         
-        dest = random.choice(selected)
-        self.occupied_dests.append(dest)
-        
-        return dest
+        if selected:
+            dest = random.choice(selected)
+            self.occupied_dests.append(dest)
+            
+            return dest
     
     def estimate_idleness(self, robot_ns, source, dest):
         make_plan_topic = robot_ns + self.yaml['make_plan']
