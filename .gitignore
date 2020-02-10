@@ -8,6 +8,7 @@ mongo/
 msg_gen/
 srv_gen/
 .idea/
+.directory
 src/learning/**/*.md
 
 **/*.cmake
