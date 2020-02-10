@@ -1,3 +1,0 @@
-geometry_msgs/Point mvbs_afference
-geometry_msgs/Point eucl_afference
-geometry_msgs/Point robot_posit

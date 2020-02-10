@@ -1,7 +1,0 @@
-WayPoint1, WayPoint6, WayPoint2
-WayPoint2, WayPoint1, WayPoint3, WayPoint5, WayPoint4
-WayPoint3, WayPoint2, WayPoint4
-WayPoint4, WayPoint3, WayPoint2
-WayPoint5, WayPoint2
-WayPoint6, WayPoint1, WayPoint7
-WayPoint7, WayPoint6
