@@ -107,16 +107,16 @@
 
 
     <!--robot 8-->
-    <!--<group ns="robot_8">-->
-    <!--    <include file="$(find learning_toponav)/launch/includes/one_robot.launch">-->
-    <!--        <arg name="robot_name" value="robot_8" />-->
-    <!--        <arg name="color" value="'1 0 0.5 1'" /> &lt;!&ndash;pink&ndash;&gt;-->
-    <!--        <arg name="config_yaml" value="$(arg config_yaml)" />-->
+    <group ns="robot_8">
+        <include file="$(find learning_toponav)/launch/includes/one_robot.launch">
+            <arg name="robot_name" value="robot_8" />
+            <arg name="color" value="'1 0 0.5 1'" /> <!--pink-->
+            <arg name="config_yaml" value="$(arg config_yaml)" />
 
-    <!--        &lt;!&ndash;<arg name="x_pos" value="7" /><arg name="y_pos" value="-1" />&ndash;&gt;-->
-    <!--        &lt;!&ndash;<arg name="x_pos" value="-3" /><arg name="y_pos" value="1" />&ndash;&gt; &lt;!&ndash;CHANGE ! &ndash;&gt;-->
-    <!--        <arg name="x_pos" value="5" /><arg name="y_pos" value="0" />-->
-    <!--        <arg name="z_pos" value="0" />-->
-    <!--    </include>-->
-    <!--</group>-->
+            <!--<arg name="x_pos" value="7" /><arg name="y_pos" value="-1" />-->
+            <!--<arg name="x_pos" value="5" /><arg name="y_pos" value="3" />-->
+            <arg name="x_pos" value="5" /><arg name="y_pos" value="0" />
+            <arg name="z_pos" value="0" />
+        </include>
+    </group>
 </launch>

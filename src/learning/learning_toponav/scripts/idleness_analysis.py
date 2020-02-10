@@ -200,7 +200,7 @@ def debug():
 
 
 if __name__ == '__main__':
-    robot_range = [3, 4, 5, 6]
+    robot_range = [3, 4, 5, 6, 7, 8]
     
     ia = IdlenessAnalizer()
     environmental_interferences = ia.interferences()
